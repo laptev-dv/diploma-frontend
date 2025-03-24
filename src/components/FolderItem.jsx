@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Divider } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 function FolderItem({ folder }) {
   return (
@@ -13,9 +13,6 @@ function FolderItem({ folder }) {
       <Typography variant="h6" sx={{ mt: 1 }}>
         {folder.name}
       </Typography>
-
-      {/* Разделитель */}
-      <Divider sx={{ mt: 2, mb: 2 }} />
     </Box>
   );
 }

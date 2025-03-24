@@ -54,7 +54,7 @@ function SettingsPage() {
           >
             <Box>
               <Typography variant="subtitle1">Имя пользователя</Typography>
-              <Typography variant="body1">{user.username}</Typography>
+              <Typography variant="body2">{user.username}</Typography>
             </Box>
             <Button
               variant="outlined"
@@ -77,7 +77,7 @@ function SettingsPage() {
           >
             <Box>
               <Typography variant="subtitle1">Пароль пользователя</Typography>
-              <Typography variant="body1">{user.password}</Typography>
+              <Typography variant="body2">{user.password}</Typography>
             </Box>
             <Button
               variant="outlined"

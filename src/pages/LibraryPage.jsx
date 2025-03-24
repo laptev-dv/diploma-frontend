@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Tabs, Tab, Button, TextField, Paper, List } from '@mui/material';
+import { Box, Typography, Tabs, Tab, Button, TextField, Paper, List, Divider } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ExperimentItem from '../components/ExperimentItem';
 import FolderItem from '../components/FolderItem';
@@ -119,15 +119,22 @@ function LibraryPage() {
           activeTab === 0 ? (
             // Список экспериментов
             <List>
-              {experiments.map((experiment) => (
-                <ExperimentItem key={experiment.id} experiment={experiment} />
+              {experiments.map((experiment, index) => (
+                <div key={experiment.id}>
+                  <ExperimentItem experiment={experiment} />
+                  {index != experiments.length-1 && (<Divider sx={{ mt: 2, mb: 2 }} />)}
+                </div>
               ))}
             </List>
           ) : (
             // Список папок
             <List>
-              {folders.map((folder) => (
-                <FolderItem key={folder.id} folder={folder} />
+              {folders.map((folder, index) => (
+                <div key={folder.id}>
+                  <FolderItem folder={folder} />
+                  {index != experiments.length-1 && (<Divider sx={{ mt: 2, mb: 2 }} />)}
+                </div>
+
               ))}
             </List>
           )

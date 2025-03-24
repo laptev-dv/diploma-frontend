@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Divider } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
 function ExperimentItem({ experiment }) {
   return (
@@ -18,9 +18,6 @@ function ExperimentItem({ experiment }) {
       <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
         Автор: {experiment.author} | Дата создания: {experiment.createdAt}
       </Typography>
-
-      {/* Разделитель */}
-      <Divider sx={{ mt: 2, mb: 2 }} />
     </Box>
   );
 }
