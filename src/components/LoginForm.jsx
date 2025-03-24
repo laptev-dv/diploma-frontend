@@ -58,7 +58,7 @@ function LoginForm() {
           Войти
         </Button>
         <Box sx={{ mt: 2, textAlign: 'center' }}>
-          <Link component={RouterLink} to="/register">
+          <Link component={RouterLink} to="/auth/register">
             Зарегистрироваться
           </Link>
         </Box>

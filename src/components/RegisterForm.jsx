@@ -50,7 +50,7 @@ function RegisterForm() {
           Зарегистрироваться
         </Button>
         <Box sx={{ mt: 2, textAlign: 'center' }}>
-            <Link component={RouterLink} to="/login">
+            <Link component={RouterLink} to="/auth/login">
                 Уже есть аккаунт? Войдите
             </Link>
         </Box>
