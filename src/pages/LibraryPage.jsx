@@ -1,13 +1,13 @@
-import React, { useState, useRef } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Tabs, 
-  Tab, 
-  Button, 
-  TextField, 
-  Paper, 
-  List, 
+import React, { useState, useRef } from "react";
+import {
+  Box,
+  Typography,
+  Tabs,
+  Tab,
+  Button,
+  TextField,
+  Paper,
+  List,
   Divider,
   Menu,
   MenuItem,
@@ -18,12 +18,13 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import { useNavigate } from 'react-router-dom';
-import ExperimentItem from '../components/ExperimentItem';
-import FolderItem from '../components/FolderItem';
+  DialogActions,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { useNavigate, Link } from "react-router-dom";
+import ExperimentItem from "../components/ExperimentItem";
+import FolderItem from "../components/FolderItem";
+import CreateFolderDialog from "../components/CreateFolderDialog";
 
 function LibraryPage() {
   const navigate = useNavigate();
@@ -31,34 +32,34 @@ function LibraryPage() {
   const [activeTab, setActiveTab] = useState(0);
 
   // Состояние для поиска
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Состояние для временного скрытия элементов
   const [isItemsHidden, setIsItemsHidden] = useState(false);
 
   // Состояние для сортировки
-  const [sortBy, setSortBy] = useState('date');
+  const [sortBy, setSortBy] = useState("date");
 
   // Состояние для меню "Добавить"
   const [anchorEl, setAnchorEl] = useState(null);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
-  const [newFolderName, setNewFolderName] = useState('');
+  const [newFolderName, setNewFolderName] = useState("");
 
   // Пример данных экспериментов
   const [experiments, setExperiments] = useState([
     {
       id: 1,
-      name: 'Эксперимент 1',
-      author: 'Иван Иванов',
+      name: "Эксперимент 1",
+      author: "Иван Иванов",
       resultsCount: 10,
-      createdAt: '01.01.2025',
+      createdAt: "01.01.2025",
     },
     {
       id: 2,
-      name: 'Эксперимент 2',
-      author: 'Петр Петров',
+      name: "Эксперимент 2",
+      author: "Петр Петров",
       resultsCount: 5,
-      createdAt: '01.01.2025',
+      createdAt: "01.01.2025",
     },
   ]);
 
@@ -66,15 +67,15 @@ function LibraryPage() {
   const [folders, setFolders] = useState([
     {
       id: 1,
-      name: 'Папка 1',
+      name: "Папка 1",
       itemsCount: 2,
-      createdAt: '01.01.2025',
+      createdAt: "01.01.2025",
     },
     {
       id: 2,
-      name: 'Папка 2',
+      name: "Папка 2",
       itemsCount: 3,
-      createdAt: '01.01.2025',
+      createdAt: "01.01.2025",
     },
   ]);
 
@@ -109,17 +110,17 @@ function LibraryPage() {
       };
       setFolders([...folders, newFolder]);
       setFolderDialogOpen(false);
-      setNewFolderName('');
+      setNewFolderName("");
     }
   };
 
   // Обработчик выбора в меню "Добавить"
   const handleAddItem = (type) => {
     handleAddClose();
-    if (type === 'папку') {
+    if (type === "папку") {
       setFolderDialogOpen(true);
-    } else if (type === 'эксперимент') {
-      navigate('/experiment/create');
+    } else if (type === "эксперимент") {
+      navigate("/experiment/create");
     }
   };
 
@@ -147,20 +148,31 @@ function LibraryPage() {
       </Typography>
 
       {/* Вкладки и кнопка "Добавить" */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
         <Tabs value={activeTab} onChange={handleTabChange}>
           <Tab label="Эксперименты" />
           <Tab label="Папки" />
         </Tabs>
 
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button variant="outlined" color='warning' onClick={handleToggleItems}>
-            {isItemsHidden ? 'Вернуть элементы' : 'Скрыть элементы'}
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button
+            variant="outlined"
+            color="warning"
+            onClick={handleToggleItems}
+          >
+            {isItemsHidden ? "Вернуть элементы" : "Скрыть элементы"}
           </Button>
 
-          <Button 
-            variant="contained" 
-            startIcon={<AddIcon />} 
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
             onClick={handleAddClick}
           >
             Добавить
@@ -172,39 +184,33 @@ function LibraryPage() {
             open={Boolean(anchorEl)}
             onClose={handleAddClose}
           >
-            <MenuItem onClick={() => handleAddItem('эксперимент')}>Создать эксперимент</MenuItem>
-            <MenuItem onClick={() => handleAddItem('папку')}>Создать папку</MenuItem>
+            <MenuItem onClick={() => handleAddItem("эксперимент")}>
+              Создать эксперимент
+            </MenuItem>
+            <MenuItem onClick={() => handleAddItem("папку")}>
+              Создать папку
+            </MenuItem>
           </Menu>
         </Box>
       </Box>
 
-      {/* Диалог создания папки */}
-      <Dialog open={folderDialogOpen} onClose={() => setFolderDialogOpen(false)}>
-        <DialogTitle>Создать новую папку</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Введите название для новой папки. Папка поможет вам организовать ваши эксперименты.
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Название папки"
-            type="text"
-            fullWidth
-            variant="standard"
-            value={newFolderName}
-            onChange={(e) => setNewFolderName(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setFolderDialogOpen(false)}>Отмена</Button>
-          <Button onClick={handleCreateFolder} disabled={!newFolderName.trim()}>Создать</Button>
-        </DialogActions>
-      </Dialog>
+      <CreateFolderDialog
+        open={folderDialogOpen}
+        onClose={() => setFolderDialogOpen(false)}
+        onCreate={(name) => {
+          const newFolder = {
+            id: folders.length + 1,
+            name,
+            itemsCount: 0,
+            createdAt: new Date().toLocaleDateString(),
+          };
+          setFolders([...folders, newFolder]);
+        }}
+      />
 
       {/* Поле сортировки и поисковая строка (отображаются только если есть элементы) */}
       {hasItems && (
-        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+        <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
           <FormControl sx={{ minWidth: 200 }}>
             <InputLabel>Сортировать по</InputLabel>
             <Select
@@ -216,7 +222,7 @@ function LibraryPage() {
               <MenuItem value="name">Названию</MenuItem>
             </Select>
           </FormControl>
-          
+
           <TextField
             fullWidth
             variant="outlined"
@@ -235,8 +241,15 @@ function LibraryPage() {
             <List>
               {experiments.map((experiment, index) => (
                 <div key={experiment.id}>
-                  <ExperimentItem experiment={experiment} />
-                  {index !== experiments.length-1 && (<Divider sx={{ mt: 2, mb: 2 }} />)}
+                  <Link
+                    to={`/experiment/${experiment.id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <ExperimentItem experiment={experiment} />
+                  </Link>
+                  {index !== experiments.length - 1 && (
+                    <Divider sx={{ mt: 2, mb: 2 }} />
+                  )}
                 </div>
               ))}
             </List>
@@ -245,8 +258,15 @@ function LibraryPage() {
             <List>
               {folders.map((folder, index) => (
                 <div key={folder.id}>
-                  <FolderItem folder={folder} />
-                  {index !== folders.length-1 && (<Divider sx={{ mt: 2, mb: 2 }} />)}
+                  <Link
+                    to={`/folder/${folder.id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <FolderItem folder={folder} />
+                  </Link>
+                  {index !== folders.length - 1 && (
+                    <Divider sx={{ mt: 2, mb: 2 }} />
+                  )}
                 </div>
               ))}
             </List>
