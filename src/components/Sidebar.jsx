@@ -10,6 +10,7 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import SettingsIcon from '@mui/icons-material/Settings';
+import InfoIcon from '@mui/icons-material/Info';
 
 const drawerWidth = 240;
 
@@ -54,6 +55,21 @@ function Sidebar() {
               <SettingsIcon />
             </ListItemIcon>
             <ListItemText primary="Настройки" />
+          </ListItem>
+        </Link>
+
+        {/* Ссылка на страницу дополнительной информации */}
+        <Link 
+          component={RouterLink} 
+          to="/additional-info"
+          color="inherit"
+          underline="none"
+        >
+          <ListItem button>
+            <ListItemIcon>
+              <InfoIcon />
+            </ListItemIcon>
+            <ListItemText primary="Доп. информация" />
           </ListItem>
         </Link>
       </List>

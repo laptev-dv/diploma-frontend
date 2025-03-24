@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -20,10 +20,9 @@ import {
   TableBody,
   TableCell,
   TableRow,
-  Tooltip,
   Chip,
-  Stack
-} from '@mui/material';
+  Stack,
+} from "@mui/material";
 import {
   Edit as EditIcon,
   MoreVert as MoreVertIcon,
@@ -31,43 +30,48 @@ import {
   Delete as DeleteIcon,
   FileDownload as FileDownloadIcon,
   ArrowForward as ArrowForwardIcon,
-  Fullscreen as FullscreenIcon
-} from '@mui/icons-material';
-import { useNavigate, useParams } from 'react-router-dom';
-import SessionItem from '../components/SessionItem';
+  Fullscreen as FullscreenIcon,
+} from "@mui/icons-material";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import SessionItem from "../components/SessionItem";
 
 function ExperimentPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   // Состояния для меню и диалогов
   const [anchorEl, setAnchorEl] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
-  
+
   // Данные эксперимента (заглушка)
   const [experiment, setExperiment] = useState({
     id: id,
-    name: 'Эксперимент 1',
-    author: 'Иван Иванов',
-    createdAt: '01.01.2025',
+    name: "Эксперимент 1",
+    author: "Иван Иванов",
+    createdAt: "01.01.2025",
     parameters: {
-      backgroundColor: '#FFFFFF',
-      symbolColor: '#000000',
-      symbolType: '№',
-      symbolFont: 'Arial',
+      backgroundColor: "#FFFFFF",
+      symbolColor: "#000000",
+      symbolType: "A",
+      symbolFont: "Arial",
       symbolSize: 24,
       symbolSpacing: 10,
       stimulusTime: 0.5,
       responseTime: 2,
-      pauseTime: 1
+      pauseTime: 1,
     },
-    sessions: []
+    sessions: [],
   });
 
   // Состояние для редактирования
   const [editedName, setEditedName] = useState(experiment.name);
+
+  // Обработчик открытия PDF инструкции
+  const handleOpenInstructions = () => {
+    window.open("/instructions.pdf", "_blank");
+  };
 
   // Обработчики меню
   const handleMenuOpen = (event) => {
@@ -95,9 +99,10 @@ function ExperimentPage() {
   };
 
   // Фильтрация сессий по вкладке
-  const filteredSessions = activeHistoryTab === 0 
-    ? experiment.sessions 
-    : experiment.sessions.filter(session => session.isMine);
+  const filteredSessions =
+    activeHistoryTab === 0
+      ? experiment.sessions
+      : experiment.sessions.filter((session) => session.isMine);
 
   // Обработчик начала эксперимента
   const handleStartExperiment = () => {
@@ -106,14 +111,14 @@ function ExperimentPage() {
 
   // Обработчик сохранения изменений
   const handleSaveChanges = () => {
-    setExperiment({...experiment, name: editedName});
+    setExperiment({ ...experiment, name: editedName });
     setEditDialogOpen(false);
   };
 
   // Обработчик удаления эксперимента
   const handleDeleteExperiment = () => {
     // Здесь должна быть логика удаления
-    navigate('/library');
+    navigate("/library");
   };
 
   // Обработчик просмотра всех сессий
@@ -123,29 +128,72 @@ function ExperimentPage() {
 
   // Обработчик изменения данных (для демонстрации)
   const handleChangeData = () => {
-    const newSessionsCount = experiment.sessions.length === 0 ? 2 
-                            : experiment.sessions.length === 2 ? 5 
-                            : 0;
-    const newSessions = Array(newSessionsCount).fill().map((_, i) => ({
-      id: i + 1,
-      author: `Автор ${i + 1}`,
-      date: `0${i + 1}.01.2025 10:00`,
-      duration: `${10 + i} мин`,
-      isMine: i % 2 === 0
-    }));
-    setExperiment({...experiment, sessions: newSessions});
+    const newSessionsCount =
+      experiment.sessions.length === 0
+        ? 2
+        : experiment.sessions.length === 2
+        ? 5
+        : 0;
+    const newSessions = Array(newSessionsCount)
+      .fill()
+      .map((_, i) => ({
+        id: i + 1,
+        author: `Автор ${i + 1}`,
+        date: `0${i + 1}.01.2025 10:00`,
+        duration: `${10 + i} мин`,
+        isMine: i % 2 === 0,
+      }));
+    setExperiment({ ...experiment, sessions: newSessions });
+  };
+
+  // Генерация сетки 4x4 символов для превью
+  const renderSymbolGrid = () => {
+    const symbol = experiment.parameters.symbolType;
+    return (
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: `${experiment.parameters.symbolSpacing}px`,
+          width: "100%",
+          height: "100%",
+          placeItems: "center",
+        }}
+      >
+        {Array(16).fill(symbol).map((char, index) => (
+          <Typography
+            key={index}
+            sx={{
+              color: experiment.parameters.symbolColor,
+              fontFamily: experiment.parameters.symbolFont,
+              fontSize: `${experiment.parameters.symbolSize}px`,
+              lineHeight: 1,
+            }}
+          >
+            {char}
+          </Typography>
+        ))}
+      </Box>
+    );
   };
 
   return (
     <Box sx={{ p: 3 }}>
       {/* Заголовок и кнопки управления */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center" }}>
           <Typography variant="h4" sx={{ mr: 2 }}>
             {experiment.name}
           </Typography>
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             color="warning"
             startIcon={<EditIcon />}
             onClick={handleChangeData}
@@ -153,11 +201,11 @@ function ExperimentPage() {
             Изменить данные
           </Button>
         </Box>
-        
+
         <IconButton onClick={handleMenuOpen}>
           <MoreVertIcon />
         </IconButton>
-        
+
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
@@ -178,18 +226,19 @@ function ExperimentPage() {
       </Typography>
 
       {/* Кнопки начала эксперимента и информации */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
-        <Button 
-          variant="contained" 
+      <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
+        <Button
+          variant="contained"
           size="large"
           onClick={handleStartExperiment}
           sx={{ px: 4 }}
         >
           Начать эксперимент
         </Button>
-        <Button
-          variant="outlined"
+        <Button 
+          variant="outlined" 
           startIcon={<InfoIcon />}
+          onClick={handleOpenInstructions}
         >
           Инструкция
         </Button>
@@ -202,23 +251,34 @@ function ExperimentPage() {
       <Paper elevation={3} sx={{ p: 2, mb: 4 }}>
         {experiment.sessions.length > 0 ? (
           <>
-            <Tabs value={activeHistoryTab} onChange={handleHistoryTabChange} sx={{ mb: 2 }}>
+            <Tabs
+              value={activeHistoryTab}
+              onChange={handleHistoryTabChange}
+              sx={{ mb: 2 }}
+            >
               <Tab label="Все" />
               <Tab label="Мои" />
             </Tabs>
-            
+
             <List>
               {filteredSessions.slice(0, 3).map((session, index) => (
-                <SessionItem 
-                  key={session.id} 
-                  session={session} 
-                  showDivider={index !== filteredSessions.length - 1 && index !== 2}
-                />
+                <Link
+                  key={session.id}
+                  to={`/session/${session.id}`}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <SessionItem
+                    session={session}
+                    showDivider={
+                      index !== filteredSessions.length - 1 && index !== 2
+                    }
+                  />
+                </Link>
               ))}
-              
+
               {filteredSessions.length > 3 && (
-                <Button 
-                  fullWidth 
+                <Button
+                  fullWidth
                   endIcon={<ArrowForwardIcon />}
                   sx={{ mt: 1 }}
                   onClick={handleViewAllSessions}
@@ -239,7 +299,7 @@ function ExperimentPage() {
       <Typography variant="h6" gutterBottom>
         Параметры
       </Typography>
-      <Box sx={{ display: 'flex', gap: 3 }}>
+      <Box sx={{ display: "flex", gap: 3 }}>
         <Paper elevation={3} sx={{ p: 2, flex: 1 }}>
           <Table>
             <TableBody>
@@ -247,13 +307,13 @@ function ExperimentPage() {
                 <TableCell>Цвет фона</TableCell>
                 <TableCell>
                   <Stack direction="row" alignItems="center" spacing={1}>
-                    <Chip 
-                      sx={{ 
+                    <Chip
+                      sx={{
                         backgroundColor: experiment.parameters.backgroundColor,
                         width: 24,
                         height: 24,
-                        border: '1px solid #ccc'
-                      }} 
+                        border: "1px solid #ccc",
+                      }}
                     />
                     <span>{experiment.parameters.backgroundColor}</span>
                   </Stack>
@@ -263,13 +323,13 @@ function ExperimentPage() {
                 <TableCell>Цвет символа</TableCell>
                 <TableCell>
                   <Stack direction="row" alignItems="center" spacing={1}>
-                    <Chip 
-                      sx={{ 
+                    <Chip
+                      sx={{
                         backgroundColor: experiment.parameters.symbolColor,
                         width: 24,
                         height: 24,
-                        border: '1px solid #ccc'
-                      }} 
+                        border: "1px solid #ccc",
+                      }}
                     />
                     <span>{experiment.parameters.symbolColor}</span>
                   </Stack>
@@ -289,7 +349,9 @@ function ExperimentPage() {
               </TableRow>
               <TableRow>
                 <TableCell>Расстояние между символами</TableCell>
-                <TableCell>{experiment.parameters.symbolSpacing} пикс</TableCell>
+                <TableCell>
+                  {experiment.parameters.symbolSpacing} пикс
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>Время предъявления стимула</TableCell>
@@ -308,35 +370,27 @@ function ExperimentPage() {
         </Paper>
 
         {/* Превью эксперимента */}
-        <Paper elevation={3} sx={{ p: 2, width: 300 }}>
-          <Box 
-            sx={{ 
-              height: 200,
+        <Paper elevation={3} sx={{ p: 2, width: "50%", display: "flex", flexDirection: "column" }}>
+          <Box
+            sx={{
+              flex: 1,
               backgroundColor: experiment.parameters.backgroundColor,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
               mb: 2,
-              position: 'relative'
+              position: "relative",
+              minHeight: "300px",
             }}
           >
-            <Typography 
-              variant="h3" 
-              sx={{ 
-                color: experiment.parameters.symbolColor,
-                fontFamily: experiment.parameters.symbolFont,
-                letterSpacing: `${experiment.parameters.symbolSpacing}px`
-              }}
-            >
-              {experiment.parameters.symbolType}
-            </Typography>
+            {renderSymbolGrid()}
           </Box>
           <Button 
             fullWidth 
-            variant="outlined" 
             startIcon={<FullscreenIcon />}
+            sx={{ mt: "auto" }}
           >
-            Показать в полном режиме
+            Полный экран
           </Button>
         </Paper>
       </Box>
@@ -357,20 +411,35 @@ function ExperimentPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditDialogOpen(false)}>Отмена</Button>
-          <Button onClick={handleSaveChanges} variant="contained">Сохранить</Button>
+          <Button onClick={handleSaveChanges} variant="contained">
+            Сохранить
+          </Button>
         </DialogActions>
       </Dialog>
 
       {/* Диалог удаления */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
         <DialogTitle>Удалить эксперимент?</DialogTitle>
         <DialogContent>
-          <Typography>Вы уверены, что хотите удалить эксперимент "{experiment.name}"?</Typography>
-          <Typography color="error" sx={{ mt: 2 }}>Это действие нельзя отменить.</Typography>
+          <Typography>
+            Вы уверены, что хотите удалить эксперимент "{experiment.name}"?
+          </Typography>
+          <Typography color="error" sx={{ mt: 2 }}>
+            Это действие нельзя отменить.
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteDialogOpen(false)}>Отмена</Button>
-          <Button onClick={handleDeleteExperiment} color="error" variant="contained">Удалить</Button>
+          <Button
+            onClick={handleDeleteExperiment}
+            color="error"
+            variant="contained"
+          >
+            Удалить
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

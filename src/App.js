@@ -10,6 +10,8 @@ import CreateExperimentPage from './pages/CreateExperimentPage';
 import FolderPage from './pages/FolderPage';
 import ExperimentPage from './pages/ExperimentPage';
 import ExperimentSessionsPage from './pages/ExperimentSessionsPage';
+import SessionDetailPage from './pages/SessionDetailPage';
+import AdditionalInfoPage from './pages/AdditionalInfoPage';
 
 function App() {
   return (
@@ -21,7 +23,8 @@ function App() {
           <Route index element={<LibraryPage />} />
           <Route path="library" element={<LibraryPage />} />
           <Route path="settings" element={<SettingsPage />} />
-          
+          <Route path="additional-info" element={<AdditionalInfoPage />} />
+
           {/* Работа с экспериментами */}
           <Route path="experiment">
             <Route path="create" element={<CreateExperimentPage />} />
@@ -32,6 +35,8 @@ function App() {
           
           {/* Работа с папками */}
           <Route path="folder/:id" element={<FolderPage />} />
+
+          <Route path="session/:id" element={<SessionDetailPage />} />
         </Route>
 
         {/* Авторизация (без основного layout) */}
