@@ -9,6 +9,7 @@ import MainLayout from './layouts/MainLayout';
 import CreateExperimentPage from './pages/CreateExperimentPage';
 import FolderPage from './pages/FolderPage';
 import ExperimentPage from './pages/ExperimentPage';
+import ExperimentSessionsPage from './pages/ExperimentSessionsPage';
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
           <Route path="experiment">
             <Route path="create" element={<CreateExperimentPage />} />
             <Route path=":id" element={<ExperimentPage />} />
+            <Route path=":id/sessions" element={<ExperimentSessionsPage />} />
+            <Route path=":id/run" element={<div>Страница проведения эксперимента</div>} />
           </Route>
           
           {/* Работа с папками */}

@@ -186,11 +186,9 @@ function FolderPage() {
             ))}
           </List>
         ) : (
-          !isItemsHidden && (
-            <Typography variant="body1" align="center" sx={{ p: 3 }}>
-              Элементы отсутствуют
-            </Typography>
-          )
+          <Typography variant="body1" align="center" sx={{ p: 3 }}>
+            Элементы отсутствуют
+          </Typography>
         )}
       </Paper>
     </Box>
