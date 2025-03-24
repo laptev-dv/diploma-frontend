@@ -1,6 +1,13 @@
 import React from 'react';
-import { Drawer, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { 
+  Drawer, 
+  List, 
+  ListItem, 
+  ListItemIcon, 
+  ListItemText,
+  Link
+} from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import SettingsIcon from '@mui/icons-material/Settings';
 
@@ -21,20 +28,34 @@ function Sidebar() {
     >
       <List>
         {/* Ссылка на страницу библиотеки */}
-        <ListItem button component={Link} to="/library">
-          <ListItemIcon>
-            <LibraryBooksIcon />
-          </ListItemIcon>
-          <ListItemText primary="Библиотека" />
-        </ListItem>
+        <Link 
+          component={RouterLink} 
+          to="/library"
+          color="inherit"
+          underline="none"
+        >
+          <ListItem button>
+            <ListItemIcon>
+              <LibraryBooksIcon />
+            </ListItemIcon>
+            <ListItemText primary="Библиотека" />
+          </ListItem>
+        </Link>
 
         {/* Ссылка на страницу настроек */}
-        <ListItem button component={Link} to="/settings">
-          <ListItemIcon>
-            <SettingsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Настройки" />
-        </ListItem>
+        <Link 
+          component={RouterLink} 
+          to="/settings"
+          color="inherit"
+          underline="none"
+        >
+          <ListItem button>
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Настройки" />
+          </ListItem>
+        </Link>
       </List>
     </Drawer>
   );
