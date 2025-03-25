@@ -15,6 +15,7 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  Alert
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -140,19 +141,21 @@ function ExperimentPage() {
           placeItems: "center",
         }}
       >
-        {Array(16).fill(symbol).map((char, index) => (
-          <Typography
-            key={index}
-            sx={{
-              color: experiment.parameters.symbolColor,
-              fontFamily: experiment.parameters.symbolFont,
-              fontSize: `${experiment.parameters.symbolSize}px`,
-              lineHeight: 1,
-            }}
-          >
-            {char}
-          </Typography>
-        ))}
+        {Array(16)
+          .fill(symbol)
+          .map((char, index) => (
+            <Typography
+              key={index}
+              sx={{
+                color: experiment.parameters.symbolColor,
+                fontFamily: experiment.parameters.symbolFont,
+                fontSize: `${experiment.parameters.symbolSize}px`,
+                lineHeight: 1,
+              }}
+            >
+              {char}
+            </Typography>
+          ))}
       </Box>
     );
   };
@@ -212,8 +215,8 @@ function ExperimentPage() {
         >
           Начать эксперимент
         </Button>
-        <Button 
-          variant="outlined" 
+        <Button
+          variant="outlined"
           startIcon={<InfoIcon />}
           onClick={handleOpenInstructions}
         >
@@ -274,7 +277,7 @@ function ExperimentPage() {
       <Typography variant="h6" gutterBottom>
         Параметры
       </Typography>
-      
+
       <ExperimentParameters parameters={experiment.parameters} />
 
       <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
@@ -291,10 +294,7 @@ function ExperimentPage() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)}>Отмена</Button>
-          <Button onClick={handleSaveChanges} variant="contained">
-            Сохранить
-          </Button>
+          <Button onClick={handleSaveChanges}>Сохранить</Button>
         </DialogActions>
       </Dialog>
 
@@ -307,17 +307,12 @@ function ExperimentPage() {
           <Typography>
             Вы уверены, что хотите удалить эксперимент "{experiment.name}"?
           </Typography>
-          <Typography color="error" sx={{ mt: 2 }}>
+          <Alert severity="warning" sx={{ mt: 2 }}>
             Это действие нельзя отменить.
-          </Typography>
+          </Alert>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Отмена</Button>
-          <Button
-            onClick={handleDeleteExperiment}
-            color="error"
-            variant="contained"
-          >
+          <Button onClick={handleDeleteExperiment} color="error">
             Удалить
           </Button>
         </DialogActions>

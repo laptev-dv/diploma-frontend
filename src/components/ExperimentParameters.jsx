@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -14,19 +14,182 @@ import {
   ToggleButtonGroup,
   Select,
   MenuItem,
+  Dialog,
+  DialogContent,
+  IconButton,
 } from "@mui/material";
-import { Fullscreen as FullscreenIcon } from "@mui/icons-material";
+import { Fullscreen as FullscreenIcon, Close as CloseIcon } from "@mui/icons-material";
 import TimeParameters from '../components/TimeParameters';
 
-const timeParametersColors = {
-  stimulus: "#4CAF50",
-  response: "#2196F3",
-  pause: "#FF9800",
+// Компонент предпросмотра стимула
+const StimulusPreview = ({ parameters, containerStyle = {} }) => {
+  const { 
+    symbolType, 
+    symbolColor, 
+    symbolFont, 
+    symbolSize,
+    rows,
+    columns,
+    horizontalPadding,
+    verticalPadding,
+    backgroundColor
+  } = parameters;
+
+  // Нормализация параметров
+  const safeRows = Math.max(1, Math.min(rows || 4, 10));
+  const safeColumns = Math.max(1, Math.min(columns || 4, 10));
+  const safeSymbolSize = Math.max(8, Math.min(symbolSize || 24, 72));
+  const hPadding = Math.max(0, Math.min(horizontalPadding || 5, 50));
+  const vPadding = Math.max(0, Math.min(verticalPadding || 5, 50));
+
+  return (
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        backgroundColor: backgroundColor,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+        ...containerStyle
+      }}
+    >
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${safeColumns}, 1fr)`,
+          gridTemplateRows: `repeat(${safeRows}, 1fr)`,
+          gap: `${vPadding}px ${hPadding}px`,
+          width: '100%',
+          height: '100%',
+          aspectRatio: `${safeColumns} / ${safeRows}`,
+          placeItems: "center",
+          overflow: 'hidden',
+        }}
+      >
+        {Array(safeRows * safeColumns)
+          .fill(symbolType || "A")
+          .map((char, index) => (
+            <Typography
+              key={index}
+              sx={{
+                color: symbolColor,
+                fontFamily: symbolFont,
+                fontSize: `${safeSymbolSize}px`,
+                lineHeight: 1,
+                minWidth: 0,
+                minHeight: 0,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              {char}
+            </Typography>
+          ))}
+      </Box>
+    </Box>
+  );
+};
+
+// Компонент полноэкранного просмотра
+const FullscreenPreview = ({ open, onClose, parameters }) => {
+  return (
+    <Dialog
+      fullScreen
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        sx: {
+          backgroundColor: parameters.backgroundColor,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }
+      }}
+    >
+      <IconButton
+        onClick={onClose}
+        sx={{
+          position: 'fixed',
+          top: 16,
+          right: 16,
+          color: 'common.white',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          '&:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          },
+          zIndex: 1
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      
+      <DialogContent
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          height: '100%',
+          p: 0,
+          overflow: 'hidden'
+        }}
+      >
+        <Box
+          sx={{
+            width: '90vw',
+            height: '90vh',
+            maxWidth: '100%',
+            maxHeight: '100%'
+          }}
+        >
+          <StimulusPreview 
+            parameters={parameters}
+            containerStyle={{
+              width: '100%',
+              height: '100%'
+            }}
+          />
+        </Box>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// Конфигурация параметров для разных задач
+const tasksConfig = {
+  1: { // Задача 2×2
+    rows: 2,
+    columns: 2,
+    symbolSize: 32,
+    horizontalPadding: 15,
+    verticalPadding: 15
+  },
+  2: { // Задача 3×3
+    rows: 3,
+    columns: 3,
+    symbolSize: 28,
+    horizontalPadding: 12,
+    verticalPadding: 12
+  },
+  3: { // Задача 4×4
+    rows: 4,
+    columns: 4,
+    symbolSize: 24,
+    horizontalPadding: 10,
+    verticalPadding: 10
+  }
 };
 
 function ExperimentParameters({ parameters }) {
   const [mode, setMode] = useState("adaptive");
   const [selectedTask, setSelectedTask] = useState(1);
+  const [taskParameters, setTaskParameters] = useState({
+    ...parameters,
+    ...tasksConfig[1]
+  });
+  const [fullscreenOpen, setFullscreenOpen] = useState(false);
 
   const tasks = [
     { id: 1, name: "Задача №1 2×2" },
@@ -34,38 +197,13 @@ function ExperimentParameters({ parameters }) {
     { id: 3, name: "Задача №3 4×4" },
   ];
 
-  const renderSymbolGrid = () => {
-    const symbol = parameters.symbolType;
-    return (
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: `repeat(${parameters.columns || 4}, 1fr)`,
-          gridTemplateRows: `repeat(${parameters.rows || 4}, 1fr)`,
-          gap: `${parameters.symbolSpacing}px`,
-          width: "100%",
-          aspectRatio: 1/1,
-          placeItems: "center",
-        }}
-      >
-        {Array((parameters.rows || 4) * (parameters.columns || 4))
-          .fill(symbol)
-          .map((char, index) => (
-            <Typography
-              key={index}
-              sx={{
-                color: parameters.symbolColor,
-                fontFamily: parameters.symbolFont,
-                fontSize: `${parameters.symbolSize}px`,
-                lineHeight: 1,
-              }}
-            >
-              {char}
-            </Typography>
-          ))}
-      </Box>
-    );
-  };
+  useEffect(() => {
+    setTaskParameters(prev => ({
+      ...prev,
+      ...parameters,
+      ...tasksConfig[selectedTask]
+    }));
+  }, [selectedTask, parameters]);
 
   const handleModeChange = (event, newMode) => {
     if (newMode !== null) {
@@ -77,9 +215,50 @@ function ExperimentParameters({ parameters }) {
     setSelectedTask(event.target.value);
   };
 
+  const handleFullscreenOpen = () => {
+    setFullscreenOpen(true);
+  };
+
+  const handleFullscreenClose = () => {
+    setFullscreenOpen(false);
+  };
+
+  const renderTableRow = (label, value, isLast = false) => (
+    <TableRow sx={{ '&:last-child td': { borderBottom: isLast ? 0 : undefined } }}>
+      <TableCell>{label}</TableCell>
+      <TableCell>{value}</TableCell>
+    </TableRow>
+  );
+
+  const renderColorRow = (label, color, isLast = false) => (
+    <TableRow sx={{ '&:last-child td': { borderBottom: isLast ? 0 : undefined } }}>
+      <TableCell>{label}</TableCell>
+      <TableCell>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Chip
+            sx={{
+              backgroundColor: color,
+              width: 24,
+              height: 24,
+              border: "1px solid #ccc",
+            }}
+          />
+          <span>{color}</span>
+        </Stack>
+      </TableCell>
+    </TableRow>
+  );
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {/* Блок серии и режима работы - теперь вверху */}
+      {/* Диалог полноэкранного просмотра */}
+      <FullscreenPreview
+        open={fullscreenOpen}
+        onClose={handleFullscreenClose}
+        parameters={taskParameters}
+      />
+
+      {/* Блок серии и режима работы */}
       <Paper elevation={3}>
         <Box sx={{ p: 2 }}>
           <Box
@@ -106,12 +285,7 @@ function ExperimentParameters({ parameters }) {
           </Box>
           <Table>
             <TableBody>
-              <TableRow>
-                <TableCell>Режим</TableCell>
-                <TableCell>
-                  {mode === "adaptive" ? "Адаптивный" : "Жесткий"}
-                </TableCell>
-              </TableRow>
+              {renderTableRow("Режим", mode === "adaptive" ? "Адаптивный" : "Жесткий")}
               <TableRow>
                 <TableCell>Задача</TableCell>
                 <TableCell>
@@ -129,47 +303,36 @@ function ExperimentParameters({ parameters }) {
                   </Select>
                 </TableCell>
               </TableRow>
-              <TableRow>
-                <TableCell>Количество задач</TableCell>
-                <TableCell>
-                  {mode === "adaptive"
-                    ? parameters.taskCountAdaptive || 10
-                    : parameters.taskCountStrict || 10}
-                </TableCell>
-              </TableRow>
+              {renderTableRow("Количество задач", tasks.length)}
               {mode === "adaptive" && (
                 <>
-                  <TableRow>
-                    <TableCell>Номер начальной задачи</TableCell>
-                    <TableCell>{parameters.initialTask || 1}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Количество предъявлений в задаче</TableCell>
-                    <TableCell>
-                      {parameters.presentationsPerTask || 20}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Время на серию (с)</TableCell>
-                    <TableCell>{parameters.seriesTime || 30}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Нижняя граница эффективности</TableCell>
-                    <TableCell>{parameters.efficiencyMin || 0.5}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Верхняя граница эффективности</TableCell>
-                    <TableCell>{parameters.efficiencyMax || 0.8}</TableCell>
-                  </TableRow>
+                  {renderTableRow(
+                    "Номер начальной задачи",
+                    taskParameters.initialTask || 1
+                  )}
+                  {renderTableRow(
+                    "Количество предъявлений в задаче",
+                    taskParameters.presentationsPerTask || 20
+                  )}
+                  {renderTableRow(
+                    "Время на серию (с)",
+                    taskParameters.seriesTime || 30
+                  )}
+                  {renderTableRow(
+                    "Нижняя граница эффективности",
+                    taskParameters.efficiencyMin || 0.5
+                  )}
+                  {renderTableRow(
+                    "Верхняя граница эффективности",
+                    taskParameters.efficiencyMax || 0.8,
+                    true
+                  )}
                 </>
               )}
-              {mode === "strict" && (
-                <TableRow>
-                  <TableCell>Количество предъявлений в задаче</TableCell>
-                  <TableCell>
-                    {parameters.presentationsPerTaskStrict || 20}
-                  </TableCell>
-                </TableRow>
+              {mode === "strict" && renderTableRow(
+                "Количество предъявлений в задаче",
+                taskParameters.presentationsPerTaskStrict || 20,
+                true
               )}
             </TableBody>
           </Table>
@@ -188,30 +351,13 @@ function ExperimentParameters({ parameters }) {
               </Typography>
               <Table>
                 <TableBody>
-                  <TableRow>
-                    <TableCell>Количество строк</TableCell>
-                    <TableCell>{parameters.rows || 4}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Количество столбцов</TableCell>
-                    <TableCell>{parameters.columns || 4}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Цвет фона</TableCell>
-                    <TableCell>
-                      <Stack direction="row" alignItems="center" spacing={1}>
-                        <Chip
-                          sx={{
-                            backgroundColor: parameters.backgroundColor,
-                            width: 24,
-                            height: 24,
-                            border: "1px solid #ccc",
-                          }}
-                        />
-                        <span>{parameters.backgroundColor}</span>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
+                  {renderTableRow("Количество строк", taskParameters.rows)}
+                  {renderTableRow("Количество столбцов", taskParameters.columns)}
+                  {renderColorRow(
+                    "Цвет фона",
+                    taskParameters.backgroundColor,
+                    true
+                  )}
                 </TableBody>
               </Table>
             </Box>
@@ -225,54 +371,30 @@ function ExperimentParameters({ parameters }) {
               </Typography>
               <Table>
                 <TableBody>
-                  <TableRow>
-                    <TableCell>Вид символа</TableCell>
-                    <TableCell>{parameters.symbolType}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Шрифт символа</TableCell>
-                    <TableCell>{parameters.symbolFont}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Размер символа</TableCell>
-                    <TableCell>{parameters.symbolSize} пикс</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Ширина символа</TableCell>
-                    <TableCell>{parameters.symbolWidth || 24} пикс</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Высота символа</TableCell>
-                    <TableCell>{parameters.symbolHeight || 24} пикс</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Горизонтальный отступ</TableCell>
-                    <TableCell>
-                      {parameters.horizontalPadding || 5} пикс
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Вертикальный отступ</TableCell>
-                    <TableCell>
-                      {parameters.verticalPadding || 5} пикс
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Цвет символа</TableCell>
-                    <TableCell>
-                      <Stack direction="row" alignItems="center" spacing={1}>
-                        <Chip
-                          sx={{
-                            backgroundColor: parameters.symbolColor,
-                            width: 24,
-                            height: 24,
-                            border: "1px solid #ccc",
-                          }}
-                        />
-                        <span>{parameters.symbolColor}</span>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
+                  {renderTableRow("Вид символа", taskParameters.symbolType)}
+                  {renderTableRow("Шрифт символа", taskParameters.symbolFont)}
+                  {renderTableRow("Размер символа", `${taskParameters.symbolSize} пикс`)}
+                  {renderTableRow(
+                    "Ширина символа",
+                    `${taskParameters.symbolWidth || 24} пикс`
+                  )}
+                  {renderTableRow(
+                    "Высота символа",
+                    `${taskParameters.symbolHeight || 24} пикс`
+                  )}
+                  {renderTableRow(
+                    "Горизонтальный отступ",
+                    `${taskParameters.horizontalPadding || 5} пикс`
+                  )}
+                  {renderTableRow(
+                    "Вертикальный отступ",
+                    `${taskParameters.verticalPadding || 5} пикс`
+                  )}
+                  {renderColorRow(
+                    "Цвет символа",
+                    taskParameters.symbolColor,
+                    true
+                  )}
                 </TableBody>
               </Table>
             </Box>
@@ -302,34 +424,39 @@ function ExperimentParameters({ parameters }) {
               <Typography variant="subtitle1" gutterBottom>
                 Предпросмотр стимула
               </Typography>
-              <Button startIcon={<FullscreenIcon />} size="small">
+              <Button 
+                startIcon={<FullscreenIcon />} 
+                size="small"
+                onClick={handleFullscreenOpen}
+              >
                 Полный экран
               </Button>
             </Box>
-            <Box
-              sx={{
-                flex: 1,
-                backgroundColor: parameters.backgroundColor,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: "4px",
-                aspectRatio: "1/1",
-                width: "100%",
-              }}
-            >
-              {renderSymbolGrid()}
+            <Box sx={{ 
+              flex: 1,
+              position: 'relative',
+              overflow: 'hidden',
+              backgroundColor: taskParameters.backgroundColor,
+              borderRadius: '4px'
+            }}>
+              <StimulusPreview 
+                parameters={taskParameters}
+                containerStyle={{
+                  width: '100%',
+                  height: '100%'
+                }}
+              />
             </Box>
           </Paper>
         </Box>
       </Box>
 
-      {/* Временные параметры - теперь внизу */}
+      {/* Временные параметры */}
       <TimeParameters
         parameters={{
-          stimulusTime: parameters.stimulusTime,
-          responseTime: parameters.responseTime,
-          pauseTime: parameters.pauseTime,
+          stimulusTime: taskParameters.stimulusTime,
+          responseTime: taskParameters.responseTime,
+          pauseTime: taskParameters.pauseTime,
         }}
       />
     </Box>

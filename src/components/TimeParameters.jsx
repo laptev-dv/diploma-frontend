@@ -183,7 +183,7 @@ function TimeParameters({ parameters }) {
     );
   };
 
-  const renderTableRow = (label, value, color = null, hoverKey = null) => {
+  const renderTableRow = (label, value, color = null, hoverKey = null, isLast = false) => {
     return (
       <TableRow
         onMouseEnter={() => hoverKey && setHoveredItem(hoverKey)}
@@ -193,6 +193,7 @@ function TimeParameters({ parameters }) {
             backgroundColor: hoverKey ? "rgba(0, 0, 0, 0.04)" : "inherit",
             cursor: hoverKey ? "pointer" : "default",
           },
+          '&:last-child td': { borderBottom: isLast ? 0 : undefined }
         }}
       >
         <TableCell>
@@ -250,7 +251,8 @@ function TimeParameters({ parameters }) {
             "Время на ответ",
             responsePeriodTime,
             null,
-            "responsePeriod"
+            "responsePeriod",
+            true
           )}
         </TableBody>
       </Table>
