@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   Button,
-  Divider,
   Paper,
   Tabs,
   Tab,
@@ -16,12 +15,6 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  Chip,
-  Stack,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -34,18 +27,17 @@ import {
 } from "@mui/icons-material";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import SessionItem from "../components/SessionItem";
+import ExperimentParameters from "../components/ExperimentParameters";
 
 function ExperimentPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Состояния для меню и диалогов
   const [anchorEl, setAnchorEl] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
 
-  // Данные эксперимента (заглушка)
   const [experiment, setExperiment] = useState({
     id: id,
     name: "Эксперимент 1",
@@ -59,21 +51,18 @@ function ExperimentPage() {
       symbolSize: 24,
       symbolSpacing: 10,
       stimulusTime: 0.5,
-      responseTime: 2,
+      responseTime: 10,
       pauseTime: 1,
     },
     sessions: [],
   });
 
-  // Состояние для редактирования
   const [editedName, setEditedName] = useState(experiment.name);
 
-  // Обработчик открытия PDF инструкции
   const handleOpenInstructions = () => {
-    window.open("/instructions.pdf", "_blank");
+    window.open("/experiment-guide.pdf", "_blank");
   };
 
-  // Обработчики меню
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -93,40 +82,32 @@ function ExperimentPage() {
     handleMenuClose();
   };
 
-  // Обработчики вкладок истории
   const handleHistoryTabChange = (event, newValue) => {
     setActiveHistoryTab(newValue);
   };
 
-  // Фильтрация сессий по вкладке
   const filteredSessions =
     activeHistoryTab === 0
       ? experiment.sessions
       : experiment.sessions.filter((session) => session.isMine);
 
-  // Обработчик начала эксперимента
   const handleStartExperiment = () => {
     navigate(`/experiment/${id}/run`);
   };
 
-  // Обработчик сохранения изменений
   const handleSaveChanges = () => {
     setExperiment({ ...experiment, name: editedName });
     setEditDialogOpen(false);
   };
 
-  // Обработчик удаления эксперимента
   const handleDeleteExperiment = () => {
-    // Здесь должна быть логика удаления
     navigate("/library");
   };
 
-  // Обработчик просмотра всех сессий
   const handleViewAllSessions = () => {
     navigate(`/experiment/${id}/sessions`);
   };
 
-  // Обработчик изменения данных (для демонстрации)
   const handleChangeData = () => {
     const newSessionsCount =
       experiment.sessions.length === 0
@@ -146,7 +127,6 @@ function ExperimentPage() {
     setExperiment({ ...experiment, sessions: newSessions });
   };
 
-  // Генерация сетки 4x4 символов для превью
   const renderSymbolGrid = () => {
     const symbol = experiment.parameters.symbolType;
     return (
@@ -179,7 +159,6 @@ function ExperimentPage() {
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* Заголовок и кнопки управления */}
       <Box
         sx={{
           display: "flex",
@@ -220,12 +199,10 @@ function ExperimentPage() {
         </Menu>
       </Box>
 
-      {/* Информация об авторе и дате */}
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 3 }}>
         Создано: {experiment.createdAt} | Автор: {experiment.author}
       </Typography>
 
-      {/* Кнопки начала эксперимента и информации */}
       <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
         <Button
           variant="contained"
@@ -244,7 +221,6 @@ function ExperimentPage() {
         </Button>
       </Box>
 
-      {/* Блок истории */}
       <Typography variant="h6" gutterBottom>
         История
       </Typography>
@@ -295,107 +271,12 @@ function ExperimentPage() {
         )}
       </Paper>
 
-      {/* Блок параметров и превью */}
       <Typography variant="h6" gutterBottom>
         Параметры
       </Typography>
-      <Box sx={{ display: "flex", gap: 3 }}>
-        <Paper elevation={3} sx={{ p: 2, flex: 1 }}>
-          <Table>
-            <TableBody>
-              <TableRow>
-                <TableCell>Цвет фона</TableCell>
-                <TableCell>
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <Chip
-                      sx={{
-                        backgroundColor: experiment.parameters.backgroundColor,
-                        width: 24,
-                        height: 24,
-                        border: "1px solid #ccc",
-                      }}
-                    />
-                    <span>{experiment.parameters.backgroundColor}</span>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Цвет символа</TableCell>
-                <TableCell>
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <Chip
-                      sx={{
-                        backgroundColor: experiment.parameters.symbolColor,
-                        width: 24,
-                        height: 24,
-                        border: "1px solid #ccc",
-                      }}
-                    />
-                    <span>{experiment.parameters.symbolColor}</span>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Вид символа</TableCell>
-                <TableCell>{experiment.parameters.symbolType}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Шрифт символа</TableCell>
-                <TableCell>{experiment.parameters.symbolFont}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Размер символа</TableCell>
-                <TableCell>{experiment.parameters.symbolSize} пикс</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Расстояние между символами</TableCell>
-                <TableCell>
-                  {experiment.parameters.symbolSpacing} пикс
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Время предъявления стимула</TableCell>
-                <TableCell>{experiment.parameters.stimulusTime} с</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Время ожидания ответа</TableCell>
-                <TableCell>{experiment.parameters.responseTime} с</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Время паузы</TableCell>
-                <TableCell>{experiment.parameters.pauseTime} с</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </Paper>
+      
+      <ExperimentParameters parameters={experiment.parameters} />
 
-        {/* Превью эксперимента */}
-        <Paper elevation={3} sx={{ p: 2, width: "50%", display: "flex", flexDirection: "column" }}>
-          <Box
-            sx={{
-              flex: 1,
-              backgroundColor: experiment.parameters.backgroundColor,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              mb: 2,
-              position: "relative",
-              minHeight: "300px",
-            }}
-          >
-            {renderSymbolGrid()}
-          </Box>
-          <Button 
-            fullWidth 
-            startIcon={<FullscreenIcon />}
-            sx={{ mt: "auto" }}
-          >
-            Полный экран
-          </Button>
-        </Paper>
-      </Box>
-
-      {/* Диалог редактирования */}
       <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
         <DialogTitle>Редактировать эксперимент</DialogTitle>
         <DialogContent>
@@ -417,7 +298,6 @@ function ExperimentPage() {
         </DialogActions>
       </Dialog>
 
-      {/* Диалог удаления */}
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
