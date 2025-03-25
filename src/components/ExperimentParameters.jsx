@@ -18,79 +18,12 @@ import {
   DialogContent,
   IconButton,
 } from "@mui/material";
-import { Fullscreen as FullscreenIcon, Close as CloseIcon } from "@mui/icons-material";
-import TimeParameters from '../components/TimeParameters';
-
-// Компонент предпросмотра стимула
-const StimulusPreview = ({ parameters, containerStyle = {} }) => {
-  const { 
-    symbolType, 
-    symbolColor, 
-    symbolFont, 
-    symbolSize,
-    rows,
-    columns,
-    horizontalPadding,
-    verticalPadding,
-    backgroundColor
-  } = parameters;
-
-  // Нормализация параметров
-  const safeRows = Math.max(1, Math.min(rows || 4, 10));
-  const safeColumns = Math.max(1, Math.min(columns || 4, 10));
-  const safeSymbolSize = Math.max(8, Math.min(symbolSize || 24, 72));
-  const hPadding = Math.max(0, Math.min(horizontalPadding || 5, 50));
-  const vPadding = Math.max(0, Math.min(verticalPadding || 5, 50));
-
-  return (
-    <Box
-      sx={{
-        width: '100%',
-        height: '100%',
-        backgroundColor: backgroundColor,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        overflow: 'hidden',
-        ...containerStyle
-      }}
-    >
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: `repeat(${safeColumns}, 1fr)`,
-          gridTemplateRows: `repeat(${safeRows}, 1fr)`,
-          gap: `${vPadding}px ${hPadding}px`,
-          width: '100%',
-          height: '100%',
-          aspectRatio: `${safeColumns} / ${safeRows}`,
-          placeItems: "center",
-          overflow: 'hidden',
-        }}
-      >
-        {Array(safeRows * safeColumns)
-          .fill(symbolType || "A")
-          .map((char, index) => (
-            <Typography
-              key={index}
-              sx={{
-                color: symbolColor,
-                fontFamily: symbolFont,
-                fontSize: `${safeSymbolSize}px`,
-                lineHeight: 1,
-                minWidth: 0,
-                minHeight: 0,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}
-            >
-              {char}
-            </Typography>
-          ))}
-      </Box>
-    </Box>
-  );
-};
+import {
+  Fullscreen as FullscreenIcon,
+  Close as CloseIcon,
+} from "@mui/icons-material";
+import TimeParameters from "../components/TimeParameters";
+import StimulusPreview from "../components/StimulusPreview";
 
 // Компонент полноэкранного просмотра
 const FullscreenPreview = ({ open, onClose, parameters }) => {
@@ -102,55 +35,47 @@ const FullscreenPreview = ({ open, onClose, parameters }) => {
       PaperProps={{
         sx: {
           backgroundColor: parameters.backgroundColor,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        },
       }}
     >
       <IconButton
         onClick={onClose}
         sx={{
-          position: 'fixed',
+          position: "fixed",
           top: 16,
           right: 16,
-          color: 'common.white',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          color: "common.white",
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          "&:hover": {
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
           },
-          zIndex: 1
+          zIndex: 1,
         }}
       >
         <CloseIcon />
       </IconButton>
-      
+
       <DialogContent
         sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: '100%',
-          height: '100%',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          height: "100%",
           p: 0,
-          overflow: 'hidden'
+          overflow: "hidden",
         }}
       >
         <Box
           sx={{
-            width: '90vw',
-            height: '90vh',
-            maxWidth: '100%',
-            maxHeight: '100%'
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
-          <StimulusPreview 
-            parameters={parameters}
-            containerStyle={{
-              width: '100%',
-              height: '100%'
-            }}
-          />
+          <StimulusPreview parameters={parameters}/>
         </Box>
       </DialogContent>
     </Dialog>
@@ -159,27 +84,30 @@ const FullscreenPreview = ({ open, onClose, parameters }) => {
 
 // Конфигурация параметров для разных задач
 const tasksConfig = {
-  1: { // Задача 2×2
+  1: {
+    // Задача 2×2
     rows: 2,
     columns: 2,
     symbolSize: 32,
     horizontalPadding: 15,
-    verticalPadding: 15
+    verticalPadding: 15,
   },
-  2: { // Задача 3×3
+  2: {
+    // Задача 3×3
     rows: 3,
     columns: 3,
     symbolSize: 28,
     horizontalPadding: 12,
-    verticalPadding: 12
+    verticalPadding: 12,
   },
-  3: { // Задача 4×4
+  3: {
+    // Задача 4×4
     rows: 4,
     columns: 4,
     symbolSize: 24,
     horizontalPadding: 10,
-    verticalPadding: 10
-  }
+    verticalPadding: 10,
+  },
 };
 
 function ExperimentParameters({ parameters }) {
@@ -187,7 +115,7 @@ function ExperimentParameters({ parameters }) {
   const [selectedTask, setSelectedTask] = useState(1);
   const [taskParameters, setTaskParameters] = useState({
     ...parameters,
-    ...tasksConfig[1]
+    ...tasksConfig[1],
   });
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
 
@@ -198,10 +126,10 @@ function ExperimentParameters({ parameters }) {
   ];
 
   useEffect(() => {
-    setTaskParameters(prev => ({
+    setTaskParameters((prev) => ({
       ...prev,
       ...parameters,
-      ...tasksConfig[selectedTask]
+      ...tasksConfig[selectedTask],
     }));
   }, [selectedTask, parameters]);
 
@@ -224,14 +152,18 @@ function ExperimentParameters({ parameters }) {
   };
 
   const renderTableRow = (label, value, isLast = false) => (
-    <TableRow sx={{ '&:last-child td': { borderBottom: isLast ? 0 : undefined } }}>
+    <TableRow
+      sx={{ "&:last-child td": { borderBottom: isLast ? 0 : undefined } }}
+    >
       <TableCell>{label}</TableCell>
       <TableCell>{value}</TableCell>
     </TableRow>
   );
 
   const renderColorRow = (label, color, isLast = false) => (
-    <TableRow sx={{ '&:last-child td': { borderBottom: isLast ? 0 : undefined } }}>
+    <TableRow
+      sx={{ "&:last-child td": { borderBottom: isLast ? 0 : undefined } }}
+    >
       <TableCell>{label}</TableCell>
       <TableCell>
         <Stack direction="row" alignItems="center" spacing={1}>
@@ -269,9 +201,7 @@ function ExperimentParameters({ parameters }) {
               mb: 2,
             }}
           >
-            <Typography variant="subtitle1">
-              Серия и режим работы
-            </Typography>
+            <Typography variant="subtitle1">Серия и режим работы</Typography>
             <ToggleButtonGroup
               value={mode}
               exclusive
@@ -285,7 +215,10 @@ function ExperimentParameters({ parameters }) {
           </Box>
           <Table>
             <TableBody>
-              {renderTableRow("Режим", mode === "adaptive" ? "Адаптивный" : "Жесткий")}
+              {renderTableRow(
+                "Режим",
+                mode === "adaptive" ? "Адаптивный" : "Жесткий"
+              )}
               <TableRow>
                 <TableCell>Задача</TableCell>
                 <TableCell>
@@ -329,11 +262,12 @@ function ExperimentParameters({ parameters }) {
                   )}
                 </>
               )}
-              {mode === "strict" && renderTableRow(
-                "Количество предъявлений в задаче",
-                taskParameters.presentationsPerTaskStrict || 20,
-                true
-              )}
+              {mode === "strict" &&
+                renderTableRow(
+                  "Количество предъявлений в задаче",
+                  taskParameters.presentationsPerTaskStrict || 20,
+                  true
+                )}
             </TableBody>
           </Table>
         </Box>
@@ -342,7 +276,14 @@ function ExperimentParameters({ parameters }) {
       {/* Основной блок с параметрами и предпросмотром */}
       <Box sx={{ display: "flex", gap: 3 }}>
         {/* Левый столбец - общие параметры и параметры символа */}
-        <Box sx={{ width: "50%", display: "flex", flexDirection: "column", gap: 3 }}>
+        <Box
+          sx={{
+            width: "50%",
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+          }}
+        >
           {/* Блок общих параметров */}
           <Paper elevation={3}>
             <Box sx={{ p: 2 }}>
@@ -352,7 +293,10 @@ function ExperimentParameters({ parameters }) {
               <Table>
                 <TableBody>
                   {renderTableRow("Количество строк", taskParameters.rows)}
-                  {renderTableRow("Количество столбцов", taskParameters.columns)}
+                  {renderTableRow(
+                    "Количество столбцов",
+                    taskParameters.columns
+                  )}
                   {renderColorRow(
                     "Цвет фона",
                     taskParameters.backgroundColor,
@@ -373,7 +317,10 @@ function ExperimentParameters({ parameters }) {
                 <TableBody>
                   {renderTableRow("Вид символа", taskParameters.symbolType)}
                   {renderTableRow("Шрифт символа", taskParameters.symbolFont)}
-                  {renderTableRow("Размер символа", `${taskParameters.symbolSize} пикс`)}
+                  {renderTableRow(
+                    "Размер символа",
+                    `${taskParameters.symbolSize} пикс`
+                  )}
                   {renderTableRow(
                     "Ширина символа",
                     `${taskParameters.symbolWidth || 24} пикс`
@@ -402,53 +349,50 @@ function ExperimentParameters({ parameters }) {
         </Box>
 
         {/* Правый столбец - предпросмотр */}
-        <Box sx={{ width: "50%" }}>
-          <Paper
-            elevation={3}
+        <Paper
+          elevation={3}
+          sx={{
+            p: 2,
+            display: "flex",
+            flexDirection: "column",
+            boxSizing: "border-box",
+            width: "50%",
+          }}
+        >
+          <Box
             sx={{
-              p: 2,
               display: "flex",
-              flexDirection: "column",
-              boxSizing: "border-box",
-              height: '100%'
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
+            <Typography variant="subtitle1" gutterBottom>
+              Предпросмотр
+            </Typography>
+            <Button
+              startIcon={<FullscreenIcon />}
+              size="small"
+              onClick={handleFullscreenOpen}
             >
-              <Typography variant="subtitle1" gutterBottom>
-                Предпросмотр стимула
-              </Typography>
-              <Button 
-                startIcon={<FullscreenIcon />} 
-                size="small"
-                onClick={handleFullscreenOpen}
-              >
-                Полный экран
-              </Button>
-            </Box>
-            <Box sx={{ 
-              flex: 1,
-              position: 'relative',
-              overflow: 'hidden',
+              Полный экран
+            </Button>
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              position: "relative",
+              overflow: "hidden",
               backgroundColor: taskParameters.backgroundColor,
-              borderRadius: '4px'
-            }}>
-              <StimulusPreview 
-                parameters={taskParameters}
-                containerStyle={{
-                  width: '100%',
-                  height: '100%'
-                }}
-              />
-            </Box>
-          </Paper>
-        </Box>
+              borderRadius: "4px",
+              height: '100%',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <StimulusPreview parameters={taskParameters} />
+          </Box>
+        </Paper>
       </Box>
 
       {/* Временные параметры */}

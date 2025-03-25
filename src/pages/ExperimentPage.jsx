@@ -22,9 +22,7 @@ import {
   MoreVert as MoreVertIcon,
   Info as InfoIcon,
   Delete as DeleteIcon,
-  FileDownload as FileDownloadIcon,
   ArrowForward as ArrowForwardIcon,
-  Fullscreen as FullscreenIcon,
 } from "@mui/icons-material";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import SessionItem from "../components/SessionItem";
@@ -126,38 +124,6 @@ function ExperimentPage() {
         isMine: i % 2 === 0,
       }));
     setExperiment({ ...experiment, sessions: newSessions });
-  };
-
-  const renderSymbolGrid = () => {
-    const symbol = experiment.parameters.symbolType;
-    return (
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: `${experiment.parameters.symbolSpacing}px`,
-          width: "100%",
-          height: "100%",
-          placeItems: "center",
-        }}
-      >
-        {Array(16)
-          .fill(symbol)
-          .map((char, index) => (
-            <Typography
-              key={index}
-              sx={{
-                color: experiment.parameters.symbolColor,
-                fontFamily: experiment.parameters.symbolFont,
-                fontSize: `${experiment.parameters.symbolSize}px`,
-                lineHeight: 1,
-              }}
-            >
-              {char}
-            </Typography>
-          ))}
-      </Box>
-    );
   };
 
   return (
