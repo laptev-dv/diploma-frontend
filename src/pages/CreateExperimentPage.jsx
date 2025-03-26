@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   Box,
-  Typography,
   Button,
   TextField,
   AppBar,
@@ -122,56 +121,21 @@ function CreateExperimentPage() {
   };
 
   return (
-    <Box sx={{ 
-      display: "flex", 
-      flexDirection: "column",
-      minHeight: "100vh",
-      pb: 7 
-    }}>
-      {/* Шапка с кнопкой сохранения */}
-      <AppBar 
-        position="sticky"
-        color="inherit"
-        elevation={0}
-        sx={{ 
-          borderBottom: "1px solid", 
-          borderColor: "divider",
-          backgroundColor: "background.default"
-        }}
-      >
-        <Toolbar>
-          <Typography 
-            variant="h6" 
-            component="div"
-            sx={{ 
-              flexGrow: 1,
-              fontWeight: 500,
-              letterSpacing: "0.5px"
-            }}
-          >
-            Создание эксперимента
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<SaveIcon />}
-            onClick={handleSaveExperiment}
-            sx={{
-              textTransform: "none",
-              fontWeight: 500,
-              px: 3,
-              py: 1
-            }}
-          >
-            Сохранить эксперимент
-          </Button>
-        </Toolbar>
-      </AppBar>
-
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+      }}
+    >
       {/* Основное содержимое */}
-      <Box 
+      <Box
         component="main"
-        sx={{ p: 3 }}
+        sx={{
+          p: 3,
+          pb: 10, // Добавляем отступ снизу, чтобы контент не скрывался под фиксированной панелью
+          flex: 1, // Занимаем все доступное пространство
+        }}
       >
         {/* Поле названия эксперимента */}
         <TextField
@@ -180,26 +144,60 @@ function CreateExperimentPage() {
           variant="outlined"
           value={experimentName}
           onChange={(event) => setExperimentName(event.target.value)}
-          sx={{ 
+          sx={{
             mb: 4,
             "& .MuiOutlinedInput-root": {
-              borderRadius: "8px"
-            }
+              borderRadius: "8px",
+            },
           }}
           inputProps={{
             style: {
               fontSize: "1.2rem",
-              padding: "12px 14px"
-            }
+              padding: "12px 14px",
+            },
           }}
         />
 
         {/* Компонент редактирования параметров */}
-        <EditableExperimentParameters 
+        <EditableExperimentParameters
           tasks={tasks}
           onTasksChange={handleTasksChange}
         />
       </Box>
+
+      {/* Фиксированная панель внизу с кнопкой сохранения */}
+      <AppBar
+        position="fixed"
+        color="inherit"
+        elevation={0}
+        sx={{
+          top: "auto",
+          bottom: 0,
+          borderTop: "1px solid",
+          borderColor: "divider",
+          backgroundColor: "background.default",
+        }}
+      >
+        <Toolbar>
+          <Box sx={{ flexGrow: 1, display: { xs: "flex" }, justifyContent: 'right' }}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<SaveIcon />}
+              onClick={handleSaveExperiment}
+              sx={{
+                textTransform: "none",
+                fontWeight: 500,
+                px: 3,
+                py: 1,
+                my: 1,
+              }}
+            >
+              Сохранить эксперимент
+            </Button>
+          </Box>
+        </Toolbar>
+      </AppBar>
     </Box>
   );
 }

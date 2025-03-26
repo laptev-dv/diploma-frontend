@@ -192,7 +192,7 @@ function TimeParameters({ parameters }) {
             backgroundColor: hoverKey ? "rgba(0, 0, 0, 0.04)" : "inherit",
             cursor: hoverKey ? "pointer" : "default",
           },
-          '&:last-child td': { borderBottom: isLast ? 0 : undefined }
+          'td': { borderBottom: isLast ? 0 : undefined }
         }}
       >
         <TableCell>
@@ -211,7 +211,7 @@ function TimeParameters({ parameters }) {
           </Stack>
         </TableCell>
         <TableCell>
-          <Typography>{value} с</Typography>
+          <Typography>{value} сек</Typography>
         </TableCell>
       </TableRow>
     );

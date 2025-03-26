@@ -7,7 +7,7 @@ import {
   Stack,
   TextField,
   Typography,
-  Tooltip
+  Tooltip,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -24,7 +24,7 @@ export default function TaskItemMinimal({
   isActive,
   onClick,
   isDeleteDisabled,
-  onTaskNameChange
+  onTaskNameChange,
 }) {
   const {
     attributes,
@@ -32,7 +32,7 @@ export default function TaskItemMinimal({
     setNodeRef,
     transform,
     transition,
-    isDragging
+    isDragging,
   } = useSortable({ id: task.id });
 
   const [taskName, setTaskName] = useState(task.name);
@@ -51,7 +51,7 @@ export default function TaskItemMinimal({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 1000 : "auto"
+    zIndex: isDragging ? 1000 : "auto",
   };
 
   return (
@@ -65,47 +65,11 @@ export default function TaskItemMinimal({
         borderColor: "primary.main",
         backgroundColor: isActive ? "action.selected" : "transparent",
         "&:hover": {
-          backgroundColor: "action.hover"
+          backgroundColor: "action.hover",
         },
-        cursor: "pointer"
+        cursor: "pointer",
       }}
       onClick={onClick}
-      secondaryAction={
-        <Stack direction="row" spacing={0}>
-          <Tooltip title="Копировать задачу">
-            <IconButton
-              edge="end"
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                onCopy(task.id);
-              }}
-            >
-              <CopyIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip
-            title={
-              isDeleteDisabled
-                ? "Нельзя удалить последнюю задачу"
-                : "Удалить задачу"
-            }
-          >
-            <IconButton
-              edge="end"
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(task.id);
-              }}
-              sx={{ color: "error.main" }}
-              disabled={isDeleteDisabled}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-      }
     >
       <ListItemIcon
         sx={{ minWidth: 32, cursor: isDragging ? "grabbing" : "grab" }}
@@ -116,13 +80,54 @@ export default function TaskItemMinimal({
       </ListItemIcon>
       <ListItemText
         primary={
-          <TextField
-            variant="outlined"
-            size='small'
-            value={taskName}
-            onChange={handleNameChange}
-            onClick={(e) => e.stopPropagation()}
-          />
+          <Stack direction="row" spacing={1} marginRight={3}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              size="small"
+              value={taskName}
+              onChange={handleNameChange}
+              onClick={(e) => e.stopPropagation()}
+            />
+            <Stack direction="row" spacing={0}>
+              <Tooltip title="Копировать задачу">
+                <IconButton
+                  sx={{ aspectRatio: 1 }}
+                  edge="end"
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCopy(task.id);
+                  }}
+                >
+                  <CopyIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip
+                title={
+                  isDeleteDisabled
+                    ? "Нельзя удалить последнюю задачу"
+                    : "Удалить задачу"
+                }
+              >
+                <IconButton
+                  edge="end"
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(task.id);
+                  }}
+                  sx={{ 
+                    color: "error.main",
+                    aspectRatio: 1,
+                   }}
+                  disabled={isDeleteDisabled}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+          </Stack>
         }
         secondary={
           <Typography variant="caption" color="text.secondary">

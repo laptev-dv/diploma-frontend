@@ -9,7 +9,7 @@ import {
   TableRow,
   Stack,
   TextField,
-  InputAdornment
+  InputAdornment,
 } from "@mui/material";
 
 const timeColors = {
@@ -45,135 +45,98 @@ function EditableTimeParameters({ parameters, onParamChange }) {
   const handleParamChange = (field, value) => {
     const newParams = {
       ...localParams,
-      [field]: value
+      [field]: value,
     };
     setLocalParams(newParams);
     onParamChange(field, toMilliseconds(value));
   };
 
   // Рассчитываем производные значения (в миллисекундах)
-  const totalTimeMs = toMilliseconds(localParams.stimulusTime) + 
-                     toMilliseconds(localParams.responseTime) + 
-                     toMilliseconds(localParams.pauseTime);
-  
-  const responsePeriodTimeMs = toMilliseconds(localParams.stimulusTime) + 
-                             toMilliseconds(localParams.responseTime);
+  const totalTimeMs =
+    toMilliseconds(localParams.stimulusTime) +
+    toMilliseconds(localParams.responseTime) +
+    toMilliseconds(localParams.pauseTime);
+
+  const responsePeriodTimeMs =
+    toMilliseconds(localParams.stimulusTime) +
+    toMilliseconds(localParams.responseTime);
 
   // Расчет процентов для прогресс-бара
   const calculatePercentage = (timeMs) => (timeMs / totalTimeMs) * 100;
 
-  // Получение высоты сегмента в зависимости от наведения
-  const getSegmentHeight = (segment) => {
-    const baseHeight = 24;
+  // Получение ширины сегмента в зависимости от наведения
+  const getSegmentWidth = (segment) => {
+    const baseWidth = 16;
 
-    if (!hoveredItem) return baseHeight;
+    if (!hoveredItem) return baseWidth;
 
     if (hoveredItem === "total") {
-      return baseHeight * 1.8;
+      return baseWidth * 3.5;
     } else if (
       hoveredItem === "responsePeriod" &&
       (segment === "stimulus" || segment === "response")
     ) {
-      return baseHeight * 2;
+      return baseWidth * 4;
     } else if (hoveredItem === segment) {
-      return baseHeight * 2;
+      return baseWidth * 4;
     }
 
-    return baseHeight;
+    return baseWidth;
   };
 
-  // Визуализация прогресс-бара
+  // Визуализация вертикального прогресс-бара
   const renderTimeBar = () => {
     const stimulusMs = toMilliseconds(localParams.stimulusTime);
     const responseMs = toMilliseconds(localParams.responseTime);
     const pauseMs = toMilliseconds(localParams.pauseTime);
 
     return (
-      <Box sx={{ mb: 3 }}>
-        <Box sx={{ height: "50px", display: "flex", alignItems: "flex-end" }}>
-          <Box
-            sx={{
-              display: "flex",
-              width: "100%",
-              borderRadius: "4px",
-              overflow: "hidden",
-              border: "1px solid #e0e0e0",
-              alignItems: "flex-end",
-            }}
-          >
-            <Box
-              sx={{
-                width: `${calculatePercentage(stimulusMs)}%`,
-                height: `${getSegmentHeight("stimulus")}px`,
-                backgroundColor: timeColors.stimulus,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "height 0.3s ease",
-              }}
-            >
-              <Typography variant="caption" sx={{ color: "white", fontWeight: "bold" }}>
-                {localParams.stimulusTime}с
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                width: `${calculatePercentage(responseMs)}%`,
-                height: `${getSegmentHeight("response")}px`,
-                backgroundColor: timeColors.response,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "height 0.3s ease",
-              }}
-            >
-              <Typography variant="caption" sx={{ color: "white", fontWeight: "bold" }}>
-                {localParams.responseTime}с
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                width: `${calculatePercentage(pauseMs)}%`,
-                height: `${getSegmentHeight("pause")}px`,
-                backgroundColor: timeColors.pause,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "height 0.3s ease",
-              }}
-            >
-              <Typography variant="caption" sx={{ color: "white", fontWeight: "bold" }}>
-                {localParams.pauseTime}с
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-
-        <Box sx={{ display: "flex", width: "100%" }}>
-          <Box sx={{ width: `${calculatePercentage(stimulusMs)}%`, textAlign: "left" }}>
-            <Typography variant="caption" sx={{ color: timeColors.stimulus, fontWeight: "bold" }}>
-              Стимул
-            </Typography>
-          </Box>
-          <Box sx={{ width: `${calculatePercentage(responseMs)}%`, textAlign: "center" }}>
-            <Typography variant="caption" sx={{ color: timeColors.response, fontWeight: "bold" }}>
-              Ответ
-            </Typography>
-          </Box>
-          <Box sx={{ width: `${calculatePercentage(pauseMs)}%`, textAlign: "right" }}>
-            <Typography variant="caption" sx={{ color: timeColors.pause, fontWeight: "bold" }}>
-              Пауза
-            </Typography>
-          </Box>
-        </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          ml: 2,
+        }}
+      >
+        <Box
+          sx={{
+            borderRadius: "4px 4px 0 0",
+            height: `${calculatePercentage(stimulusMs)}%`,
+            width: `${getSegmentWidth("stimulus")}px`,
+            backgroundColor: timeColors.stimulus,
+            transition: "width 0.3s ease",
+          }}
+        />
+        <Box
+          sx={{
+            height: `${calculatePercentage(responseMs)}%`,
+            width: `${getSegmentWidth("response")}px`,
+            backgroundColor: timeColors.response,
+            transition: "width 0.3s ease",
+          }}
+        />
+        <Box
+          sx={{
+            borderRadius: "0 0 4px 4px",
+            height: `${calculatePercentage(pauseMs)}%`,
+            width: `${getSegmentWidth("pause")}px`,
+            backgroundColor: timeColors.pause,
+            transition: "width 0.3s ease",
+          }}
+        />
       </Box>
     );
   };
 
   // Рендер строки таблицы с обработчиками наведения
-  const renderTableRow = (label, value, color = null, hoverKey = null, isLast = false) => {
+  const renderTableRow = (
+    label,
+    value,
+    color = null,
+    hoverKey = null,
+    isLast = false
+  ) => {
     return (
       <TableRow
         onMouseEnter={() => hoverKey && setHoveredItem(hoverKey)}
@@ -183,29 +146,37 @@ function EditableTimeParameters({ parameters, onParamChange }) {
             backgroundColor: hoverKey ? "rgba(0, 0, 0, 0.04)" : "inherit",
             cursor: hoverKey ? "pointer" : "default",
           },
-          '&:last-child td': { borderBottom: isLast ? 0 : undefined }
+          "&:last-child td": { borderBottom: isLast ? 0 : undefined },
         }}
       >
         <TableCell>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            {color && (
-              <Box sx={{ width: 16, height: 16, backgroundColor: color, borderRadius: "2px" }} />
-            )}
-            <Typography>{label}</Typography>
-          </Stack>
+          {color && (
+            <Box
+              sx={{
+                width: 16,
+                height: 16,
+                backgroundColor: color,
+                borderRadius: "2px",
+              }}
+            />
+          )}
         </TableCell>
-        <TableCell>
+        <TableCell align="right">
           <TextField
+            fullWidth
+            label={label}
             type="number"
             size="small"
             value={value}
-            onChange={(e) => handleParamChange(hoverKey + "Time", e.target.value)}
+            onChange={(e) =>
+              handleParamChange(hoverKey + "Time", e.target.value)
+            }
             InputProps={{
               endAdornment: <InputAdornment position="end">сек</InputAdornment>,
             }}
             inputProps={{
               min: 0.1,
-              step: 0.1
+              step: 0.1,
             }}
           />
         </TableCell>
@@ -219,71 +190,78 @@ function EditableTimeParameters({ parameters, onParamChange }) {
         Временные параметры
       </Typography>
 
-      {renderTimeBar()}
+      <Stack sx={{ direction: 'column' }}>
+          <Stack direction="row" spacing={1} mb={2}>
+          <Stack sx={{width: '100%'}} direction="column" justifyContent="space-between" spacing={1} mb={2}>
 
-      <Table>
-        <TableBody>
-          {renderTableRow(
-            "Время предъявления стимула",
-            localParams.stimulusTime,
-            timeColors.stimulus,
-            "stimulus"
-          )}
-          {renderTableRow(
-            "Время ожидания ответа",
-            localParams.responseTime,
-            timeColors.response,
-            "response"
-          )}
-          {renderTableRow(
-            "Время паузы",
-            localParams.pauseTime,
-            timeColors.pause,
-            "pause"
-          )}
+            <Table>
+              <TableBody>
+                {renderTableRow(
+                  "Предъявление",
+                  localParams.stimulusTime,
+                  timeColors.stimulus,
+                  "stimulus"
+                )}
+                {renderTableRow(
+                  "Ожидание ответа",
+                  localParams.responseTime,
+                  timeColors.response,
+                  "response"
+                )}
+                {renderTableRow(
+                  "Пауза",
+                  localParams.pauseTime,
+                  timeColors.pause,
+                  "pause"
+                )}
+              </TableBody>
+            </Table>
+            
+            <Table >
+            <TableBody>
+              <TableRow
+                onMouseEnter={() => setHoveredItem("total")}
+                onMouseLeave={() => setHoveredItem(null)}
+                sx={{
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.04)",
+                    cursor: "pointer",
+                  },
+                }}
+              >
+                <TableCell colSpan={2}>
+                  <Typography>Общее время цикла</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography>{toSeconds(totalTimeMs)} сек</Typography>
+                </TableCell>
+              </TableRow>
+              <TableRow
+                onMouseEnter={() => setHoveredItem("responsePeriod")}
+                onMouseLeave={() => setHoveredItem(null)}
+                sx={{
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.04)",
+                    cursor: "pointer",
+                  },
+                  "&:last-child td": { borderBottom: 0 },
+                }}
+              >
+                <TableCell colSpan={2}>
+                  <Typography>Время на ответ</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography>{toSeconds(responsePeriodTimeMs)} сек</Typography>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+          </Stack>
 
-          <TableRow>
-            <TableCell colSpan={2} sx={{ py: 2 }} />
-          </TableRow>
-
-          <TableRow
-            onMouseEnter={() => setHoveredItem("total")}
-            onMouseLeave={() => setHoveredItem(null)}
-            sx={{
-              "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.04)",
-                cursor: "pointer",
-              }
-            }}
-          >
-            <TableCell>
-              <Typography>Общее время цикла</Typography>
-            </TableCell>
-            <TableCell>
-              <Typography>{toSeconds(totalTimeMs)} с</Typography>
-            </TableCell>
-          </TableRow>
-
-          <TableRow
-            onMouseEnter={() => setHoveredItem("responsePeriod")}
-            onMouseLeave={() => setHoveredItem(null)}
-            sx={{
-              "&:hover": {
-                backgroundColor: "rgba(0, 0, 0, 0.04)",
-                cursor: "pointer",
-              },
-              '&:last-child td': { borderBottom: 0 }
-            }}
-          >
-            <TableCell>
-              <Typography>Время на ответ</Typography>
-            </TableCell>
-            <TableCell>
-              <Typography>{toSeconds(responsePeriodTimeMs)} с</Typography>
-            </TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+            {/* Вертикальный прогресс-бар */}
+            <Box sx={{ width: "120px" }}>{renderTimeBar()}</Box>
+          </Stack>
+      </Stack>
     </Paper>
   );
 }

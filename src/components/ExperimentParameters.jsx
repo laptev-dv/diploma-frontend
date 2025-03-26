@@ -153,7 +153,7 @@ function ExperimentParameters({ parameters }) {
 
   const renderTableRow = (label, value, isLast = false) => (
     <TableRow
-      sx={{ "&:last-child td": { borderBottom: isLast ? 0 : undefined } }}
+      sx={{ "td": { borderBottom: isLast ? 0 : undefined } }}
     >
       <TableCell>{label}</TableCell>
       <TableCell>{value}</TableCell>
@@ -162,7 +162,7 @@ function ExperimentParameters({ parameters }) {
 
   const renderColorRow = (label, color, isLast = false) => (
     <TableRow
-      sx={{ "&:last-child td": { borderBottom: isLast ? 0 : undefined } }}
+      sx={{ "td": { borderBottom: isLast ? 0 : undefined } }}
     >
       <TableCell>{label}</TableCell>
       <TableCell>

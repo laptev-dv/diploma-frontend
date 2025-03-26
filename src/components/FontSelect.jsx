@@ -70,6 +70,8 @@ const FontSelect = ({ value, onChange }) => {
 
   return (
     <Autocomplete
+      fullWidth
+      size='small'
       options={fonts}
       value={value}
       onChange={(event, newValue) => {
@@ -82,7 +84,7 @@ const FontSelect = ({ value, onChange }) => {
       renderInput={(params) => (
         <TextField
           {...params}
-          label="Шрифт символа"
+          label="Шрифт"
           variant='outlined'
           fullWidth
           InputProps={{

@@ -59,6 +59,8 @@ const allSymbols = symbolGroups.flatMap(group =>
 const AsciiSymbolSelect = ({ value, onChange }) => {
   return (
     <Autocomplete
+      fullWidth
+      size='small'
       options={allSymbols}
       groupBy={(option) => option.group}
       value={allSymbols.find(s => s.char === value) || null}
@@ -69,7 +71,7 @@ const AsciiSymbolSelect = ({ value, onChange }) => {
       renderInput={(params) => (
         <TextField
           {...params}
-          label="Вид символа"
+          label="Символ"
           variant="outlined"
           fullWidth
         />
