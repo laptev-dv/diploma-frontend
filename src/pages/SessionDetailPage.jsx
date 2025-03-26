@@ -1,10 +1,9 @@
 import React from 'react';
 import { Box, Typography, Paper } from '@mui/material';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 function SessionDetailPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
 
   return (
     <Box sx={{ p: 3 }}>

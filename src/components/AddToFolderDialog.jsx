@@ -17,11 +17,11 @@ import { Link } from 'react-router-dom';
 
 function AddToFolderDialog({ open, onClose, folderId, currentExperiments }) {
   // Все доступные эксперименты
-  const [allExperiments, setAllExperiments] = useState([
+  const allExperiments = [
     { id: 1, name: 'Эксперимент 1', author: 'Иван Иванов' },
     { id: 2, name: 'Эксперимент 2', author: 'Петр Петров' },
     { id: 3, name: 'Эксперимент 3', author: 'Сергей Сергеев' }
-  ]);
+  ];
 
   // Выбранные эксперименты (изначально те, что уже в папке)
   const [selected, setSelected] = useState([]);

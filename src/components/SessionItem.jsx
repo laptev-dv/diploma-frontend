@@ -2,7 +2,6 @@ import React from "react";
 import {
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
   IconButton,
   Divider,
   Tooltip,

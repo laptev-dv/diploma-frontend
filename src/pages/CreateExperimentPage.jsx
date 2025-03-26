@@ -6,11 +6,8 @@ import {
   TextField,
   AppBar,
   Toolbar,
-  Paper,
-  Tabs,
-  Tab,
 } from "@mui/material";
-import { Save as SaveIcon, ArrowBack as ArrowBackIcon } from "@mui/icons-material";
+import { Save as SaveIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import EditableExperimentParameters from "../components/EditableExperimentParameters";
 

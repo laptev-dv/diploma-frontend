@@ -8,7 +8,6 @@ import {
   TableCell,
   TableRow,
   Stack,
-  Divider,
 } from "@mui/material";
 
 const timeColors = {

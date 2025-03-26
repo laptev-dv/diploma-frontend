@@ -14,25 +14,25 @@ import {
   TextField,
   InputAdornment,
   IconButton,
-  Chip,
   Dialog,
   DialogContent,
   DialogActions,
   List,
   ListItem,
   ListItemText,
-  ListItemSecondaryAction,
   Divider,
   Avatar,
+  Popover,
 } from "@mui/material";
 import {
   Fullscreen as FullscreenIcon,
-  Colorize as ColorizeIcon,
   Close as CloseIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
   DragIndicator as DragIndicatorIcon,
+  Edit as EditIcon,
 } from "@mui/icons-material";
+import { ChromePicker } from "react-color";
 import {
   DndContext,
   closestCenter,
@@ -40,7 +40,6 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -53,7 +52,7 @@ import { CSS } from "@dnd-kit/utilities";
 import TimeParameters from "./TimeParameters";
 import StimulusPreview from "./StimulusPreview";
 
-function SortableTask({ task, onDelete }) {
+function SortableTask({ task, onDelete, onEdit }) {
   const {
     attributes,
     listeners,
@@ -79,8 +78,22 @@ function SortableTask({ task, onDelete }) {
         "&:hover": {
           backgroundColor: "action.hover",
         },
-        touchAction: "none", // Important for mobile drag
+        touchAction: "none",
       }}
+      secondaryAction={
+        <Stack direction="row" spacing={1}>
+          <IconButton edge="end" onClick={() => onEdit(task)}>
+            <EditIcon />
+          </IconButton>
+          <IconButton
+            edge="end"
+            onClick={() => onDelete(task.id)}
+            sx={{ color: "error.main" }}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Stack>
+      }
     >
       <Avatar
         sx={{
@@ -93,17 +106,59 @@ function SortableTask({ task, onDelete }) {
       >
         <DragIndicatorIcon color="action" />
       </Avatar>
-      <ListItemText primary={task.name} />
-      <ListItemSecondaryAction>
-        <IconButton
-          edge="end"
-          onClick={() => onDelete(task.id)}
-          sx={{ color: "error.main" }}
-        >
-          <DeleteIcon />
-        </IconButton>
-      </ListItemSecondaryAction>
+      <ListItemText
+        primary={task.name}
+        secondary={`${task.rows}×${task.columns}`}
+      />
     </ListItem>
+  );
+}
+
+function ColorPickerButton({ color, onChange }) {
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleChange = (color) => {
+    onChange(color.hex);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? "color-picker-popover" : undefined;
+
+  return (
+    <>
+      <Avatar
+        sx={{
+          width: 24,
+          height: 24,
+          backgroundColor: color,
+          border: "1px solid #ccc",
+          cursor: "pointer",
+        }}
+        onClick={handleClick}
+      >
+        <></>
+      </Avatar>
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+      >
+        <ChromePicker color={color} onChange={handleChange} />
+      </Popover>
+    </>
   );
 }
 
@@ -116,6 +171,8 @@ function EditableExperimentParameters({ parameters, onParamChange }) {
     { id: "3", name: "Задача 4×4", rows: 4, columns: 4 },
   ]);
   const [newTaskName, setNewTaskName] = useState("");
+  const [editingTask, setEditingTask] = useState(null);
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -159,7 +216,18 @@ function EditableExperimentParameters({ parameters, onParamChange }) {
     setTasks(tasks.filter((task) => task.id !== id));
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleEditTask = (task) => {
+    setEditingTask(task);
+    setTaskDialogOpen(true);
+  };
+
+  const handleSaveTask = () => {
+    setTasks(tasks.map((t) => (t.id === editingTask.id ? editingTask : t)));
+    setTaskDialogOpen(false);
+    setEditingTask(null);
+  };
+
+  const handleDragEnd = (event) => {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
@@ -176,7 +244,8 @@ function EditableExperimentParameters({ parameters, onParamChange }) {
     field,
     value,
     type = "text",
-    isLast = false
+    isLast = false,
+    unit = null
   ) => (
     <TableRow
       sx={{ "&:last-child td": { borderBottom: isLast ? 0 : undefined } }}
@@ -195,12 +264,10 @@ function EditableExperimentParameters({ parameters, onParamChange }) {
             )
           }
           InputProps={
-            type === "number"
+            unit
               ? {
                   endAdornment: (
-                    <InputAdornment position="end">
-                      {label.includes("эффективности") ? "" : "пикс"}
-                    </InputAdornment>
+                    <InputAdornment position="end">{unit}</InputAdornment>
                   ),
                 }
               : {}
@@ -217,22 +284,9 @@ function EditableExperimentParameters({ parameters, onParamChange }) {
       <TableCell>{label}</TableCell>
       <TableCell>
         <Stack direction="row" alignItems="center" spacing={1}>
-          <IconButton
-            size="small"
-            onClick={() => {
-              const newColor = prompt("Введите цвет в HEX формате", color);
-              if (newColor) handleColorChange(field, newColor);
-            }}
-          >
-            <ColorizeIcon />
-          </IconButton>
-          <Chip
-            sx={{
-              backgroundColor: color,
-              width: 24,
-              height: 24,
-              border: "1px solid #ccc",
-            }}
+          <ColorPickerButton
+            color={color}
+            onChange={(newColor) => handleColorChange(field, newColor)}
           />
           <TextField
             size="small"
@@ -245,8 +299,110 @@ function EditableExperimentParameters({ parameters, onParamChange }) {
     </TableRow>
   );
 
+  const renderDualNumberRow = (
+    label,
+    field1,
+    value1,
+    label1,
+    field2,
+    value2,
+    label2,
+    unit = "пикс",
+    isLast = false
+  ) => (
+    <TableRow
+      sx={{ "&:last-child td": { borderBottom: isLast ? 0 : undefined } }}
+    >
+      <TableCell>{label}</TableCell>
+      <TableCell>
+        <Stack direction="row" spacing={2}>
+          <TextField
+            label={label1}
+            size="small"
+            type="number"
+            value={value1}
+            onChange={(e) => onParamChange(field1, Number(e.target.value))}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">{unit}</InputAdornment>
+              ),
+            }}
+            sx={{ flex: 1 }}
+          />
+          <TextField
+            label={label2}
+            size="small"
+            type="number"
+            value={value2}
+            onChange={(e) => onParamChange(field2, Number(e.target.value))}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">{unit}</InputAdornment>
+              ),
+            }}
+            sx={{ flex: 1 }}
+          />
+        </Stack>
+      </TableCell>
+    </TableRow>
+  );
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {/* Диалог редактирования задачи */}
+      <Dialog open={taskDialogOpen} onClose={() => setTaskDialogOpen(false)}>
+        <DialogContent>
+          <TextField
+            label="Название задачи"
+            fullWidth
+            margin="normal"
+            value={editingTask?.name || ""}
+            onChange={(e) =>
+              setEditingTask({ ...editingTask, name: e.target.value })
+            }
+          />
+          <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+            <TextField
+              label="Строки"
+              type="number"
+              fullWidth
+              value={editingTask?.rows || 0}
+              onChange={(e) =>
+                setEditingTask({ ...editingTask, rows: Number(e.target.value) })
+              }
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">шт</InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              label="Столбцы"
+              type="number"
+              fullWidth
+              value={editingTask?.columns || 0}
+              onChange={(e) =>
+                setEditingTask({
+                  ...editingTask,
+                  columns: Number(e.target.value),
+                })
+              }
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">шт</InputAdornment>
+                ),
+              }}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setTaskDialogOpen(false)}>Отмена</Button>
+          <Button onClick={handleSaveTask} variant="contained">
+            Сохранить
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Диалог полноэкранного просмотра */}
       <Dialog
         fullScreen
@@ -320,7 +476,11 @@ function EditableExperimentParameters({ parameters, onParamChange }) {
               <List dense>
                 {tasks.map((task) => (
                   <React.Fragment key={task.id}>
-                    <SortableTask task={task} onDelete={handleDeleteTask} />
+                    <SortableTask
+                      task={task}
+                      onDelete={handleDeleteTask}
+                      onEdit={handleEditTask}
+                    />
                     {tasks.indexOf(task) < tasks.length - 1 && <Divider />}
                   </React.Fragment>
                 ))}
@@ -330,7 +490,7 @@ function EditableExperimentParameters({ parameters, onParamChange }) {
         </Box>
       </Paper>
 
-      {/* Остальные блоки остаются без изменений */}
+      {/* Блок серии и режима работы */}
       <Paper elevation={3}>
         <Box sx={{ p: 2 }}>
           <Typography variant="subtitle1" gutterBottom>
@@ -358,13 +518,17 @@ function EditableExperimentParameters({ parameters, onParamChange }) {
                     "Количество предъявлений в задаче",
                     "presentationsPerTask",
                     parameters.presentationsPerTask || 20,
-                    "number"
+                    "number",
+                    false,
+                    "шт"
                   )}
                   {renderEditableRow(
-                    "Время на серию (с)",
+                    "Время на серию",
                     "seriesTime",
                     parameters.seriesTime || 30,
-                    "number"
+                    "number",
+                    false,
+                    "сек"
                   )}
                   {renderEditableRow(
                     "Нижняя граница эффективности",
@@ -386,7 +550,8 @@ function EditableExperimentParameters({ parameters, onParamChange }) {
                   "presentationsPerTaskStrict",
                   parameters.presentationsPerTaskStrict || 20,
                   "number",
-                  true
+                  true,
+                  "шт"
                 )}
             </TableBody>
           </Table>
@@ -413,13 +578,17 @@ function EditableExperimentParameters({ parameters, onParamChange }) {
                     "Количество строк",
                     "rows",
                     parameters.rows || 4,
-                    "number"
+                    "number",
+                    false,
+                    "шт"
                   )}
                   {renderEditableRow(
                     "Количество столбцов",
                     "columns",
                     parameters.columns || 4,
-                    "number"
+                    "number",
+                    false,
+                    "шт"
                   )}
                   {renderColorRow(
                     "Цвет фона",
@@ -449,23 +618,23 @@ function EditableExperimentParameters({ parameters, onParamChange }) {
                     "symbolFont",
                     parameters.symbolFont
                   )}
-                  {renderEditableRow(
+                  {renderDualNumberRow(
                     "Размер символа",
-                    "symbolSize",
-                    parameters.symbolSize,
-                    "number"
+                    "symbolWidth",
+                    parameters.symbolWidth || 30,
+                    "ширина",
+                    "symbolHeight",
+                    parameters.symbolHeight || 30,
+                    "высота"
                   )}
-                  {renderEditableRow(
-                    "Горизонтальный отступ",
+                  {renderDualNumberRow(
+                    "Отступы",
                     "horizontalPadding",
                     parameters.horizontalPadding || 5,
-                    "number"
-                  )}
-                  {renderEditableRow(
-                    "Вертикальный отступ",
+                    "по горизонтали",
                     "verticalPadding",
                     parameters.verticalPadding || 5,
-                    "number"
+                    "по вертикали"
                   )}
                   {renderColorRow(
                     "Цвет символа",

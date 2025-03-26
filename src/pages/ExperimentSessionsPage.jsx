@@ -10,7 +10,7 @@ import {
   Stack,
   Link,
 } from "@mui/material";
-import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
+import { useParams, Link as RouterLink } from "react-router-dom";
 import SessionItem from "../components/SessionItem";
 import ExportSessionsDialog from "../components/ExportSessionsDialog";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
@@ -19,7 +19,6 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 function ExperimentSessionsPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [sessions, setSessions] = useState(

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -14,11 +14,6 @@ import {
   Select,
   FormControl,
   InputLabel,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate, Link } from "react-router-dom";
@@ -43,10 +38,9 @@ function LibraryPage() {
   // Состояние для меню "Добавить"
   const [anchorEl, setAnchorEl] = useState(null);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
 
   // Пример данных экспериментов
-  const [experiments, setExperiments] = useState([
+  const experiments = [
     {
       id: 1,
       name: "Эксперимент 1",
@@ -61,7 +55,7 @@ function LibraryPage() {
       resultsCount: 5,
       createdAt: "01.01.2025",
     },
-  ]);
+  ];
 
   // Пример данных папок
   const [folders, setFolders] = useState([
@@ -97,21 +91,6 @@ function LibraryPage() {
   // Обработчик закрытия меню "Добавить"
   const handleAddClose = () => {
     setAnchorEl(null);
-  };
-
-  // Обработчик создания папки
-  const handleCreateFolder = () => {
-    if (newFolderName.trim()) {
-      const newFolder = {
-        id: folders.length + 1,
-        name: newFolderName,
-        itemsCount: 0,
-        createdAt: new Date().toLocaleDateString(),
-      };
-      setFolders([...folders, newFolder]);
-      setFolderDialogOpen(false);
-      setNewFolderName("");
-    }
   };
 
   // Обработчик выбора в меню "Добавить"
