@@ -8,81 +8,197 @@ import {
   Toolbar,
 } from "@mui/material";
 import { Save as SaveIcon } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
 import EditableExperimentParameters from "../components/EditableExperimentParameters";
 
 function CreateExperimentPage() {
-  const navigate = useNavigate();
   const [experimentName, setExperimentName] = useState("Новый эксперимент");
-  const [experimentParams, setExperimentParams] = useState({
-    backgroundColor: "#FFFFFF",
-    symbolColor: "#000000",
-    symbolType: "A",
-    symbolFont: "Arial",
-    symbolSize: 24,
-    symbolSpacing: 10,
-    stimulusTime: 0.5,
-    responseTime: 10,
-    pauseTime: 1,
-  });
+  const [tasks, setTasks] = useState([
+    { 
+      id: "1", 
+      name: "Задача 2×2", 
+      parameters: {
+        mode: "adaptive",
+        rows: 2,
+        columns: 2,
+        backgroundColor: "#ffffff",
+        symbolType: "X",
+        symbolFont: "Arial",
+        symbolWidth: 30,
+        symbolHeight: 30,
+        horizontalPadding: 5,
+        verticalPadding: 5,
+        symbolColor: "#000000",
+        presentationsPerTask: 20,
+        seriesTime: 30,
+        efficiencyMin: 0.5,
+        efficiencyMax: 0.8,
+        stimulusTime: 500,
+        responseTime: 1000,
+        pauseTime: 300,
+      }
+    }
+  ]);
 
   const handleSaveExperiment = () => {
-    // Здесь будет логика сохранения эксперимента
-    console.log("Сохранение эксперимента:", {
-      name: experimentName,
-      parameters: experimentParams
+    // Формируем полные данные эксперимента
+    const experimentData = {
+      experimentName: experimentName,
+      createdAt: new Date().toISOString(),
+      tasks: tasks.map((task, index) => ({
+        taskId: task.id,
+        taskName: task.name,
+        order: index + 1,
+        parameters: {
+          // Основные параметры
+          mode: task.parameters.mode,
+          gridSize: {
+            rows: task.parameters.rows,
+            columns: task.parameters.columns
+          },
+          // Визуальные параметры
+          appearance: {
+            backgroundColor: task.parameters.backgroundColor,
+            symbol: {
+              type: task.parameters.symbolType,
+              font: task.parameters.symbolFont,
+              width: task.parameters.symbolWidth,
+              height: task.parameters.symbolHeight,
+              color: task.parameters.symbolColor
+            },
+            padding: {
+              horizontal: task.parameters.horizontalPadding,
+              vertical: task.parameters.verticalPadding
+            }
+          },
+          // Параметры времени
+          timing: {
+            stimulusTime: Number(task.parameters.stimulusTime),
+            responseTime: Number(task.parameters.responseTime),
+            pauseTime: Number(task.parameters.pauseTime),
+            totalTime: Number(task.parameters.stimulusTime) + 
+                      Number(task.parameters.responseTime) + 
+                      Number(task.parameters.pauseTime)
+          },
+          // Параметры режима
+          modeSettings: {
+            presentationsPerTask: task.parameters.presentationsPerTask,
+            ...(task.parameters.mode === "adaptive" ? {
+              seriesTime: task.parameters.seriesTime,
+              efficiencyMin: task.parameters.efficiencyMin,
+              efficiencyMax: task.parameters.efficiencyMax
+            } : {})
+          }
+        }
+      }))
+    };
+
+    // Выводим в консоль для проверки
+    console.log("Полные данные эксперимента:", JSON.stringify(experimentData, null, 2));
+    
+    // Форматированный вывод задач
+    console.log("\nДетализация задач:");
+    experimentData.tasks.forEach((task, index) => {
+      console.log(`\nЗадача #${index + 1}: ${task.taskName} (ID: ${task.taskId})`);
+      console.log("Параметры:");
+      console.log("- Режим:", task.parameters.mode);
+      console.log("- Размер сетки:", `${task.parameters.gridSize.rows}×${task.parameters.gridSize.columns}`);
+      console.log("- Временные параметры:");
+      console.log("  • Стимул:", task.parameters.timing.stimulusTime, "мс");
+      console.log("  • Ответ:", task.parameters.timing.responseTime, "мс");
+      console.log("  • Пауза:", task.parameters.timing.pauseTime, "мс");
+      console.log("  • Общее время:", task.parameters.timing.totalTime, "мс");
+      
+      if (task.parameters.mode === "adaptive") {
+        console.log("- Настройки адаптивного режима:");
+        console.log("  • Время на серию:", task.parameters.modeSettings.seriesTime, "сек");
+        console.log("  • Диапазон эффективности:", 
+          `${task.parameters.modeSettings.efficiencyMin}–${task.parameters.modeSettings.efficiencyMax}`);
+      }
     });
-    navigate("/experiments");
   };
 
-  const handleParamChange = (field, value) => {
-    setExperimentParams(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const handleTasksChange = (updatedTasks) => {
+    setTasks(updatedTasks);
   };
 
   return (
-    <Box sx={{ pb: 7 }}>
-      {/* Sticky header с кнопкой создания */}
+    <Box sx={{ 
+      display: "flex", 
+      flexDirection: "column",
+      minHeight: "100vh",
+      pb: 7 
+    }}>
+      {/* Шапка с кнопкой сохранения */}
       <AppBar 
-        position="sticky" 
-        color="default" 
+        position="sticky"
+        color="inherit"
         elevation={0}
         sx={{ 
-          borderBottom: 1, 
-          borderColor: 'divider',
-          backgroundColor: 'background.paper'
+          borderBottom: "1px solid", 
+          borderColor: "divider",
+          backgroundColor: "background.default"
         }}
       >
         <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Typography 
+            variant="h6" 
+            component="div"
+            sx={{ 
+              flexGrow: 1,
+              fontWeight: 500,
+              letterSpacing: "0.5px"
+            }}
+          >
             Создание эксперимента
           </Typography>
           <Button
             variant="contained"
+            color="primary"
             startIcon={<SaveIcon />}
             onClick={handleSaveExperiment}
+            sx={{
+              textTransform: "none",
+              fontWeight: 500,
+              px: 3,
+              py: 1
+            }}
           >
-            Создать
+            Сохранить эксперимент
           </Button>
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ p: 3 }}>
-        {/* Поле для названия эксперимента */}
+      {/* Основное содержимое */}
+      <Box 
+        component="main"
+        sx={{ p: 3 }}
+      >
+        {/* Поле названия эксперимента */}
         <TextField
-          label="Название эксперимента"
           fullWidth
+          label="Название эксперимента"
+          variant="outlined"
           value={experimentName}
-          onChange={(e) => setExperimentName(e.target.value)}
-          sx={{ mb: 3 }}
+          onChange={(event) => setExperimentName(event.target.value)}
+          sx={{ 
+            mb: 4,
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "8px"
+            }
+          }}
+          inputProps={{
+            style: {
+              fontSize: "1.2rem",
+              padding: "12px 14px"
+            }
+          }}
         />
 
+        {/* Компонент редактирования параметров */}
         <EditableExperimentParameters 
-            parameters={experimentParams}
-            onParamChange={handleParamChange}
-          />
+          tasks={tasks}
+          onTasksChange={handleTasksChange}
+        />
       </Box>
     </Box>
   );
