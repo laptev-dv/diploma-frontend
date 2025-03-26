@@ -1,21 +1,21 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
 import { Outlet } from 'react-router-dom';
 
 function MainLayout() {
   return (
-    <Box sx={{ display: 'flex' }}>
-      {/* Боковое меню */}
-      <Sidebar />
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {/* Шапка приложения */}
+      <Header />
 
       {/* Основное содержимое */}
       <Box
         component="main"
         sx={{ 
-          flexGrow: 1, 
+          flexGrow: 1,
           p: 3,
-          maxWidth: 'calc(100% - 240px)' // учитываем ширину сайдбара
+          mt: 8, // Отступ для шапки
         }}
       >
         <Outlet />

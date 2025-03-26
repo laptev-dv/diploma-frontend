@@ -576,7 +576,9 @@ function EditableExperimentParameters({
                         "ширина",
                         "symbolHeight",
                         activeParameters.symbolHeight || 30,
-                        "высота"
+                        "высота",
+                        "пикс",
+                        false
                       )}
                       {renderDualNumberRow(
                         "Отступы",

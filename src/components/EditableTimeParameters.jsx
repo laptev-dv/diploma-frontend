@@ -9,6 +9,7 @@ import {
   TableRow,
   Stack,
   TextField,
+  InputAdornment
 } from "@mui/material";
 
 const timeColors = {
@@ -29,6 +30,8 @@ function EditableTimeParameters({ parameters, onParamChange }) {
     pauseTime: toSeconds(parameters.pauseTime || 300),
   });
 
+  const [hoveredItem, setHoveredItem] = useState(null);
+
   // Синхронизация с props
   useEffect(() => {
     setLocalParams({
@@ -40,14 +43,11 @@ function EditableTimeParameters({ parameters, onParamChange }) {
 
   // Обработчик изменений
   const handleParamChange = (field, value) => {
-    // Обновляем локальное состояние (в секундах)
     const newParams = {
       ...localParams,
       [field]: value
     };
     setLocalParams(newParams);
-    
-    // Конвертируем в миллисекунды и передаем в родительский компонент
     onParamChange(field, toMilliseconds(value));
   };
 
@@ -61,6 +61,26 @@ function EditableTimeParameters({ parameters, onParamChange }) {
 
   // Расчет процентов для прогресс-бара
   const calculatePercentage = (timeMs) => (timeMs / totalTimeMs) * 100;
+
+  // Получение высоты сегмента в зависимости от наведения
+  const getSegmentHeight = (segment) => {
+    const baseHeight = 24;
+
+    if (!hoveredItem) return baseHeight;
+
+    if (hoveredItem === "total") {
+      return baseHeight * 1.8;
+    } else if (
+      hoveredItem === "responsePeriod" &&
+      (segment === "stimulus" || segment === "response")
+    ) {
+      return baseHeight * 2;
+    } else if (hoveredItem === segment) {
+      return baseHeight * 2;
+    }
+
+    return baseHeight;
+  };
 
   // Визуализация прогресс-бара
   const renderTimeBar = () => {
@@ -84,11 +104,12 @@ function EditableTimeParameters({ parameters, onParamChange }) {
             <Box
               sx={{
                 width: `${calculatePercentage(stimulusMs)}%`,
-                height: "24px",
+                height: `${getSegmentHeight("stimulus")}px`,
                 backgroundColor: timeColors.stimulus,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                transition: "height 0.3s ease",
               }}
             >
               <Typography variant="caption" sx={{ color: "white", fontWeight: "bold" }}>
@@ -99,11 +120,12 @@ function EditableTimeParameters({ parameters, onParamChange }) {
             <Box
               sx={{
                 width: `${calculatePercentage(responseMs)}%`,
-                height: "24px",
+                height: `${getSegmentHeight("response")}px`,
                 backgroundColor: timeColors.response,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                transition: "height 0.3s ease",
               }}
             >
               <Typography variant="caption" sx={{ color: "white", fontWeight: "bold" }}>
@@ -114,11 +136,12 @@ function EditableTimeParameters({ parameters, onParamChange }) {
             <Box
               sx={{
                 width: `${calculatePercentage(pauseMs)}%`,
-                height: "24px",
+                height: `${getSegmentHeight("pause")}px`,
                 backgroundColor: timeColors.pause,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                transition: "height 0.3s ease",
               }}
             >
               <Typography variant="caption" sx={{ color: "white", fontWeight: "bold" }}>
@@ -149,10 +172,20 @@ function EditableTimeParameters({ parameters, onParamChange }) {
     );
   };
 
-  // Рендер редактируемой строки
-  const renderEditableRow = (label, value, color = null, field = null, isLast = false) => {
+  // Рендер строки таблицы с обработчиками наведения
+  const renderTableRow = (label, value, color = null, hoverKey = null, isLast = false) => {
     return (
-      <TableRow sx={{ '&:last-child td': { borderBottom: isLast ? 0 : undefined } }}>
+      <TableRow
+        onMouseEnter={() => hoverKey && setHoveredItem(hoverKey)}
+        onMouseLeave={() => hoverKey && setHoveredItem(null)}
+        sx={{
+          "&:hover": {
+            backgroundColor: hoverKey ? "rgba(0, 0, 0, 0.04)" : "inherit",
+            cursor: hoverKey ? "pointer" : "default",
+          },
+          '&:last-child td': { borderBottom: isLast ? 0 : undefined }
+        }}
+      >
         <TableCell>
           <Stack direction="row" alignItems="center" spacing={1}>
             {color && (
@@ -166,11 +199,10 @@ function EditableTimeParameters({ parameters, onParamChange }) {
             type="number"
             size="small"
             value={value}
-            onChange={(e) => handleParamChange(field, e.target.value)}
+            onChange={(e) => handleParamChange(hoverKey + "Time", e.target.value)}
             InputProps={{
-              endAdornment: <Typography variant="caption">с</Typography>,
+              endAdornment: <InputAdornment position="end">сек</InputAdornment>,
             }}
-            sx={{ width: 100 }}
             inputProps={{
               min: 0.1,
               step: 0.1
@@ -191,30 +223,39 @@ function EditableTimeParameters({ parameters, onParamChange }) {
 
       <Table>
         <TableBody>
-          {renderEditableRow(
+          {renderTableRow(
             "Время предъявления стимула",
             localParams.stimulusTime,
             timeColors.stimulus,
-            "stimulusTime"
+            "stimulus"
           )}
-          {renderEditableRow(
+          {renderTableRow(
             "Время ожидания ответа",
             localParams.responseTime,
             timeColors.response,
-            "responseTime"
+            "response"
           )}
-          {renderEditableRow(
+          {renderTableRow(
             "Время паузы",
             localParams.pauseTime,
             timeColors.pause,
-            "pauseTime"
+            "pause"
           )}
 
           <TableRow>
             <TableCell colSpan={2} sx={{ py: 2 }} />
           </TableRow>
 
-          <TableRow>
+          <TableRow
+            onMouseEnter={() => setHoveredItem("total")}
+            onMouseLeave={() => setHoveredItem(null)}
+            sx={{
+              "&:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.04)",
+                cursor: "pointer",
+              }
+            }}
+          >
             <TableCell>
               <Typography>Общее время цикла</Typography>
             </TableCell>
@@ -223,7 +264,17 @@ function EditableTimeParameters({ parameters, onParamChange }) {
             </TableCell>
           </TableRow>
 
-          <TableRow>
+          <TableRow
+            onMouseEnter={() => setHoveredItem("responsePeriod")}
+            onMouseLeave={() => setHoveredItem(null)}
+            sx={{
+              "&:hover": {
+                backgroundColor: "rgba(0, 0, 0, 0.04)",
+                cursor: "pointer",
+              },
+              '&:last-child td': { borderBottom: 0 }
+            }}
+          >
             <TableCell>
               <Typography>Время на ответ</Typography>
             </TableCell>
