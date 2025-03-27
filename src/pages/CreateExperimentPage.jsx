@@ -5,9 +5,11 @@ import {
   TextField,
   AppBar,
   Toolbar,
+  Typography,
+  Chip
 } from "@mui/material";
 import { Save as SaveIcon } from "@mui/icons-material";
-import EditableExperimentParameters from "../components/EditableExperimentParameters";
+import EditableExperimentParameters from "../components/createExperiment/EditableExperimentParameters";
 
 function CreateExperimentPage() {
   const [experimentName, setExperimentName] = useState("Новый эксперимент");
@@ -38,8 +40,10 @@ function CreateExperimentPage() {
     }
   ]);
 
+  // Получаем текущий режим из первой задачи (можно доработать для нескольких задач)
+  const currentMode = tasks[0]?.parameters?.mode || "adaptive";
+
   const handleSaveExperiment = () => {
-    // Формируем полные данные эксперимента
     const experimentData = {
       experimentName: experimentName,
       createdAt: new Date().toISOString(),
@@ -48,13 +52,11 @@ function CreateExperimentPage() {
         taskName: task.name,
         order: index + 1,
         parameters: {
-          // Основные параметры
           mode: task.parameters.mode,
           gridSize: {
             rows: task.parameters.rows,
             columns: task.parameters.columns
           },
-          // Визуальные параметры
           appearance: {
             backgroundColor: task.parameters.backgroundColor,
             symbol: {
@@ -69,7 +71,6 @@ function CreateExperimentPage() {
               vertical: task.parameters.verticalPadding
             }
           },
-          // Параметры времени
           timing: {
             stimulusTime: Number(task.parameters.stimulusTime),
             responseTime: Number(task.parameters.responseTime),
@@ -78,7 +79,6 @@ function CreateExperimentPage() {
                       Number(task.parameters.responseTime) + 
                       Number(task.parameters.pauseTime)
           },
-          // Параметры режима
           modeSettings: {
             presentationsPerTask: task.parameters.presentationsPerTask,
             ...(task.parameters.mode === "adaptive" ? {
@@ -91,10 +91,8 @@ function CreateExperimentPage() {
       }))
     };
 
-    // Выводим в консоль для проверки
     console.log("Полные данные эксперимента:", JSON.stringify(experimentData, null, 2));
     
-    // Форматированный вывод задач
     console.log("\nДетализация задач:");
     experimentData.tasks.forEach((task, index) => {
       console.log(`\nЗадача #${index + 1}: ${task.taskName} (ID: ${task.taskId})`);
@@ -133,11 +131,10 @@ function CreateExperimentPage() {
         component="main"
         sx={{
           p: 3,
-          pb: 10, // Добавляем отступ снизу, чтобы контент не скрывался под фиксированной панелью
-          flex: 1, // Занимаем все доступное пространство
+          pb: 10,
+          flex: 1,
         }}
       >
-        {/* Поле названия эксперимента */}
         <TextField
           fullWidth
           label="Название эксперимента"
@@ -158,14 +155,13 @@ function CreateExperimentPage() {
           }}
         />
 
-        {/* Компонент редактирования параметров */}
         <EditableExperimentParameters
           tasks={tasks}
           onTasksChange={handleTasksChange}
         />
       </Box>
 
-      {/* Фиксированная панель внизу с кнопкой сохранения */}
+      {/* Фиксированная панель внизу */}
       <AppBar
         position="fixed"
         color="inherit"
@@ -179,7 +175,20 @@ function CreateExperimentPage() {
         }}
       >
         <Toolbar>
-          <Box sx={{ flexGrow: 1, display: { xs: "flex" }, justifyContent: 'right' }}>
+          {/* Отображение текущего режима слева */}
+          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body1" sx={{ mr: 2 }}>
+              Текущий режим:
+            </Typography>
+            <Chip 
+              label={currentMode === "adaptive" ? "Адаптивный" : "Жесткий"} 
+              color='primary'
+              variant="outlined"
+            />
+          </Box>
+
+          {/* Кнопка сохранения справа */}
+          <Box>
             <Button
               variant="contained"
               color="primary"

@@ -10,6 +10,7 @@ import {
   Stack,
   TextField,
   InputAdornment,
+  Divider,
 } from "@mui/material";
 
 const timeColors = {
@@ -140,7 +141,7 @@ function EditableTimeParameters({ parameters, onParamChange }) {
             backgroundColor: hoverKey ? "rgba(0, 0, 0, 0.04)" : "inherit",
             cursor: hoverKey ? "pointer" : "default",
           },
-          "&:last-child td": { borderBottom: isLast ? 0 : undefined },
+          td : { borderBottom: 0, paddingBottom: 1 },
         }}
       >
         <TableCell>
@@ -189,6 +190,7 @@ function EditableTimeParameters({ parameters, onParamChange }) {
           direction: "column",
           alignContent: "end",
         }}
+        gap={2}
       >
         <Box sx={{ height: `${maxHeight}px`, alignContent: 'end' }}>{renderTimeBar()}</Box>
 
@@ -202,7 +204,7 @@ function EditableTimeParameters({ parameters, onParamChange }) {
           <Table>
             <TableBody>
               {renderTableRow(
-                "Предъявление",
+                "Предъявление стимула",
                 localParams.stimulusTime,
                 timeColors.stimulus,
                 "stimulus"
@@ -222,6 +224,8 @@ function EditableTimeParameters({ parameters, onParamChange }) {
             </TableBody>
           </Table>
 
+          <Divider />
+  
           <Table>
             <TableBody>
               <TableRow
@@ -232,14 +236,11 @@ function EditableTimeParameters({ parameters, onParamChange }) {
                     backgroundColor: "rgba(0, 0, 0, 0.04)",
                     cursor: "pointer",
                   },
+                  td : { borderBottom: 0, paddingBottom: 1 }
                 }}
               >
-                <TableCell colSpan={2}>
-                  <Typography>Общее время цикла</Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography>{toSeconds(totalTimeMs)} сек</Typography>
-                </TableCell>
+                <TableCell colSpan={2}>Общее время цикла</TableCell>
+                <TableCell>{toSeconds(totalTimeMs)} сек</TableCell>
               </TableRow>
               <TableRow
                 onMouseEnter={() => setHoveredItem("responsePeriod")}
@@ -249,15 +250,11 @@ function EditableTimeParameters({ parameters, onParamChange }) {
                     backgroundColor: "rgba(0, 0, 0, 0.04)",
                     cursor: "pointer",
                   },
-                  "&:last-child td": { borderBottom: 0 },
+                  td : { borderBottom: 0, paddingBottom: 1 }
                 }}
               >
-                <TableCell colSpan={2}>
-                  <Typography>Время на ответ</Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography>{toSeconds(responsePeriodTimeMs)} сек</Typography>
-                </TableCell>
+                <TableCell colSpan={2}>Время на ответ</TableCell>
+                <TableCell>{toSeconds(responsePeriodTimeMs)} сек</TableCell>
               </TableRow>
             </TableBody>
           </Table>

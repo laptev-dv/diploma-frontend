@@ -26,7 +26,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import SessionItem from "../components/SessionItem";
-import ExperimentParameters from "../components/ExperimentParameters";
+import ExperimentParameters from "../components/experimentDetails/ExperimentParameters";
 
 function ExperimentPage() {
   const { id } = useParams();

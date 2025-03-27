@@ -64,6 +64,7 @@ const AsciiSymbolSelect = ({ value, onChange }) => {
       options={allSymbols}
       groupBy={(option) => option.group}
       value={allSymbols.find(s => s.char === value) || null}
+      disableClearable
       onChange={(event, newValue) => {
         onChange(newValue?.char || 'X');
       }}

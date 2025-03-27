@@ -11,22 +11,19 @@ import {
   TextField,
   InputAdornment,
 } from "@mui/material";
-import ColorPickerButton from "./ColorPickerButton";
+import ColorPickerButton from "../ColorPickerButton";
 import FontSelect from "./FontSelect";
 import AsciiSymbolSelect from "./AsciiSymbolSelect";
 
 const ExperimentGeneralParams = ({ parameters, onParamChange }) => {
-  const renderColorRow = (label, field1, color1, field2, color2, isLast = false) => (
-    <TableRow
-      sx={{ "td": { borderBottom: isLast ? 0 : undefined } }}
-    >
-      <TableCell>{label}</TableCell>
+  const renderColorRow = (field1, color1, field2, color2, isLast = false) => (
+    <TableRow sx={{ td: { borderBottom: isLast ? 0 : undefined } }}>
       <TableCell>
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
             label="Фон"
             size="small"
-            value={color1}
+            value={color1.toUpperCase()}
             onChange={(e) => onParamChange(field1, e.target.value)}
             sx={{ flex: 1 }}
           />
@@ -37,7 +34,7 @@ const ExperimentGeneralParams = ({ parameters, onParamChange }) => {
           <TextField
             label="Символ"
             size="small"
-            value={color2}
+            value={color2.toUpperCase()}
             onChange={(e) => onParamChange(field2, e.target.value)}
             sx={{ flex: 1 }}
           />
@@ -51,7 +48,6 @@ const ExperimentGeneralParams = ({ parameters, onParamChange }) => {
   );
 
   const renderDualNumberRow = (
-    label,
     field1,
     value1,
     label1,
@@ -61,10 +57,7 @@ const ExperimentGeneralParams = ({ parameters, onParamChange }) => {
     unit = "пикс",
     isLast = false
   ) => (
-    <TableRow
-      sx={{ "td": { borderBottom: isLast ? 0 : undefined } }}
-    >
-      <TableCell>{label}</TableCell>
+    <TableRow sx={{ td: { borderBottom: isLast ? 0 : undefined } }}>
       <TableCell>
         <Stack direction="row" spacing={2}>
           <TextField
@@ -106,27 +99,43 @@ const ExperimentGeneralParams = ({ parameters, onParamChange }) => {
         </Typography>
         <Table>
           <TableBody>
+            <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 0 } }}>
+              <TableCell>Цвета</TableCell>
+            </TableRow>
             {renderColorRow(
-              "Цвета",
               "backgroundColor",
               parameters.backgroundColor || "#ffffff",
               "symbolColor",
               parameters.symbolColor || "#000000",
               false
             )}
+            <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 0 } }}>
+              <TableCell>Поле</TableCell>
+            </TableRow>
             {renderDualNumberRow(
-              "Поле",
               "rows",
               parameters.rows || 4,
-              "Строк",
+              "Кол-во строк",
               "columns",
               parameters.columns || 4,
-              "Столбцов",
+              "Кол-во столбцов",
               "шт",
               true
             )}
-            <TableRow>
+            {renderDualNumberRow(
+              "horizontalPadding",
+              parameters.horizontalPadding || 5,
+              "Горизонт. отступ",
+              "verticalPadding",
+              parameters.verticalPadding || 5,
+              "Верт. отступ",
+              'пикс',
+              false
+            )}
+            <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 0 } }}>
               <TableCell>Стимул</TableCell>
+            </TableRow>
+            <TableRow sx={{ td: { borderBottom: 0 } }}>
               <TableCell>
                 <Stack direction="row" spacing={2}>
                   <AsciiSymbolSelect
@@ -137,15 +146,12 @@ const ExperimentGeneralParams = ({ parameters, onParamChange }) => {
                   />
                   <FontSelect
                     value={parameters.symbolFont || "Arial"}
-                    onChange={(newFont) =>
-                      onParamChange("symbolFont", newFont)
-                    }
+                    onChange={(newFont) => onParamChange("symbolFont", newFont)}
                   />
                 </Stack>
               </TableCell>
             </TableRow>
             {renderDualNumberRow(
-              "Размер символа",
               "symbolWidth",
               parameters.symbolWidth || 30,
               "Ширина",
@@ -153,17 +159,6 @@ const ExperimentGeneralParams = ({ parameters, onParamChange }) => {
               parameters.symbolHeight || 30,
               "Высота",
               "пикс",
-              true
-            )}
-            {renderDualNumberRow(
-              "Отступы",
-              "horizontalPadding",
-              parameters.horizontalPadding || 5,
-              "Горизонтальный",
-              "verticalPadding",
-              parameters.verticalPadding || 5,
-              "Вертикальный",
-              null,
               true
             )}
           </TableBody>

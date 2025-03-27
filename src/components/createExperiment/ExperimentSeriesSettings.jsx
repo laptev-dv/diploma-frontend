@@ -12,6 +12,8 @@ import {
   TextField,
   InputAdornment,
   Stack,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 
 const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
@@ -20,18 +22,15 @@ const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
     field,
     value,
     type = "text",
-    isLast = false,
     unit = null
   ) => (
-    <TableRow
-      sx={{ "&:last-child td": { borderBottom: isLast ? 0 : undefined } }}
-    >
-      <TableCell>{label}</TableCell>
+    <TableRow sx={{ td : { borderBottom: 0, paddingBottom: 1 } }} >
       <TableCell>
         <TextField
           size="small"
           fullWidth
           type={type}
+          label={label}
           value={value}
           onChange={(e) =>
             onParamChange(
@@ -54,7 +53,6 @@ const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
   );
 
   const renderDualNumberRow = (
-    label,
     field1,
     value1,
     label1,
@@ -62,12 +60,8 @@ const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
     value2,
     label2,
     unit = "пикс",
-    isLast = false
   ) => (
-    <TableRow
-      sx={{ "&:last-child td": { borderBottom: isLast ? 0 : undefined } }}
-    >
-      <TableCell>{label}</TableCell>
+    <TableRow sx={{ td: { borderBottom: 0 } }}>
       <TableCell>
         <Stack direction="row" spacing={2}>
           <TextField
@@ -109,47 +103,53 @@ const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
         </Typography>
         <Table>
           <TableBody>
-            <TableRow>
-              <TableCell>Режим</TableCell>
+            <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 1 } }}>
               <TableCell>
-                <Select
-                  value={parameters.mode || "adaptive"}
-                  onChange={(e) => onParamChange("mode", e.target.value)}
-                  size="small"
-                  fullWidth
-                >
-                  <MenuItem value="adaptive">Адаптивный</MenuItem>
-                  <MenuItem value="strict">Жесткий</MenuItem>
-                </Select>
+                <FormControl fullWidth>
+                  <InputLabel>Режим</InputLabel>
+                  <Select
+                    label="Режим"
+                    value={parameters.mode || "adaptive"}
+                    onChange={(e) => onParamChange("mode", e.target.value)}
+                    size="small"
+                    fullWidth
+                  >
+                    <MenuItem value="adaptive">Адаптивный</MenuItem>
+                    <MenuItem value="strict">Жесткий</MenuItem>
+                  </Select>
+                </FormControl>
               </TableCell>
             </TableRow>
+            {parameters.mode === "adaptive" &&
+              renderEditableRow(
+                "Номер начальной задачи",
+                "initialTaskNumber",
+                parameters.initialTaskNumber || 1,
+                "number",
+              )}
+            {renderEditableRow(
+              "Количество предъявлений в задаче",
+              "presentationsPerTask",
+              parameters.presentationsPerTask || 20,
+              "number",
+              parameters.mode === "strict",
+              "шт"
+            )}
+            {parameters.mode === "adaptive" &&
+              renderEditableRow(
+                "Время на серию",
+                "seriesTime",
+                parameters.seriesTime || 30,
+                "number",
+                "сек"
+              )}
             {parameters.mode === "adaptive" && (
               <>
-                {renderEditableRow(
-                  "Номер начальной задачи",
-                  "initialTaskNumber",
-                  parameters.initialTaskNumber || 1,
-                  "number",
-                  false
-                )}
-                {renderEditableRow(
-                  "Количество предъявлений в задаче",
-                  "presentationsPerTask",
-                  parameters.presentationsPerTask || 20,
-                  "number",
-                  false,
-                  "шт"
-                )}
-                {renderEditableRow(
-                  "Время на серию",
-                  "seriesTime",
-                  parameters.seriesTime || 30,
-                  "number",
-                  false,
-                  "сек"
-                )}
+                <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 0 } }}>
+                  <TableCell>Границы эффективности</TableCell>
+                </TableRow>
+
                 {renderDualNumberRow(
-                  "Границы эффективности",
                   "efficiencyMin",
                   parameters.efficiencyMin || 0.5,
                   "Нижняя",
@@ -157,19 +157,9 @@ const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
                   parameters.efficiencyMax || 0.8,
                   "Верхняя",
                   null,
-                  true
                 )}
               </>
             )}
-            {parameters.mode === "strict" &&
-              renderEditableRow(
-                "Количество предъявлений в задаче",
-                "presentationsPerTaskStrict",
-                parameters.presentationsPerTaskStrict || 20,
-                "number",
-                true,
-                "шт"
-              )}
           </TableBody>
         </Table>
       </Box>

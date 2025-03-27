@@ -22,8 +22,8 @@ import {
   Fullscreen as FullscreenIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
-import TimeParameters from "../components/TimeParameters";
-import StimulusPreview from "../components/StimulusPreview";
+import TimeParameters from "./TimeParameters";
+import StimulusPreview from "../shared/StimulusPreview";
 
 // Компонент полноэкранного просмотра
 const FullscreenPreview = ({ open, onClose, parameters }) => {

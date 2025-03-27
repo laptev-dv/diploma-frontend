@@ -74,6 +74,7 @@ const FontSelect = ({ value, onChange }) => {
       size='small'
       options={fonts}
       value={value}
+      disableClearable
       onChange={(event, newValue) => {
         if (newValue) {
           loadFont(newValue);

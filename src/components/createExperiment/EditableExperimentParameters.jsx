@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import ExperimentSeriesSettings from "./ExperimentSeriesSettings";
 import ExperimentTasks from "./ExperimentTasks";
 import ExperimentGeneralParams from "./ExperimentGeneralParams";
-import ExperimentPreview from "./ExperimentPreview";
+import ExperimentPreview from "../shared/ExperimentPreview";
 import EditableTimeParameters from "./EditableTimeParameters";
 
 function EditableExperimentParameters({
@@ -118,49 +118,65 @@ function EditableExperimentParameters({
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      <ExperimentSeriesSettings
-        parameters={activeParameters}
-        onParamChange={handleParamChange}
-      />
+    <Stack direction="row" gap={3}>
+      <Stack
+        direction="column"
+        gap={3}
+        sx={{
+          flex: 1,
+          maxWidth: 800,
+        }}
+      >
+        <ExperimentSeriesSettings
+          parameters={activeParameters}
+          onParamChange={handleParamChange}
+        />
 
-      <Box sx={{ display: "flex", gap: 3 }}>
-        <Box sx={{ flex: 1 }}>
-          <ExperimentTasks
-            tasks={tasks}
-            activeTaskId={activeTaskId}
-            onTaskClick={handleTaskClick}
-            onDeleteTask={handleDeleteTask}
-            onCopyTask={handleCopyTask}
-            onTaskNameChange={handleTaskNameChange}
-            onTasksChange={(newTasks) => {
-              setTasks(newTasks);
-              onTasksChange(newTasks);
+        <Box sx={{ display: "flex", gap: 3 }}>
+          <Box sx={{ flex: 1, minWidth: 320 }}>
+            <ExperimentTasks
+              tasks={tasks}
+              activeTaskId={activeTaskId}
+              onTaskClick={handleTaskClick}
+              onDeleteTask={handleDeleteTask}
+              onCopyTask={handleCopyTask}
+              onTaskNameChange={handleTaskNameChange}
+              onTasksChange={(newTasks) => {
+                setTasks(newTasks);
+                onTasksChange(newTasks);
+              }}
+            />
+          </Box>
+
+          <Box
+            sx={{
+              flex: 2,
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+              minWidth: 408,
             }}
-          />
-        </Box>
+          >
+            <ExperimentGeneralParams
+              parameters={activeParameters}
+              onParamChange={handleParamChange}
+            />
 
-        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
-          <ExperimentGeneralParams
-            parameters={activeParameters}
-            onParamChange={handleParamChange}
-          />
-
-          <EditableTimeParameters
-            parameters={{
-              stimulusTime: activeParameters.stimulusTime,
-              responseTime: activeParameters.responseTime,
-              pauseTime: activeParameters.pauseTime,
-            }}
-            onParamChange={handleParamChange}
-          />
+            <EditableTimeParameters
+              parameters={{
+                stimulusTime: activeParameters.stimulusTime,
+                responseTime: activeParameters.responseTime,
+                pauseTime: activeParameters.pauseTime,
+              }}
+              onParamChange={handleParamChange}
+            />
+          </Box>
         </Box>
-
-        <Box sx={{ flex: 1, maxWidth: "30%" }}>
-          <ExperimentPreview parameters={activeParameters} />
-        </Box>
+      </Stack>
+      <Box sx={{ flex: 1 }}>
+        <ExperimentPreview parameters={activeParameters} />
       </Box>
-    </Box>
+    </Stack>
   );
 }
 
