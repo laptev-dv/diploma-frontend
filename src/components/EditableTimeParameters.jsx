@@ -18,6 +18,9 @@ const timeColors = {
   pause: "#FF9800",
 };
 
+const baseHeight = 16
+const maxHeight = 80
+
 function EditableTimeParameters({ parameters, onParamChange }) {
   // Конвертер единиц
   const toSeconds = (ms) => (ms / 1000).toFixed(1);
@@ -65,23 +68,21 @@ function EditableTimeParameters({ parameters, onParamChange }) {
   const calculatePercentage = (timeMs) => (timeMs / totalTimeMs) * 100;
 
   // Получение ширины сегмента в зависимости от наведения
-  const getSegmentWidth = (segment) => {
-    const baseWidth = 16;
-
-    if (!hoveredItem) return baseWidth;
+  const getSegmentHeight = (segment) => {
+    if (!hoveredItem) return baseHeight;
 
     if (hoveredItem === "total") {
-      return baseWidth * 3.5;
+      return maxHeight - 16;
     } else if (
       hoveredItem === "responsePeriod" &&
       (segment === "stimulus" || segment === "response")
     ) {
-      return baseWidth * 4;
+      return maxHeight;
     } else if (hoveredItem === segment) {
-      return baseWidth * 4;
+      return maxHeight;
     }
 
-    return baseWidth;
+    return baseHeight;
   };
 
   // Визуализация вертикального прогресс-бара
@@ -91,41 +92,34 @@ function EditableTimeParameters({ parameters, onParamChange }) {
     const pauseMs = toMilliseconds(localParams.pauseTime);
 
     return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          height: "100%",
-          ml: 2,
-        }}
-      >
+      <Stack direction="row" sx={{ alignItems: "end" }}>
         <Box
           sx={{
-            borderRadius: "4px 4px 0 0",
-            height: `${calculatePercentage(stimulusMs)}%`,
-            width: `${getSegmentWidth("stimulus")}px`,
+            borderRadius: "4px 0 0 4px",
+            width: `${calculatePercentage(stimulusMs)}%`,
+            height: `${getSegmentHeight("stimulus")}px`,
             backgroundColor: timeColors.stimulus,
-            transition: "width 0.3s ease",
+            transition: "height 0.3s ease",
           }}
         />
         <Box
           sx={{
-            height: `${calculatePercentage(responseMs)}%`,
-            width: `${getSegmentWidth("response")}px`,
+            width: `${calculatePercentage(responseMs)}%`,
+            height: `${getSegmentHeight("response")}px`,
             backgroundColor: timeColors.response,
-            transition: "width 0.3s ease",
+            transition: "height 0.3s ease",
           }}
         />
         <Box
           sx={{
-            borderRadius: "0 0 4px 4px",
-            height: `${calculatePercentage(pauseMs)}%`,
-            width: `${getSegmentWidth("pause")}px`,
+            borderRadius: "0 4px 4px 0",
+            width: `${calculatePercentage(pauseMs)}%`,
+            height: `${getSegmentHeight("pause")}px`,
             backgroundColor: timeColors.pause,
-            transition: "width 0.3s ease",
+            transition: "height 0.3s ease",
           }}
         />
-      </Box>
+      </Stack>
     );
   };
 
@@ -190,34 +184,45 @@ function EditableTimeParameters({ parameters, onParamChange }) {
         Временные параметры
       </Typography>
 
-      <Stack sx={{ direction: 'column' }}>
-          <Stack direction="row" spacing={1} mb={2}>
-          <Stack sx={{width: '100%'}} direction="column" justifyContent="space-between" spacing={1} mb={2}>
+      <Stack
+        sx={{
+          direction: "column",
+          alignContent: "end",
+        }}
+      >
+        <Box sx={{ height: `${maxHeight}px`, alignContent: 'end' }}>{renderTimeBar()}</Box>
 
-            <Table>
-              <TableBody>
-                {renderTableRow(
-                  "Предъявление",
-                  localParams.stimulusTime,
-                  timeColors.stimulus,
-                  "stimulus"
-                )}
-                {renderTableRow(
-                  "Ожидание ответа",
-                  localParams.responseTime,
-                  timeColors.response,
-                  "response"
-                )}
-                {renderTableRow(
-                  "Пауза",
-                  localParams.pauseTime,
-                  timeColors.pause,
-                  "pause"
-                )}
-              </TableBody>
-            </Table>
-            
-            <Table >
+        <Stack
+          sx={{ width: "100%" }}
+          direction="column"
+          justifyContent="space-between"
+          spacing={1}
+          mb={2}
+        >
+          <Table>
+            <TableBody>
+              {renderTableRow(
+                "Предъявление",
+                localParams.stimulusTime,
+                timeColors.stimulus,
+                "stimulus"
+              )}
+              {renderTableRow(
+                "Ожидание ответа",
+                localParams.responseTime,
+                timeColors.response,
+                "response"
+              )}
+              {renderTableRow(
+                "Пауза",
+                localParams.pauseTime,
+                timeColors.pause,
+                "pause"
+              )}
+            </TableBody>
+          </Table>
+
+          <Table>
             <TableBody>
               <TableRow
                 onMouseEnter={() => setHoveredItem("total")}
@@ -256,11 +261,7 @@ function EditableTimeParameters({ parameters, onParamChange }) {
               </TableRow>
             </TableBody>
           </Table>
-          </Stack>
-
-            {/* Вертикальный прогресс-бар */}
-            <Box sx={{ width: "120px" }}>{renderTimeBar()}</Box>
-          </Stack>
+        </Stack>
       </Stack>
     </Paper>
   );
