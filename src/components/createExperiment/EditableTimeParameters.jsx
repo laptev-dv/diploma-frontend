@@ -28,9 +28,9 @@ function EditableTimeParameters({ parameters, onParamChange }) {
 
   // Локальное состояние для редактируемых значений (в секундах)
   const [localParams, setLocalParams] = useState({
-    stimulusTime: toSeconds(parameters.stimulusTime || 500),
-    responseTime: toSeconds(parameters.responseTime || 1000),
-    pauseTime: toSeconds(parameters.pauseTime || 300),
+    stimulusTime: toSeconds(parameters.stimulusTime),
+    responseTime: toSeconds(parameters.responseTime),
+    pauseTime: toSeconds(parameters.pauseTime),
   });
 
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -38,9 +38,9 @@ function EditableTimeParameters({ parameters, onParamChange }) {
   // Синхронизация с props
   useEffect(() => {
     setLocalParams({
-      stimulusTime: toSeconds(parameters.stimulusTime || 500),
-      responseTime: toSeconds(parameters.responseTime || 1000),
-      pauseTime: toSeconds(parameters.pauseTime || 300),
+      stimulusTime: toSeconds(parameters.stimulusTime),
+      responseTime: toSeconds(parameters.responseTime),
+      pauseTime: toSeconds(parameters.pauseTime),
     });
   }, [parameters]);
 

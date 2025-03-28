@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Box, Button } from '@mui/material';
 import FullscreenStimulus from '../components/FullscreenStimulus';
+import DevPanel from '../components/DevPanel';
 
 const MemoizedStimulus = React.memo(FullscreenStimulus);
 
@@ -12,24 +13,19 @@ const ExperimentRunPage = () => {
   const [hiddenPosition, setHiddenPosition] = useState(null);
   const [activeTaskIndex, setActiveTaskIndex] = useState(0);
   const [changeCounter, setChangeCounter] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(1);
 
   const experiment = location.state?.experiment;
+  const tasks = useMemo(() => experiment?.parameters?.tasks || [], [experiment]);
 
-  // Получаем все задачи
-  const tasks = useMemo(() => {
-    return experiment?.parameters?.tasks || [];
-  }, [experiment]);
+  const taskParameters = useMemo(() => tasks[activeTaskIndex]?.parameters || {}, 
+    [tasks, activeTaskIndex]);
 
-  // Текущие параметры задачи
-  const taskParameters = useMemo(() => {
-    return tasks[activeTaskIndex]?.parameters || {};
-  }, [tasks, activeTaskIndex]);
+  const taskBackground = useMemo(() => 
+    taskParameters.backgroundColor || '#ffffff', 
+    [taskParameters]
+  );
 
-  const taskBackground = useMemo(() => {
-    return taskParameters.backgroundColor || '#ffffff';
-  }, [taskParameters]);
-
-  // Генерация новой позиции
   const generateNewHiddenPosition = useCallback(() => {
     if (!taskParameters.rows || !taskParameters.columns) return;
     
@@ -38,19 +34,17 @@ const ExperimentRunPage = () => {
       col: Math.floor(Math.random() * taskParameters.columns)
     });
     
-    // Увеличиваем счетчик смен
     setChangeCounter(prev => {
       const newCount = prev + 1;
-      
-      // Каждые 3 смены меняем задачу
       if (newCount >= 3) {
-        setActiveTaskIndex(prevIndex => 
-          (prevIndex + 1) % tasks.length
-        );
+        setActiveTaskIndex(prevIndex => (prevIndex + 1) % tasks.length);
         return 0;
       }
       return newCount;
     });
+
+    // Сбрасываем таймер
+    setTimeLeft(2);
   }, [taskParameters, tasks.length]);
 
   useEffect(() => {
@@ -59,22 +53,19 @@ const ExperimentRunPage = () => {
       return;
     }
 
-    let animationFrameId;
-    let lastUpdateTime = 0;
-    const updateInterval = 1000; // 1 секунда
+    // Таймер обратного отсчета
+    const timerInterval = setInterval(() => {
+      setTimeLeft(prev => Math.max(0, prev - 0.1).toFixed(1));
+    }, 100);
 
-    const updatePosition = (timestamp) => {
-      if (timestamp - lastUpdateTime >= updateInterval) {
-        generateNewHiddenPosition();
-        lastUpdateTime = timestamp;
-      }
-      animationFrameId = requestAnimationFrame(updatePosition);
-    };
-
-    animationFrameId = requestAnimationFrame(updatePosition);
+    // Интервал смены позиции
+    const positionInterval = setInterval(() => {
+      generateNewHiddenPosition();
+    }, 2000);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      clearInterval(timerInterval);
+      clearInterval(positionInterval);
     };
   }, [experiment, id, navigate, generateNewHiddenPosition, tasks.length]);
 
@@ -98,6 +89,15 @@ const ExperimentRunPage = () => {
       <MemoizedStimulus
         parameters={taskParameters}
         hiddenPosition={hiddenPosition}
+      />
+
+      {/* Панель разработчика */}
+      <DevPanel 
+        timeLeft={timeLeft}
+        currentTaskIndex={activeTaskIndex}
+        totalTasks={tasks.length}
+        hiddenPosition={hiddenPosition}
+        experiment={experiment}
       />
 
       <Button

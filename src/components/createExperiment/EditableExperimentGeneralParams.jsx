@@ -54,7 +54,11 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
     value2,
     label2,
     unit,
-    isLast = false
+    isLast = false,
+    min1 = null,
+    max1 = null,
+    min2 = null,
+    max2 = null
   ) => (
     <TableRow sx={{ td: { borderBottom: isLast ? 0 : undefined } }}>
       <TableCell>
@@ -64,7 +68,16 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
             size="small"
             type="number"
             value={value1}
-            onChange={(e) => onParamChange(field1, Number(e.target.value))}
+            onChange={(e) => {
+              let val = Number(e.target.value);
+              if (min1 !== null && val < min1) val = min1;
+              if (max1 !== null && val > max1) val = max1;
+              onParamChange(field1, val);
+            }}
+            inputProps={{
+              min: min1,
+              max: max1,
+            }}
             sx={{ flex: 1 }}
           />
           <TextField
@@ -72,7 +85,16 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
             size="small"
             type="number"
             value={value2}
-            onChange={(e) => onParamChange(field2, Number(e.target.value))}
+            onChange={(e) => {
+              let val = Number(e.target.value);
+              if (min2 !== null && val < min2) val = min2;
+              if (max2 !== null && val > max2) val = max2;
+              onParamChange(field2, val);
+            }}
+            inputProps={{
+              min: min2,
+              max: max2,
+            }}
             sx={{ flex: 1 }}
           />
         </Stack>
@@ -93,9 +115,9 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
             </TableRow>
             {renderColorRow(
               "backgroundColor",
-              parameters.backgroundColor || "#ffffff",
+              parameters.backgroundColor,
               "symbolColor",
-              parameters.symbolColor || "#000000",
+              parameters.symbolColor,
               false
             )}
             <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 0 } }}>
@@ -103,23 +125,31 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
             </TableRow>
             {renderDualNumberRow(
               "rows",
-              parameters.rows || 4,
+              parameters.rows,
               "Кол-во строк",
               "columns",
-              parameters.columns || 4,
+              parameters.columns,
               "Кол-во столбцов",
               "шт",
-              true
+              true,
+              1,  // min rows
+              9,  // max rows
+              1,  // min columns
+              9   // max columns
             )}
             {renderDualNumberRow(
               "horizontalPadding",
-              parameters.horizontalPadding || 5,
+              parameters.horizontalPadding,
               "Горизонт. отступ",
               "verticalPadding",
-              parameters.verticalPadding || 5,
+              parameters.verticalPadding,
               "Верт. отступ",
               "пикс",
-              false
+              false,
+              0,  // min horizontalPadding
+              null,  // no max
+              0,  // min verticalPadding
+              null   // no max
             )}
             <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 0 } }}>
               <TableCell>Стимул</TableCell>
@@ -128,14 +158,14 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
               <TableCell>
                 <Stack direction="row" spacing={2}>
                   <AsciiSymbolSelect
-                    value={parameters.symbolType || "X"}
+                    value={parameters.symbolType}
                     onChange={(newSymbol) =>
                       onParamChange("symbolType", newSymbol)
                     }
-                    fontFamily={parameters.symbolFont || "Arial"} // Передаем текущий шрифт
-                  />{" "}
+                    fontFamily={parameters.symbolFont}
+                  />
                   <FontSelect
-                    value={parameters.symbolFont || "Arial"}
+                    value={parameters.symbolFont}
                     onChange={(newFont) => onParamChange("symbolFont", newFont)}
                   />
                 </Stack>
@@ -143,13 +173,17 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
             </TableRow>
             {renderDualNumberRow(
               "symbolWidth",
-              parameters.symbolWidth || 30,
+              parameters.symbolWidth,
               "Ширина",
               "symbolHeight",
-              parameters.symbolHeight || 30,
+              parameters.symbolHeight,
               "Высота",
               "пикс",
-              true
+              true,
+              0,  // min width
+              null,  // no max
+              0,  // min height
+              null   // no max
             )}
           </TableBody>
         </Table>

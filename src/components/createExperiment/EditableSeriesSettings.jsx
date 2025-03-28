@@ -15,13 +15,15 @@ import {
   Slider,
 } from "@mui/material";
 
-const EditableSeriesSettings = ({ parameters, onParamChange }) => {
+const EditableSeriesSettings = ({ parameters, onParamChange, tasksCount = 1 }) => {
   const renderEditableRow = (
     label,
     field,
     value,
     type = "text",
-    unit = null
+    unit = null,
+    min = null,
+    max = null
   ) => (
     <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 1 } }}>
       <TableCell>
@@ -29,14 +31,23 @@ const EditableSeriesSettings = ({ parameters, onParamChange }) => {
           size="small"
           fullWidth
           type={type}
-          label={`${label}${ unit !== null ? `, ${unit}` : ''}`}
+          label={`${label}${unit !== null ? `, ${unit}` : ''}`}
           value={value}
-          onChange={(e) =>
-            onParamChange(
-              field,
-              type === "number" ? Number(e.target.value) : e.target.value
-            )
-          }
+          onChange={(e) => {
+            let val = type === "number" ? Number(e.target.value) : e.target.value;
+            
+            // Применяем ограничения
+            if (type === "number") {
+              if (min !== null && val < min) val = min;
+              if (max !== null && val > max) val = max;
+            }
+            
+            onParamChange(field, val);
+          }}
+          inputProps={{
+            min,
+            max,
+          }}
         />
       </TableCell>
     </TableRow>
@@ -47,7 +58,6 @@ const EditableSeriesSettings = ({ parameters, onParamChange }) => {
     
     const [min, max] = newValue;
     
-    // Ограничиваем значения, чтобы min не был больше max и наоборот
     if (activeThumb === 0) {
       onParamChange("efficiencyMin", Math.min(min, parameters.efficiencyMax));
     } else {
@@ -85,14 +95,18 @@ const EditableSeriesSettings = ({ parameters, onParamChange }) => {
                 "Номер начальной задачи",
                 "initialTaskNumber",
                 parameters.initialTaskNumber,
-                "number"
+                "number",
+                null,
+                1,  // min
+                tasksCount  // max
               )}
             {renderEditableRow(
               "Количество предъявлений в задаче",
               "presentationsPerTask",
               parameters.presentationsPerTask,
               "number",
-              "шт"
+              "шт",
+              1  // min
             )}
             {parameters.mode === "adaptive" &&
               renderEditableRow(
@@ -100,7 +114,8 @@ const EditableSeriesSettings = ({ parameters, onParamChange }) => {
                 "seriesTime",
                 parameters.seriesTime,
                 "number",
-                "мин"
+                "мин",
+                1  // min
               )}
             {parameters.mode === "adaptive" && (
               <>

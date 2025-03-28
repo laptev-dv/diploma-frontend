@@ -131,8 +131,9 @@ function EditableExperimentParameters({
         <EditableSeriesSettings
           parameters={activeParameters}
           onParamChange={handleParamChange}
+          tasksCount={tasks.length}
         />
-
+        
         <Box sx={{ display: "flex", gap: 3 }}>
           <Box sx={{ flex: 1, minWidth: 320 }}>
             <EditableExperimentTasks
