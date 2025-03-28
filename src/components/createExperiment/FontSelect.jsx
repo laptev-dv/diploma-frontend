@@ -2,20 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { Autocomplete, TextField, Box, CircularProgress } from '@mui/material';
 import axios from 'axios';
 
-// Кэшируем шрифты в localStorage
 const CACHE_KEY = 'google-fonts-cache';
 const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 часа
-
-const loadFont = (fontFamily) => {
-  const link = document.createElement('link');
-  link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/ /g, '+')}&display=swap`;
-  link.rel = 'stylesheet';
-  document.head.appendChild(link);
-};
 
 const FontSelect = ({ value, onChange }) => {
   const [fonts, setFonts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Функция для предварительной загрузки всех шрифтов
+  const preloadFonts = (fontFamilies) => {
+    fontFamilies.forEach(fontFamily => {
+      const link = document.createElement('link');
+      link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/ /g, '+')}&display=swap`;
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    });
+  };
 
   useEffect(() => {
     const fetchFonts = async () => {
@@ -26,6 +28,7 @@ const FontSelect = ({ value, onChange }) => {
         
         if (cachedData && Date.now() - cachedData.timestamp < CACHE_EXPIRY) {
           setFonts(cachedData.fonts);
+          preloadFonts(cachedData.fonts); // Предзагружаем шрифты из кэша
           setLoading(false);
           return;
         }
@@ -36,7 +39,7 @@ const FontSelect = ({ value, onChange }) => {
         );
         
         const popularFonts = response.data.items
-          .filter(font => font.subsets.includes('cyrillic')) // Фильтруем шрифты с поддержкой кириллицы
+          .filter(font => font.subsets.includes('cyrillic'))
           .map(font => font.family);
         
         // Сохраняем в кэш
@@ -46,13 +49,15 @@ const FontSelect = ({ value, onChange }) => {
         }));
         
         setFonts(popularFonts);
+        preloadFonts(popularFonts); // Предзагружаем новые шрифты
         setLoading(false);
       } catch (error) {
         console.error('Error fetching fonts:', error);
-        // Если API не работает, пробуем взять из кэша, даже если просрочен
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
-          setFonts(JSON.parse(cached).fonts);
+          const cachedFonts = JSON.parse(cached).fonts;
+          setFonts(cachedFonts);
+          preloadFonts(cachedFonts); // Предзагружаем шрифты из кэша даже при ошибке
         }
         setLoading(false);
       }
@@ -61,13 +66,6 @@ const FontSelect = ({ value, onChange }) => {
     fetchFonts();
   }, []);
 
-  // Загружаем выбранный шрифт
-  useEffect(() => {
-    if (value) {
-      loadFont(value);
-    }
-  }, [value]);
-
   return (
     <Autocomplete
       fullWidth
@@ -75,12 +73,7 @@ const FontSelect = ({ value, onChange }) => {
       options={fonts}
       value={value}
       disableClearable
-      onChange={(event, newValue) => {
-        if (newValue) {
-          loadFont(newValue);
-          onChange(newValue);
-        }
-      }}
+      onChange={(event, newValue) => onChange(newValue)}
       loading={loading}
       renderInput={(params) => (
         <TextField
@@ -103,7 +96,12 @@ const FontSelect = ({ value, onChange }) => {
         <Box 
           component="li" 
           {...props}
-          sx={{ fontFamily: option }}
+          sx={{ 
+            fontFamily: option,
+            '&:not(:hover)': {
+              backgroundColor: 'background.paper' // Убираем серый фон при наведении
+            }
+          }}
         >
           {option}
         </Box>

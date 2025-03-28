@@ -36,6 +36,7 @@ function EditableExperimentParameters({
               stimulusTime: 500,
               responseTime: 1000,
               pauseTime: 300,
+              initialTaskNumber: 1,
             },
           },
         ]
@@ -154,7 +155,7 @@ function EditableExperimentParameters({
               display: "flex",
               flexDirection: "column",
               gap: 3,
-              minWidth: 408,
+              minWidth: 394,
             }}
           >
             <ExperimentGeneralParams

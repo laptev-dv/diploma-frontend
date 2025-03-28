@@ -44,13 +44,13 @@ const ExperimentTasks = ({
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    
+
     if (!over || active.id === over.id) {
       return;
     }
 
-    const oldIndex = tasks.findIndex(task => task.id === active.id);
-    const newIndex = tasks.findIndex(task => task.id === over.id);
+    const oldIndex = tasks.findIndex((task) => task.id === active.id);
+    const newIndex = tasks.findIndex((task) => task.id === over.id);
 
     if (oldIndex !== -1 && newIndex !== -1) {
       const newTasks = arrayMove(tasks, oldIndex, newIndex);
@@ -61,7 +61,14 @@ const ExperimentTasks = ({
   };
 
   return (
-    <Paper elevation={3} sx={{ position: 'sticky', top: 80 }}>
+    <Paper
+      elevation={3}
+      sx={{
+        position: 'sticky', 
+        top: 80,
+        height: 'calc(100vh - 160px)'
+      }}
+    >
       <Box sx={{ p: 2 }}>
         <Typography variant="subtitle1" gutterBottom>
           Задачи ({tasks.length} шт)
@@ -72,10 +79,7 @@ const ExperimentTasks = ({
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext
-            items={tasks}
-            strategy={verticalListSortingStrategy}
-          >
+          <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
             <List dense>
               {tasks.map((task, index) => (
                 <React.Fragment key={task.id}>

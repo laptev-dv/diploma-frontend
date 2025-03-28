@@ -129,7 +129,7 @@ const ExperimentGeneralParams = ({ parameters, onParamChange }) => {
               "verticalPadding",
               parameters.verticalPadding || 5,
               "Верт. отступ",
-              'пикс',
+              "пикс",
               false
             )}
             <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 0 } }}>
@@ -143,7 +143,8 @@ const ExperimentGeneralParams = ({ parameters, onParamChange }) => {
                     onChange={(newSymbol) =>
                       onParamChange("symbolType", newSymbol)
                     }
-                  />
+                    fontFamily={parameters.symbolFont || "Arial"} // Передаем текущий шрифт
+                  />{" "}
                   <FontSelect
                     value={parameters.symbolFont || "Arial"}
                     onChange={(newFont) => onParamChange("symbolFont", newFont)}

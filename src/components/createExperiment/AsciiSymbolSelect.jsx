@@ -56,7 +56,7 @@ const allSymbols = symbolGroups.flatMap(group =>
   }))
 );
 
-const AsciiSymbolSelect = ({ value, onChange }) => {
+const AsciiSymbolSelect = ({ value, onChange, fontFamily }) => {
   return (
     <Autocomplete
       fullWidth
@@ -75,17 +75,25 @@ const AsciiSymbolSelect = ({ value, onChange }) => {
           label="Символ"
           variant="outlined"
           fullWidth
+          InputProps={{
+            ...params.InputProps,
+            style: { 
+              fontFamily: `${fontFamily}, sans-serif`,
+              fontSize: '1.1rem'
+            }
+          }}
         />
       )}
       renderOption={(props, option) => (
         <li {...props}>
           <span style={{ 
-            fontFamily: 'monospace', 
-            fontSize: '1rem', 
+            fontFamily: `${fontFamily}, sans-serif`,
+            fontSize: '1.3rem', 
             width: '40px',
             display: 'inline-block',
             textAlign: 'center',
-            lineHeight: '1.2'
+            lineHeight: '1.2',
+            padding: '0 5px'
           }}>
             {option.char}
           </span>
@@ -97,6 +105,10 @@ const AsciiSymbolSelect = ({ value, onChange }) => {
           fontWeight: 500,
           backgroundColor: '#f5f5f5',
           paddingLeft: '12px'
+        },
+        '& .MuiAutocomplete-input': {
+          fontFamily: `${fontFamily}, sans-serif`,
+          fontSize: '1.1rem'
         }
       }}
     />

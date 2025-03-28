@@ -14,6 +14,7 @@ import {
   Stack,
   InputLabel,
   FormControl,
+  Slider,
 } from "@mui/material";
 
 const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
@@ -24,7 +25,7 @@ const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
     type = "text",
     unit = null
   ) => (
-    <TableRow sx={{ td : { borderBottom: 0, paddingBottom: 1 } }} >
+    <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 1 } }}>
       <TableCell>
         <TextField
           size="small"
@@ -52,48 +53,28 @@ const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
     </TableRow>
   );
 
-  const renderDualNumberRow = (
-    field1,
-    value1,
-    label1,
-    field2,
-    value2,
-    label2,
-    unit = "пикс",
-  ) => (
-    <TableRow sx={{ td: { borderBottom: 0 } }}>
-      <TableCell>
-        <Stack direction="row" spacing={2}>
-          <TextField
-            label={label1}
-            size="small"
-            type="number"
-            value={value1}
-            onChange={(e) => onParamChange(field1, Number(e.target.value))}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">{unit}</InputAdornment>
-              ),
-            }}
-            sx={{ flex: 1 }}
-          />
-          <TextField
-            label={label2}
-            size="small"
-            type="number"
-            value={value2}
-            onChange={(e) => onParamChange(field2, Number(e.target.value))}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">{unit}</InputAdornment>
-              ),
-            }}
-            sx={{ flex: 1 }}
-          />
-        </Stack>
-      </TableCell>
-    </TableRow>
-  );
+  const handleEfficiencyChange = (event, newValue, activeThumb) => {
+    if (!Array.isArray(newValue)) return;
+    
+    const [min, max] = newValue;
+    
+    // Ограничиваем значения, чтобы min не был больше max и наоборот
+    if (activeThumb === 0) {
+      onParamChange("efficiencyMin", Math.min(min, parameters.efficiencyMax));
+    } else {
+      onParamChange("efficiencyMax", Math.max(max, parameters.efficiencyMin));
+    }
+  };
+
+  const handleMinEfficiencyChange = (e) => {
+    const newValue = Math.min(Number(e.target.value), parameters.efficiencyMax);
+    onParamChange("efficiencyMin", newValue);
+  };
+
+  const handleMaxEfficiencyChange = (e) => {
+    const newValue = Math.max(Number(e.target.value), parameters.efficiencyMin);
+    onParamChange("efficiencyMax", newValue);
+  };
 
   return (
     <Paper elevation={3}>
@@ -109,7 +90,7 @@ const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
                   <InputLabel>Режим</InputLabel>
                   <Select
                     label="Режим"
-                    value={parameters.mode || "adaptive"}
+                    value={parameters.mode}
                     onChange={(e) => onParamChange("mode", e.target.value)}
                     size="small"
                     fullWidth
@@ -124,40 +105,54 @@ const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
               renderEditableRow(
                 "Номер начальной задачи",
                 "initialTaskNumber",
-                parameters.initialTaskNumber || 1,
-                "number",
+                parameters.initialTaskNumber,
+                "number"
               )}
             {renderEditableRow(
               "Количество предъявлений в задаче",
               "presentationsPerTask",
-              parameters.presentationsPerTask || 20,
+              parameters.presentationsPerTask,
               "number",
-              parameters.mode === "strict",
               "шт"
             )}
             {parameters.mode === "adaptive" &&
               renderEditableRow(
                 "Время на серию",
                 "seriesTime",
-                parameters.seriesTime || 30,
+                parameters.seriesTime,
                 "number",
                 "сек"
               )}
             {parameters.mode === "adaptive" && (
               <>
-                <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 0 } }}>
-                  <TableCell>Границы эффективности</TableCell>
+                <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 1 } }}>
+                  <TableCell>
+                    <Typography gutterBottom sx={{ mb: 2 }}>
+                      Границы эффективности
+                    </Typography>
+                    <Slider
+                      value={[
+                        parameters.efficiencyMin,
+                        parameters.efficiencyMax,
+                      ]}
+                      onChange={(e, newValue, activeThumb) => 
+                        handleEfficiencyChange(e, newValue, activeThumb)
+                      }
+                      valueLabelDisplay="on"
+                      min={0}
+                      max={1} 
+                      step={0.01}
+                      disableSwap
+                      sx={{
+                        mt: 2,
+                        '& .MuiSlider-valueLabel': {
+                          backgroundColor: 'primary.main',
+                          borderRadius: 1,
+                        },
+                      }}
+                    />
+                  </TableCell>
                 </TableRow>
-
-                {renderDualNumberRow(
-                  "efficiencyMin",
-                  parameters.efficiencyMin || 0.5,
-                  "Нижняя",
-                  "efficiencyMax",
-                  parameters.efficiencyMax || 0.8,
-                  "Верхняя",
-                  null,
-                )}
               </>
             )}
           </TableBody>

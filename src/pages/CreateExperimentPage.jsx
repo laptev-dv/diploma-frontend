@@ -36,6 +36,7 @@ function CreateExperimentPage() {
         stimulusTime: 500,
         responseTime: 1000,
         pauseTime: 300,
+        initialTaskNumber: 1,
       }
     }
   ]);
