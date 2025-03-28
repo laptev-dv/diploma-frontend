@@ -91,9 +91,7 @@ const ExperimentPreview = ({ parameters }) => {
           display: "flex",
           flexDirection: "column",
           boxSizing: "border-box",
-          position: 'sticky', 
-          top: 80,
-          height: 'calc(100vh - 160px)'
+          height: '100%'
         }}
       >
         <Box

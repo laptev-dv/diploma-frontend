@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Box, Stack, Typography } from "@mui/material";
-import ExperimentSeriesSettings from "./ExperimentSeriesSettings";
-import ExperimentTasks from "./ExperimentTasks";
-import ExperimentGeneralParams from "./ExperimentGeneralParams";
+import EditableSeriesSettings from "./EditableSeriesSettings";
+import EditableExperimentTasks from "./EditableExperimentTasks";
+import EditableExperimentGeneralParams from "./EditableExperimentGeneralParams";
 import ExperimentPreview from "../shared/ExperimentPreview";
 import EditableTimeParameters from "./EditableTimeParameters";
 
@@ -128,14 +128,14 @@ function EditableExperimentParameters({
           maxWidth: 800,
         }}
       >
-        <ExperimentSeriesSettings
+        <EditableSeriesSettings
           parameters={activeParameters}
           onParamChange={handleParamChange}
         />
 
         <Box sx={{ display: "flex", gap: 3 }}>
           <Box sx={{ flex: 1, minWidth: 320 }}>
-            <ExperimentTasks
+            <EditableExperimentTasks
               tasks={tasks}
               activeTaskId={activeTaskId}
               onTaskClick={handleTaskClick}
@@ -158,7 +158,7 @@ function EditableExperimentParameters({
               minWidth: 394,
             }}
           >
-            <ExperimentGeneralParams
+            <EditableExperimentGeneralParams
               parameters={activeParameters}
               onParamChange={handleParamChange}
             />
@@ -174,7 +174,14 @@ function EditableExperimentParameters({
           </Box>
         </Box>
       </Stack>
-      <Box sx={{ flex: 1 }}>
+      <Box
+        sx={{
+          flex: 1,
+          position: "sticky",
+          top: 80,
+          height: "calc(100vh - 160px)",
+        }}
+      >
         <ExperimentPreview parameters={activeParameters} />
       </Box>
     </Stack>

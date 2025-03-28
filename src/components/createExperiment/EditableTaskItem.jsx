@@ -17,7 +17,7 @@ import {
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-export default function TaskItemMinimal({
+export default function EditableTaskItem({
   task,
   onDelete,
   onCopy,

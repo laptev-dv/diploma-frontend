@@ -20,9 +20,9 @@ import {
   sortableKeyboardCoordinates,
   arrayMove,
 } from "@dnd-kit/sortable";
-import TaskItem from "./TaskItem";
+import TaskItem from "./EditableTaskItem";
 
-const ExperimentTasks = ({
+const EditableExperimentTasks = ({
   tasks,
   activeTaskId,
   onTaskClick,
@@ -104,4 +104,4 @@ const ExperimentTasks = ({
   );
 };
 
-export default ExperimentTasks;
+export default EditableExperimentTasks;

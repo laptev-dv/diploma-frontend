@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -15,7 +15,9 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Alert
+  Alert,
+  ToggleButtonGroup,
+  ToggleButton,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -27,8 +29,12 @@ import {
 import { useNavigate, useParams, Link } from "react-router-dom";
 import SessionItem from "../components/SessionItem";
 import ExperimentParameters from "../components/experimentDetails/ExperimentParameters";
+import axios from 'axios';
 
 function ExperimentPage() {
+  const CACHE_KEY = 'google-fonts-cache';
+  const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 часа
+
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -37,23 +43,202 @@ function ExperimentPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
 
+  // Функция для предварительной загрузки всех шрифтов
+  const preloadFonts = (fontFamilies) => {
+    fontFamilies.forEach(fontFamily => {
+      const link = document.createElement('link');
+      link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/ /g, '+')}&display=swap`;
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    });
+  };
+
+  useEffect(() => {
+    const fetchFonts = async () => {
+      try {
+        // Проверяем кэш
+        const cached = localStorage.getItem(CACHE_KEY);
+        const cachedData = cached ? JSON.parse(cached) : null;
+        
+        if (cachedData && Date.now() - cachedData.timestamp < CACHE_EXPIRY) {
+          preloadFonts(cachedData.fonts); // Предзагружаем шрифты из кэша
+          return;
+        }
+
+        // Получаем список шрифтов из Google Fonts API
+        const response = await axios.get(
+          'https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyDgJzM14xNhFsgMoPqMcw14eSmfoIfgPd0&sort=popularity'
+        );
+        
+        const popularFonts = response.data.items
+          .filter(font => font.subsets.includes('cyrillic'))
+          .map(font => font.family);
+        
+        // Сохраняем в кэш
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          fonts: popularFonts,
+          timestamp: Date.now()
+        }));
+        
+        preloadFonts(popularFonts); // Предзагружаем новые шрифты
+      } catch (error) {
+        console.error('Error fetching fonts:', error);
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const cachedFonts = JSON.parse(cached).fonts;
+          preloadFonts(cachedFonts); // Предзагружаем шрифты из кэша даже при ошибке
+        }
+      }
+    };
+
+    fetchFonts();
+  });
+
   const [experiment, setExperiment] = useState({
     id: id,
-    name: "Эксперимент 1",
-    author: "Иван Иванов",
-    createdAt: "01.01.2025",
+    name: "Комплексный тест когнитивных способностей",
+    author: "Проф. Смирнова",
+    createdAt: "20.03.2025",
     parameters: {
-      backgroundColor: "#FFFFFF",
-      symbolColor: "#000000",
-      symbolType: "A",
-      symbolFont: "Arial",
-      symbolSize: 24,
-      symbolSpacing: 10,
-      stimulusTime: 0.5,
-      responseTime: 10,
-      pauseTime: 1,
+      mode: "adaptive",
+      tasks: [
+        {
+          id: "task1",
+          name: "Быстрая реакция 2×3",
+          parameters: {
+            rows: 2,
+            columns: 3,
+            backgroundColor: "#FFF8E1",
+            symbolColor: "#FF6D00",
+            symbolType: "А",
+            symbolFont: "Rubik Maze",
+            symbolHeight: 128,
+            symbolWidth: 128,
+            symbolSpacing: 15,
+            stimulusTime: 800,   // Очень короткое время
+            responseTime: 500,   // Минимальное время ответа
+            pauseTime: 300,      // Короткая пауза
+            efficiencyMin: 0.6,
+            efficiencyMax: 0.85,
+            seriesTime: 15,      // Короткая серия
+            initialTaskNumber: 1,
+            presentationsPerTask: 50, // Много повторений
+          }
+        },
+        {
+          id: "task2",
+          name: "Стандарт 4×4",
+          parameters: {
+            rows: 4,
+            columns: 4,
+            backgroundColor: "#E8F5E9",
+            symbolColor: "#087F23",
+            symbolType: "★",
+            symbolFont: "Segoe UI",
+            symbolSize: 24,
+            symbolSpacing: 8,
+            stimulusTime: 1500,   // Среднее время
+            responseTime: 2000,   // Достаточное время для ответа
+            pauseTime: 1000,      // Стандартная пауза
+            efficiencyMin: 0.5,
+            efficiencyMax: 0.8,
+            seriesTime: 30,
+            initialTaskNumber: 2,
+            presentationsPerTask: 30,
+          }
+        },
+        {
+          id: "task3",
+          name: "Сложный анализ 3×5",
+          parameters: {
+            rows: 3,
+            columns: 5,
+            backgroundColor: "#E1F5FE",
+            symbolColor: "#01579B",
+            symbolType: "♣",
+            symbolFont: "Times New Roman",
+            symbolSize: 20,
+            symbolSpacing: 10,
+            stimulusTime: 2500,   // Длительное время стимула
+            responseTime: 3500,   // Максимальное время ответа
+            pauseTime: 1500,      // Длинная пауза
+            efficiencyMin: 0.4,
+            efficiencyMax: 0.7,
+            seriesTime: 45,       // Длительная серия
+            initialTaskNumber: 3,
+            presentationsPerTask: 20,
+          }
+        },
+        {
+          id: "task4",
+          name: "Экстремальный тест 5×5",
+          parameters: {
+            rows: 5,
+            columns: 5,
+            backgroundColor: "#F3E5F5",
+            symbolColor: "#6A1B9A",
+            symbolType: "◉",
+            symbolFont: "Courier New",
+            symbolSize: 18,
+            symbolSpacing: 5,
+            stimulusTime: 500,    // Очень быстрое мелькание
+            responseTime: 4000,   // Очень долгое время ответа
+            pauseTime: 2000,      // Долгая пауза
+            efficiencyMin: 0.3,
+            efficiencyMax: 0.6,
+            seriesTime: 60,       // Самая длинная серия
+            initialTaskNumber: 4,
+            presentationsPerTask: 40,
+          }
+        },
+        {
+          id: "task5",
+          name: "Переменный ритм 4×2",
+          parameters: {
+            rows: 4,
+            columns: 2,
+            backgroundColor: "#FFEBEE",
+            symbolColor: "#C62828",
+            symbolType: "!",
+            symbolFont: "Verdana",
+            symbolSize: 26,
+            symbolSpacing: 12,
+            stimulusTime: 1200,   // Среднее время
+            responseTime: 800,    // Быстрый ответ
+            pauseTime: 500,       // Средняя пауза
+            efficiencyMin: 0.7,
+            efficiencyMax: 0.9,
+            seriesTime: 20,
+            initialTaskNumber: 5,
+            presentationsPerTask: 35,
+          }
+        }
+      ]
     },
-    sessions: [],
+    sessions: [
+      {
+        id: "session1",
+        author: "Испытуемый A",
+        date: "20.03.2025 10:00",
+        duration: "25 мин",
+        isMine: false,
+        results: {
+          efficiency: 0.55,
+          completedTasks: 3
+        }
+      },
+      {
+        id: "session2",
+        author: "Испытуемый B",
+        date: "20.03.2025 14:30",
+        duration: "42 мин",
+        isMine: true,
+        results: {
+          efficiency: 0.82,
+          completedTasks: 5
+        }
+      }
+    ],
   });
 
   const [editedName, setEditedName] = useState(experiment.name);
@@ -92,6 +277,26 @@ function ExperimentPage() {
 
   const handleStartExperiment = () => {
     navigate(`/experiment/${id}/run`);
+  };
+
+  const handleModeChange = (event, newMode) => {
+    if (newMode !== null) {
+      setExperiment(prev => ({
+        ...prev,
+        parameters: {
+          ...prev.parameters,
+          mode: newMode,
+          // Обновляем режим для всех задач
+          tasks: prev.parameters.tasks.map(task => ({
+            ...task,
+            parameters: {
+              ...task.parameters,
+              mode: newMode
+            }
+          }))
+        }
+      }));
+    }
   };
 
   const handleSaveChanges = () => {
@@ -148,6 +353,17 @@ function ExperimentPage() {
           >
             Изменить данные
           </Button>
+          <ToggleButtonGroup
+            value={experiment.parameters.mode}
+            exclusive
+            onChange={handleModeChange}
+            color="warning"
+            size="small"
+            sx={{ ml: 2 }}
+          >
+            <ToggleButton value="adaptive">Адаптивный</ToggleButton>
+            <ToggleButton value="strict">Жесткий</ToggleButton>
+          </ToggleButtonGroup>
         </Box>
 
         <IconButton onClick={handleMenuOpen}>

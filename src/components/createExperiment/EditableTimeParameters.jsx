@@ -9,7 +9,6 @@ import {
   TableRow,
   Stack,
   TextField,
-  InputAdornment,
   Divider,
 } from "@mui/material";
 
@@ -159,16 +158,13 @@ function EditableTimeParameters({ parameters, onParamChange }) {
         <TableCell align="right">
           <TextField
             fullWidth
-            label={label}
+            label={`${label}, сек`}
             type="number"
             size="small"
             value={value}
             onChange={(e) =>
               handleParamChange(hoverKey + "Time", e.target.value)
             }
-            InputProps={{
-              endAdornment: <InputAdornment position="end">сек</InputAdornment>,
-            }}
             inputProps={{
               min: 0.1,
               step: 0.1,

@@ -10,14 +10,12 @@ import {
   Select,
   MenuItem,
   TextField,
-  InputAdornment,
-  Stack,
   InputLabel,
   FormControl,
   Slider,
 } from "@mui/material";
 
-const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
+const EditableSeriesSettings = ({ parameters, onParamChange }) => {
   const renderEditableRow = (
     label,
     field,
@@ -31,22 +29,13 @@ const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
           size="small"
           fullWidth
           type={type}
-          label={label}
+          label={`${label}${ unit !== null ? `, ${unit}` : ''}`}
           value={value}
           onChange={(e) =>
             onParamChange(
               field,
               type === "number" ? Number(e.target.value) : e.target.value
             )
-          }
-          InputProps={
-            unit
-              ? {
-                  endAdornment: (
-                    <InputAdornment position="end">{unit}</InputAdornment>
-                  ),
-                }
-              : {}
           }
         />
       </TableCell>
@@ -64,16 +53,6 @@ const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
     } else {
       onParamChange("efficiencyMax", Math.max(max, parameters.efficiencyMin));
     }
-  };
-
-  const handleMinEfficiencyChange = (e) => {
-    const newValue = Math.min(Number(e.target.value), parameters.efficiencyMax);
-    onParamChange("efficiencyMin", newValue);
-  };
-
-  const handleMaxEfficiencyChange = (e) => {
-    const newValue = Math.max(Number(e.target.value), parameters.efficiencyMin);
-    onParamChange("efficiencyMax", newValue);
   };
 
   return (
@@ -162,4 +141,4 @@ const ExperimentSeriesSettings = ({ parameters, onParamChange }) => {
   );
 };
 
-export default ExperimentSeriesSettings;
+export default EditableSeriesSettings;
