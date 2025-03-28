@@ -165,7 +165,6 @@ const ExperimentGeneralParams = ({ parameters }) => {
                     InputProps={{
                       readOnly: true,
                       sx: {
-                        fontFamily: parameters.symbolFont || "Arial",
                         fontSize: "1.2rem",
                         '& input': {
                           cursor: 'default',

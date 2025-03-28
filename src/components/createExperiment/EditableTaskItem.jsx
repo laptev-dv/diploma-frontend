@@ -8,6 +8,7 @@ import {
   TextField,
   Typography,
   Tooltip,
+  Box,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -63,9 +64,9 @@ export default function EditableTaskItem({
         py: 0.5,
         borderLeft: isActive ? "3px solid" : "none",
         borderColor: "primary.main",
-        backgroundColor: isActive ? "action.selected" : "transparent",
+        backgroundColor: isActive ? "#1976d21f" : "transparent",
         "&:hover": {
-          backgroundColor: "action.hover",
+          backgroundColor: "#1976d20f",
         },
         cursor: "pointer",
       }}
@@ -92,6 +93,7 @@ export default function EditableTaskItem({
             <Stack direction="row" spacing={0}>
               <Tooltip title="Копировать задачу">
                 <IconButton
+                  color="primary"
                   sx={{ aspectRatio: 1 }}
                   edge="end"
                   size="small"
@@ -110,21 +112,30 @@ export default function EditableTaskItem({
                     : "Удалить задачу"
                 }
               >
-                <IconButton
-                  edge="end"
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(task.id);
+                <Box
+                  sx={{
+                    height: 40,
+                    width: 40,
+                    display: "flex",
+                    alignContent: "center",
                   }}
-                  sx={{ 
-                    color: "error.main",
-                    aspectRatio: 1,
-                   }}
-                  disabled={isDeleteDisabled}
                 >
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
+                  <IconButton
+                    edge="end"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(task.id);
+                    }}
+                    sx={{
+                      color: "error.main",
+                      aspectRatio: 1,
+                    }}
+                    disabled={isDeleteDisabled}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
               </Tooltip>
             </Stack>
           </Stack>

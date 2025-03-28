@@ -8,7 +8,6 @@ import {
   TableCell,
   TableRow,
   TextField,
-  InputAdornment,
   Slider,
 } from "@mui/material";
 
@@ -23,16 +22,11 @@ const SeriesSettings = ({ parameters }) => {
         <TextField
           size="small"
           fullWidth
-          label={label}
+          label={`${label} ${unit !== null ? `, ${unit}` : ''}`}
           value={value}
           disabled
           InputProps={{
             readOnly: true,
-            ...(unit ? {
-              endAdornment: (
-                <InputAdornment position="end">{unit}</InputAdornment>
-              )
-            } : {}),
             sx: {
               '& input': {
                 cursor: 'default',
@@ -103,7 +97,7 @@ const SeriesSettings = ({ parameters }) => {
               renderStaticRow(
                 "Время на серию",
                 parameters.seriesTime,
-                "сек"
+                "мин"
             )}
             {parameters.mode === "adaptive" && (
               <>

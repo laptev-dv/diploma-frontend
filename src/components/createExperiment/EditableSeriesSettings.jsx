@@ -100,7 +100,7 @@ const EditableSeriesSettings = ({ parameters, onParamChange }) => {
                 "seriesTime",
                 parameters.seriesTime,
                 "number",
-                "сек"
+                "мин"
               )}
             {parameters.mode === "adaptive" && (
               <>

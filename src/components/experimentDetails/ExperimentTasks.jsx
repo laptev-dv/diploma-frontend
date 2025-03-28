@@ -22,7 +22,7 @@ const ExperimentTasks = ({
           Задачи ({tasks.length} шт)
         </Typography>
 
-        <List dense>
+        <List dense >
           {tasks.map((task, index) => (
             <React.Fragment key={task.id}>
               <TaskItem

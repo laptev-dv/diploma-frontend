@@ -6,12 +6,14 @@ import LibraryPage from './pages/LibraryPage';
 import SettingsPage from './pages/SettingsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import MainLayout from './layouts/MainLayout';
+import ExperimentLayout from './layouts/ExperimentLayout';
 import CreateExperimentPage from './pages/CreateExperimentPage';
 import FolderPage from './pages/FolderPage';
 import ExperimentPage from './pages/ExperimentPage';
 import ExperimentSessionsPage from './pages/ExperimentSessionsPage';
 import SessionDetailPage from './pages/SessionDetailPage';
 import AdditionalInfoPage from './pages/AdditionalInfoPage';
+import ExperimentRunPage from './pages/ExperimentRunPage';
 
 function App() {
   return (
@@ -30,13 +32,17 @@ function App() {
             <Route path="create" element={<CreateExperimentPage />} />
             <Route path=":id" element={<ExperimentPage />} />
             <Route path=":id/sessions" element={<ExperimentSessionsPage />} />
-            <Route path=":id/run" element={<div>Страница проведения эксперимента</div>} />
           </Route>
           
           {/* Работа с папками */}
           <Route path="folder/:id" element={<FolderPage />} />
 
           <Route path="session/:id" element={<SessionDetailPage />} />
+        </Route>
+
+        {/* Отдельный layout для страницы запуска эксперимента без Header */}
+        <Route path="/experiment/:id/run" element={<ExperimentLayout />}>
+          <Route index element={<ExperimentRunPage />} />
         </Route>
 
         {/* Авторизация (без основного layout) */}

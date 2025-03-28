@@ -18,9 +18,9 @@ export default function TaskItem({
         py: 0.5,
         borderLeft: isActive ? "3px solid" : "none",
         borderColor: "primary.main",
-        backgroundColor: isActive ? "action.selected" : "transparent",
+        backgroundColor: isActive ? "#1976d21f" : "transparent",
         "&:hover": {
-          backgroundColor: "action.hover",
+          backgroundColor: "#1976d20f",
         },
         cursor: "pointer",
       }}

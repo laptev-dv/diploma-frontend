@@ -18,6 +18,9 @@ import {
   Alert,
   ToggleButtonGroup,
   ToggleButton,
+  AppBar,
+  Toolbar,
+  Stack,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -29,10 +32,10 @@ import {
 import { useNavigate, useParams, Link } from "react-router-dom";
 import SessionItem from "../components/SessionItem";
 import ExperimentParameters from "../components/experimentDetails/ExperimentParameters";
-import axios from 'axios';
+import axios from "axios";
 
 function ExperimentPage() {
-  const CACHE_KEY = 'google-fonts-cache';
+  const CACHE_KEY = "google-fonts-cache";
   const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 часа
 
   const { id } = useParams();
@@ -45,10 +48,13 @@ function ExperimentPage() {
 
   // Функция для предварительной загрузки всех шрифтов
   const preloadFonts = (fontFamilies) => {
-    fontFamilies.forEach(fontFamily => {
-      const link = document.createElement('link');
-      link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(/ /g, '+')}&display=swap`;
-      link.rel = 'stylesheet';
+    fontFamilies.forEach((fontFamily) => {
+      const link = document.createElement("link");
+      link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(
+        / /g,
+        "+"
+      )}&display=swap`;
+      link.rel = "stylesheet";
       document.head.appendChild(link);
     });
   };
@@ -59,7 +65,7 @@ function ExperimentPage() {
         // Проверяем кэш
         const cached = localStorage.getItem(CACHE_KEY);
         const cachedData = cached ? JSON.parse(cached) : null;
-        
+
         if (cachedData && Date.now() - cachedData.timestamp < CACHE_EXPIRY) {
           preloadFonts(cachedData.fonts); // Предзагружаем шрифты из кэша
           return;
@@ -67,22 +73,25 @@ function ExperimentPage() {
 
         // Получаем список шрифтов из Google Fonts API
         const response = await axios.get(
-          'https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyDgJzM14xNhFsgMoPqMcw14eSmfoIfgPd0&sort=popularity'
+          "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyDgJzM14xNhFsgMoPqMcw14eSmfoIfgPd0&sort=popularity"
         );
-        
+
         const popularFonts = response.data.items
-          .filter(font => font.subsets.includes('cyrillic'))
-          .map(font => font.family);
-        
+          .filter((font) => font.subsets.includes("cyrillic"))
+          .map((font) => font.family);
+
         // Сохраняем в кэш
-        localStorage.setItem(CACHE_KEY, JSON.stringify({
-          fonts: popularFonts,
-          timestamp: Date.now()
-        }));
-        
+        localStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({
+            fonts: popularFonts,
+            timestamp: Date.now(),
+          })
+        );
+
         preloadFonts(popularFonts); // Предзагружаем новые шрифты
       } catch (error) {
-        console.error('Error fetching fonts:', error);
+        console.error("Error fetching fonts:", error);
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
           const cachedFonts = JSON.parse(cached).fonts;
@@ -96,11 +105,17 @@ function ExperimentPage() {
 
   const [experiment, setExperiment] = useState({
     id: id,
-    name: "Комплексный тест когнитивных способностей",
-    author: "Проф. Смирнова",
+    name: "Эксперимент",
+    author: "Иван Иванов",
     createdAt: "20.03.2025",
     parameters: {
       mode: "adaptive",
+      efficiencyMin: 0.6,
+      efficiencyMax: 0.85,
+      initialTaskNumber: 1,
+      seriesTime: 15,
+      presentationsPerTask: 50,
+
       tasks: [
         {
           id: "task1",
@@ -115,15 +130,10 @@ function ExperimentPage() {
             symbolHeight: 128,
             symbolWidth: 128,
             symbolSpacing: 15,
-            stimulusTime: 800,   // Очень короткое время
-            responseTime: 500,   // Минимальное время ответа
-            pauseTime: 300,      // Короткая пауза
-            efficiencyMin: 0.6,
-            efficiencyMax: 0.85,
-            seriesTime: 15,      // Короткая серия
-            initialTaskNumber: 1,
-            presentationsPerTask: 50, // Много повторений
-          }
+            stimulusTime: 800, // Очень короткое время
+            responseTime: 500, // Минимальное время ответа
+            pauseTime: 300, // Короткая пауза
+          },
         },
         {
           id: "task2",
@@ -135,17 +145,13 @@ function ExperimentPage() {
             symbolColor: "#087F23",
             symbolType: "★",
             symbolFont: "Segoe UI",
-            symbolSize: 24,
+            symbolHeight: 64,
+            symbolWidth: 64,
             symbolSpacing: 8,
-            stimulusTime: 1500,   // Среднее время
-            responseTime: 2000,   // Достаточное время для ответа
-            pauseTime: 1000,      // Стандартная пауза
-            efficiencyMin: 0.5,
-            efficiencyMax: 0.8,
-            seriesTime: 30,
-            initialTaskNumber: 2,
-            presentationsPerTask: 30,
-          }
+            stimulusTime: 1500, // Среднее время
+            responseTime: 2000, // Достаточное время для ответа
+            pauseTime: 1000, // Стандартная пауза
+          },
         },
         {
           id: "task3",
@@ -157,17 +163,13 @@ function ExperimentPage() {
             symbolColor: "#01579B",
             symbolType: "♣",
             symbolFont: "Times New Roman",
-            symbolSize: 20,
+            symbolHeight: 64,
+            symbolWidth: 64,
             symbolSpacing: 10,
-            stimulusTime: 2500,   // Длительное время стимула
-            responseTime: 3500,   // Максимальное время ответа
-            pauseTime: 1500,      // Длинная пауза
-            efficiencyMin: 0.4,
-            efficiencyMax: 0.7,
-            seriesTime: 45,       // Длительная серия
-            initialTaskNumber: 3,
-            presentationsPerTask: 20,
-          }
+            stimulusTime: 2500, // Длительное время стимула
+            responseTime: 3500, // Максимальное время ответа
+            pauseTime: 1500, // Длинная пауза
+          },
         },
         {
           id: "task4",
@@ -179,17 +181,13 @@ function ExperimentPage() {
             symbolColor: "#6A1B9A",
             symbolType: "◉",
             symbolFont: "Courier New",
-            symbolSize: 18,
+            symbolHeight: 32,
+            symbolWidth: 32,
             symbolSpacing: 5,
-            stimulusTime: 500,    // Очень быстрое мелькание
-            responseTime: 4000,   // Очень долгое время ответа
-            pauseTime: 2000,      // Долгая пауза
-            efficiencyMin: 0.3,
-            efficiencyMax: 0.6,
-            seriesTime: 60,       // Самая длинная серия
-            initialTaskNumber: 4,
-            presentationsPerTask: 40,
-          }
+            stimulusTime: 500, // Очень быстрое мелькание
+            responseTime: 4000, // Очень долгое время ответа
+            pauseTime: 2000, // Долгая пауза
+          },
         },
         {
           id: "task5",
@@ -201,19 +199,15 @@ function ExperimentPage() {
             symbolColor: "#C62828",
             symbolType: "!",
             symbolFont: "Verdana",
-            symbolSize: 26,
+            symbolHeight: 54,
+            symbolWidth: 54,
             symbolSpacing: 12,
-            stimulusTime: 1200,   // Среднее время
-            responseTime: 800,    // Быстрый ответ
-            pauseTime: 500,       // Средняя пауза
-            efficiencyMin: 0.7,
-            efficiencyMax: 0.9,
-            seriesTime: 20,
-            initialTaskNumber: 5,
-            presentationsPerTask: 35,
-          }
-        }
-      ]
+            stimulusTime: 1200, // Среднее время
+            responseTime: 800, // Быстрый ответ
+            pauseTime: 500, // Средняя пауза
+          },
+        },
+      ],
     },
     sessions: [
       {
@@ -224,8 +218,8 @@ function ExperimentPage() {
         isMine: false,
         results: {
           efficiency: 0.55,
-          completedTasks: 3
-        }
+          completedTasks: 3,
+        },
       },
       {
         id: "session2",
@@ -235,9 +229,9 @@ function ExperimentPage() {
         isMine: true,
         results: {
           efficiency: 0.82,
-          completedTasks: 5
-        }
-      }
+          completedTasks: 5,
+        },
+      },
     ],
   });
 
@@ -276,25 +270,25 @@ function ExperimentPage() {
       : experiment.sessions.filter((session) => session.isMine);
 
   const handleStartExperiment = () => {
-    navigate(`/experiment/${id}/run`);
+    navigate(`/experiment/${id}/run`, { state: { experiment } });
   };
 
   const handleModeChange = (event, newMode) => {
     if (newMode !== null) {
-      setExperiment(prev => ({
+      setExperiment((prev) => ({
         ...prev,
         parameters: {
           ...prev.parameters,
           mode: newMode,
           // Обновляем режим для всех задач
-          tasks: prev.parameters.tasks.map(task => ({
+          tasks: prev.parameters.tasks.map((task) => ({
             ...task,
             parameters: {
               ...task.parameters,
-              mode: newMode
-            }
-          }))
-        }
+              mode: newMode,
+            },
+          })),
+        },
       }));
     }
   };
@@ -332,7 +326,7 @@ function ExperimentPage() {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3, pb: 10 }}>
       <Box
         sx={{
           display: "flex",
@@ -387,24 +381,6 @@ function ExperimentPage() {
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 3 }}>
         Создано: {experiment.createdAt} | Автор: {experiment.author}
       </Typography>
-
-      <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
-        <Button
-          variant="contained"
-          size="large"
-          onClick={handleStartExperiment}
-          sx={{ px: 4 }}
-        >
-          Начать эксперимент
-        </Button>
-        <Button
-          variant="outlined"
-          startIcon={<InfoIcon />}
-          onClick={handleOpenInstructions}
-        >
-          Инструкция
-        </Button>
-      </Box>
 
       <Typography variant="h6" gutterBottom>
         История
@@ -461,6 +437,40 @@ function ExperimentPage() {
       </Typography>
 
       <ExperimentParameters parameters={experiment.parameters} />
+
+      {/* Фиксированная панель внизу */}
+      <AppBar
+        position="fixed"
+        color="inherit"
+        elevation={0}
+        sx={{
+          top: "auto",
+          bottom: 0,
+          borderTop: "1px solid",
+          borderColor: "divider",
+          backgroundColor: "background.default",
+        }}
+      >
+        <Toolbar>
+          <Stack sx={{ flexGrow: 1 }} direction={'row-reverse'} gap={2}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={handleStartExperiment}
+              sx={{ px: 4 }}
+            >
+              Начать эксперимент
+            </Button>{" "}
+            <Button
+              variant="outlined"
+              startIcon={<InfoIcon />}
+              onClick={handleOpenInstructions}
+            >
+              Инструкция
+            </Button>
+          </Stack>
+        </Toolbar>
+      </AppBar>
 
       <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
         <DialogTitle>Редактировать эксперимент</DialogTitle>

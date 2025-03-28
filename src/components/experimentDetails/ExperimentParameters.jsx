@@ -44,7 +44,14 @@ function ExperimentParameters({ parameters }) {
           }}
         >
           {/* Блок серии и режима работы */}
-          <SeriesSettings parameters={activeParameters} />
+          <SeriesSettings parameters={{
+            mode: parameters.mode,
+            initialTaskNumber: parameters.initialTaskNumber,
+            presentationsPerTask: parameters.presentationsPerTask,
+            seriesTime: parameters.seriesTime,
+            efficiencyMin: parameters.efficiencyMin,
+            efficiencyMax: parameters.efficiencyMax,
+          }} />
 
           <Box sx={{ display: "flex", gap: 3 }}>
             {/* Блок задач */}
@@ -54,7 +61,7 @@ function ExperimentParameters({ parameters }) {
                 minWidth: 320,
                 position: "sticky",
                 top: 80,
-                height: "calc(100vh - 100px)",
+                height: "calc(100vh - 160px)",
               }}
             >
               <ExperimentTasks
@@ -94,7 +101,7 @@ function ExperimentParameters({ parameters }) {
             flex: 1,
             position: "sticky",
             top: 80,
-            height: "calc(100vh - 100px)",
+            height: "calc(100vh - 160px)",
           }}
         >
           <ExperimentPreview
