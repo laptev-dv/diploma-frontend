@@ -101,7 +101,7 @@ function ExperimentPage() {
     };
 
     fetchFonts();
-  });
+  }, [CACHE_EXPIRY]);
 
   const [experiment, setExperiment] = useState({
     id: id,
@@ -113,8 +113,8 @@ function ExperimentPage() {
       efficiencyMin: 0.6,
       efficiencyMax: 0.85,
       initialTaskNumber: 1,
-      seriesTime: 15,
-      presentationsPerTask: 50,
+      seriesTime: 1,
+      presentationsPerTask: 5,
 
       tasks: [
         {
@@ -130,9 +130,9 @@ function ExperimentPage() {
             symbolHeight: 128,
             symbolWidth: 128,
             symbolSpacing: 15,
-            stimulusTime: 800, // Очень короткое время
-            responseTime: 500, // Минимальное время ответа
-            pauseTime: 300, // Короткая пауза
+            stimulusTime: 10000,
+            responseTime: 4000,
+            pauseTime: 100,
           },
         },
         {
@@ -148,9 +148,9 @@ function ExperimentPage() {
             symbolHeight: 64,
             symbolWidth: 64,
             symbolSpacing: 8,
-            stimulusTime: 1500, // Среднее время
-            responseTime: 2000, // Достаточное время для ответа
-            pauseTime: 1000, // Стандартная пауза
+            stimulusTime: 10000,
+            responseTime: 4000,
+            pauseTime: 100,
           },
         },
         {
@@ -166,9 +166,9 @@ function ExperimentPage() {
             symbolHeight: 64,
             symbolWidth: 64,
             symbolSpacing: 10,
-            stimulusTime: 2500, // Длительное время стимула
-            responseTime: 3500, // Максимальное время ответа
-            pauseTime: 1500, // Длинная пауза
+            stimulusTime: 10000,
+            responseTime: 4000,
+            pauseTime: 100,
           },
         },
         {
@@ -184,9 +184,9 @@ function ExperimentPage() {
             symbolHeight: 32,
             symbolWidth: 32,
             symbolSpacing: 5,
-            stimulusTime: 500, // Очень быстрое мелькание
-            responseTime: 4000, // Очень долгое время ответа
-            pauseTime: 2000, // Долгая пауза
+            stimulusTime: 10000,
+            responseTime: 4000,
+            pauseTime: 100,
           },
         },
         {
@@ -202,9 +202,9 @@ function ExperimentPage() {
             symbolHeight: 54,
             symbolWidth: 54,
             symbolSpacing: 12,
-            stimulusTime: 1200, // Среднее время
-            responseTime: 800, // Быстрый ответ
-            pauseTime: 500, // Средняя пауза
+            stimulusTime: 10000,
+            responseTime: 4000,
+            pauseTime: 100,
           },
         },
       ],

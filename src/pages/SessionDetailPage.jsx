@@ -3,69 +3,85 @@ import {
   Box, 
   Typography, 
   Paper, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow,
   Divider,
   Grid,
   Chip,
   LinearProgress
 } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { 
   AccessTime, 
   Person, 
   School, 
-  CalendarToday,
-  CheckCircle,
-  Cancel,
-  Timer
+  CalendarToday
 } from '@mui/icons-material';
+import SessionResultsTable from '../components/SessionResultsTable';
 
 function SessionDetailPage() {
   const { id } = useParams();
+  const { state } = useLocation();
 
-  // Моковые данные из таблицы
-  const sessionData = {
+  // Получаем данные из навигации
+  const sessionData = state?.sessionData || {
     id: id,
-    surname: "Пустовой",
-    name: "Артем",
-    group: "Ктмо1-11",
-    date: "12.05.2025",
-    duration: "5:08",
-    mode: "Адаптивный",
-    tasksCount: 1,
-    presentations: 20,
-    plannedDuration: "5 мин",
-    efficiencyBounds: "0.80 - 0.90",
-    taskParams: {
-      matrixSize: "5×5",
-      symbolColor: "#FF000000",
-      backgroundColor: "#FFFFFFFF",
-      symbol: "#",
-      font: "Arial",
-      symbolSize: "40×40",
-      spacing: "40×40",
-      stimulusTime: "0.5 с",
-      responseTime: "10 с",
-      pauseTime: "0.5 с"
-    },
-    results: [
-      { id: 1, task: 1, correct: 20, wrong: 0, missed: 0, avgTime: 2.709, efficiency: 1, finalScore: 0.7291, performance: 4.3746, load: 150 },
-      { id: 2, task: 1, correct: 20, wrong: 0, missed: 0, avgTime: 2.51, efficiency: 1, finalScore: 0.749, performance: 4.494, load: 150 },
-      { id: 3, task: 1, correct: 19, wrong: 1, missed: 0, avgTime: 3.057, efficiency: 0.95, finalScore: 0.659585, performance: 2.824091178, load: 150 },
-      { id: 4, task: 1, correct: 20, wrong: 0, missed: 0, avgTime: 2.489, efficiency: 1, finalScore: 0.7511, performance: 4.5066, load: 150 },
-      { id: 5, task: 1, correct: 17, wrong: 3, missed: 0, avgTime: 2.136, efficiency: 0.85, finalScore: 0.66844, performance: 1.56479008, load: 150 }
-    ]
+    surname: "Неизвестно",
+    name: "Неизвестно",
+    group: "Неизвестно",
+    date: new Date().toLocaleDateString(),
+    duration: "0:00",
+    mode: "Неизвестно",
+    tasksCount: 0,
+    plannedDuration: "0 мин",
+    efficiencyBounds: "0.00 - 0.00",
+    results: []
   };
 
+  // Расчет расширенных метрик
+  const calculateExtendedMetrics = (results) => {
+    if (!results || results.length === 0) return [];
+
+    return results.map(task => {
+      const { parameters, success, error, miss, avgResponseTime, efficiency } = task;
+      const workload = parameters ? (parameters.rows * parameters.columns) / parameters.responseTime : 0;
+      const finalScore = efficiency * (1 - (avgResponseTime / (parameters?.responseTime || 10000)));
+      const performance = efficiency * workload;
+
+      return {
+        ...task,
+        workload: Number(workload.toFixed(2)),
+        finalScore: Number(finalScore.toFixed(4)),
+        performance: Number(performance.toFixed(4)),
+        correct: success,
+        wrong: error,
+        missed: miss
+      };
+    });
+  };
+
+  const extendedResults = calculateExtendedMetrics(sessionData.results);
+
   // Расчет средних значений
-  const avgCorrect = sessionData.results.reduce((sum, item) => sum + item.correct, 0) / sessionData.results.length;
-  const avgTime = sessionData.results.reduce((sum, item) => sum + item.avgTime, 0) / sessionData.results.length;
-  const avgEfficiency = sessionData.results.reduce((sum, item) => sum + item.efficiency, 0) / sessionData.results.length;
+  const calculateAverages = () => {
+    if (!extendedResults || extendedResults.length === 0) {
+      return {
+        avgCorrect: 0,
+        avgTime: 0,
+        avgEfficiency: 0,
+        avgWorkload: 0,
+        avgPerformance: 0
+      };
+    }
+
+    return {
+      avgCorrect: extendedResults.reduce((sum, item) => sum + item.correct, 0) / extendedResults.length,
+      avgTime: extendedResults.reduce((sum, item) => sum + item.avgResponseTime, 0) / extendedResults.length / 1000,
+      avgEfficiency: extendedResults.reduce((sum, item) => sum + item.efficiency, 0) / extendedResults.length,
+      avgWorkload: extendedResults.reduce((sum, item) => sum + item.workload, 0) / extendedResults.length,
+      avgPerformance: extendedResults.reduce((sum, item) => sum + item.performance, 0) / extendedResults.length
+    };
+  };
+
+  const { avgCorrect, avgTime, avgEfficiency, avgWorkload, avgPerformance } = calculateAverages();
 
   return (
     <Box sx={{ p: 3 }}>
@@ -73,8 +89,21 @@ function SessionDetailPage() {
         Детали сессии #{sessionData.id}
       </Typography>
 
+      {/* Таблица результатов */}
+      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Результаты эксперимента
+        </Typography>
+        <Divider sx={{ mb: 2 }} />
+        <SessionResultsTable results={extendedResults} />
+      </Paper>
+
       {/* Информация о сессии */}
       <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Информация о сессии
+        </Typography>
+        <Divider sx={{ mb: 2 }} />
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -118,80 +147,20 @@ function SessionDetailPage() {
         </Grid>
       </Paper>
 
-      {/* Параметры задачи */}
+      {/* Сводная статистика */}
       <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
-          Параметры задачи
+          Сводная статистика
         </Typography>
         <Divider sx={{ mb: 2 }} />
         <Grid container spacing={2}>
-          <Grid item xs={6} md={3}>
-            <Typography variant="body1"><strong>Размер матрицы:</strong> {sessionData.taskParams.matrixSize}</Typography>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Typography variant="body1"><strong>Цвет символа:</strong> 
-              <Box component="span" sx={{ 
-                display: 'inline-block', 
-                width: 16, 
-                height: 16, 
-                backgroundColor: sessionData.taskParams.symbolColor, 
-                ml: 1,
-                border: '1px solid #ccc'
-              }} />
-            </Typography>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Typography variant="body1"><strong>Цвет фона:</strong> 
-              <Box component="span" sx={{ 
-                display: 'inline-block', 
-                width: 16, 
-                height: 16, 
-                backgroundColor: sessionData.taskParams.backgroundColor, 
-                ml: 1,
-                border: '1px solid #ccc'
-              }} />
-            </Typography>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Typography variant="body1"><strong>Вид символа:</strong> {sessionData.taskParams.symbol}</Typography>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Typography variant="body1"><strong>Шрифт:</strong> {sessionData.taskParams.font}</Typography>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Typography variant="body1"><strong>Размер символа:</strong> {sessionData.taskParams.symbolSize}</Typography>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Typography variant="body1"><strong>Расстояние:</strong> {sessionData.taskParams.spacing}</Typography>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Typography variant="body1"><strong>Время стимула:</strong> {sessionData.taskParams.stimulusTime}</Typography>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Typography variant="body1"><strong>Время ответа:</strong> {sessionData.taskParams.responseTime}</Typography>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Typography variant="body1"><strong>Время паузы:</strong> {sessionData.taskParams.pauseTime}</Typography>
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {/* Результаты */}
-      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Результаты серии
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-        
-        {/* Сводная статистика */}
-        <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={12} md={4}>
             <Paper sx={{ p: 2, textAlign: 'center' }}>
               <Typography variant="body1" color="text.secondary">Среднее правильных</Typography>
               <Typography variant="h4" color="primary">{avgCorrect.toFixed(1)}</Typography>
               <LinearProgress 
                 variant="determinate" 
-                value={(avgCorrect / 20) * 100} 
+                value={(avgCorrect / (extendedResults[0]?.parameters?.presentationsPerTask || 20)) * 100} 
                 color="primary"
                 sx={{ height: 8, mt: 1 }}
               />
@@ -215,60 +184,19 @@ function SessionDetailPage() {
               />
             </Paper>
           </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 2, textAlign: 'center' }}>
+              <Typography variant="body1" color="text.secondary">Средняя нагрузка</Typography>
+              <Typography variant="h4">{avgWorkload.toFixed(2)}</Typography>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 2, textAlign: 'center' }}>
+              <Typography variant="body1" color="text.secondary">Средняя производительность</Typography>
+              <Typography variant="h4">{avgPerformance.toFixed(2)}</Typography>
+            </Paper>
+          </Grid>
         </Grid>
-
-        {/* Детальная таблица результатов */}
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>№</TableCell>
-                <TableCell>Задача</TableCell>
-                <TableCell align="center">Ответы</TableCell>
-                <TableCell align="center">Среднее время</TableCell>
-                <TableCell align="center">Эффективность</TableCell>
-                <TableCell align="center">Итоговая оценка</TableCell>
-                <TableCell align="center">Производительность</TableCell>
-                <TableCell align="center">Нагрузка</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sessionData.results.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell>{row.id}</TableCell>
-                  <TableCell>{row.task}</TableCell>
-                  <TableCell align="center">
-                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                      <Chip 
-                        icon={<CheckCircle />} 
-                        label={row.correct} 
-                        color="success" 
-                        size="small" 
-                      />
-                      <Chip 
-                        icon={<Cancel />} 
-                        label={row.wrong} 
-                        color="error" 
-                        size="small" 
-                      />
-                      <Chip 
-                        icon={<Timer />} 
-                        label={row.missed} 
-                        color="warning" 
-                        size="small" 
-                      />
-                    </Box>
-                  </TableCell>
-                  <TableCell align="center">{row.avgTime.toFixed(2)} с</TableCell>
-                  <TableCell align="center">{(row.efficiency * 100).toFixed(0)}%</TableCell>
-                  <TableCell align="center">{row.finalScore.toFixed(4)}</TableCell>
-                  <TableCell align="center">{row.performance.toFixed(4)}</TableCell>
-                  <TableCell align="center">{row.load}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
       </Paper>
     </Box>
   );
