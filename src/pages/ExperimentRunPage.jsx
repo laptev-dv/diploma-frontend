@@ -51,9 +51,7 @@ const ExperimentRunPage = () => {
 
   // Сохранение статистики по выполнению задачи
   const saveTaskExecution = useCallback(() => {
-    const avgResponseTime = responseTimes.length > 0
-      ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length)
-      : 0;
+    const avgResponseTime = responseTimes.length > 0 ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length) : 0;
 
     const totalAttempts = successCount + errorCount + missCount;
     const efficiency = totalAttempts > 0 ? successCount / totalAttempts : 0;

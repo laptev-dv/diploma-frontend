@@ -460,7 +460,7 @@ function ExperimentPage() {
               sx={{ px: 4 }}
             >
               Начать эксперимент
-            </Button>{" "}
+            </Button>
             <Button
               variant="outlined"
               startIcon={<InfoIcon />}

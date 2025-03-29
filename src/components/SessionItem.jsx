@@ -24,7 +24,14 @@ function SessionItem({ session, showDivider, onClick }) {
 
   return (
     <>
-      <ListItem button onClick={onClick}>
+      <ListItem
+        onClick={onClick}
+        sx={{
+          "&:hover": {
+            backgroundColor: "action.hover",
+          },
+        }}
+      >
         <ListItemText
           primary={session.author}
           secondary={`${session.date} | Длительность: ${session.duration}`}

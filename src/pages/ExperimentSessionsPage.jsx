@@ -10,14 +10,15 @@ import {
   Stack,
   Link,
 } from "@mui/material";
-import { useParams, Link as RouterLink } from "react-router-dom";
+import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import SessionItem from "../components/SessionItem";
 import ExportSessionsDialog from "../components/ExportSessionsDialog";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import EditIcon from "@mui/icons-material/Edit";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import NavigateBackIcon from "@mui/icons-material/NavigateBefore";
 
 function ExperimentSessionsPage() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState(0);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -79,15 +80,20 @@ function ExperimentSessionsPage() {
   return (
     <Box sx={{ p: 3 }}>
       {/* Кнопка назад */}
-      <Link
-        component={RouterLink}
-        variant="body1"
-        style={{ textDecoration: "none" }}
-        to={`/experiment/${id}`}
-      >
-        <ArrowBackIcon sx={{ mr: 1, fontSize: "1rem" }} />
-        Назад к эксперименту
-      </Link>
+      <Stack direction={'row'}>
+        <NavigateBackIcon fontSize="small" />
+        <Link
+          underline="hover"
+          color="inherit"
+          href={`/experiment/${id}`}
+          onClick={(e) => {
+            e.preventDefault();
+            navigate("/experiment/123");
+          }}
+        >
+          Эксперимент
+        </Link>
+      </Stack>
 
       {/* Заголовок и кнопки управления */}
       <Stack
