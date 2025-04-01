@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import SettingsIcon from '@mui/icons-material/Settings';
+import PersonIcon from '@mui/icons-material/Person';
 import InfoIcon from '@mui/icons-material/Info';
 import MenuIcon from '@mui/icons-material/Menu';
 
@@ -48,18 +48,10 @@ function Header() {
           <Button 
             color="inherit" 
             component={RouterLink} 
-            to="/settings"
-            startIcon={<SettingsIcon />}
+            to="/profile"
+            startIcon={<PersonIcon />}
           >
-            Настройки
-          </Button>
-          <Button 
-            color="inherit" 
-            component={RouterLink} 
-            to="/additional-info"
-            startIcon={<InfoIcon />}
-          >
-            Доп. информация
+            Профиль
           </Button>
         </Box>
 
@@ -98,10 +90,10 @@ function Header() {
             </MenuItem>
             <MenuItem 
               component={RouterLink} 
-              to="/settings"
+              to="/profile"
               onClick={handleClose}
             >
-              <SettingsIcon sx={{ mr: 1 }} />
+              <PersonIcon sx={{ mr: 1 }} />
               Настройки
             </MenuItem>
             <MenuItem 

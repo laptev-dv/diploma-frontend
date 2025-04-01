@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import {
   Box,
+  Container,
+  Paper,
   Typography,
   Tabs,
   Tab,
   Button,
   TextField,
-  Paper,
   List,
   Divider,
   Menu,
@@ -14,32 +15,31 @@ import {
   Select,
   FormControl,
   InputLabel,
+  IconButton,
+  useTheme,
+  Stack
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import {
+  Add as AddIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+  Search as SearchIcon
+} from "@mui/icons-material";
 import { useNavigate, Link } from "react-router-dom";
 import ExperimentItem from "../components/ExperimentItem";
 import FolderItem from "../components/FolderItem";
 import CreateFolderDialog from "../components/CreateFolderDialog";
 
 function LibraryPage() {
+  const theme = useTheme();
   const navigate = useNavigate();
-  // Состояние для активной вкладки
   const [activeTab, setActiveTab] = useState(0);
-
-  // Состояние для поиска
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Состояние для временного скрытия элементов
   const [isItemsHidden, setIsItemsHidden] = useState(false);
-
-  // Состояние для сортировки
   const [sortBy, setSortBy] = useState("date");
-
-  // Состояние для меню "Добавить"
   const [anchorEl, setAnchorEl] = useState(null);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
 
-  // Пример данных экспериментов
   const experiments = [
     {
       id: 1,
@@ -57,7 +57,6 @@ function LibraryPage() {
     },
   ];
 
-  // Пример данных папок
   const [folders, setFolders] = useState([
     {
       id: 1,
@@ -73,27 +72,22 @@ function LibraryPage() {
     },
   ]);
 
-  // Обработчик смены вкладки
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
 
-  // Обработчик поиска
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
-  // Обработчик открытия меню "Добавить"
   const handleAddClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  // Обработчик закрытия меню "Добавить"
   const handleAddClose = () => {
     setAnchorEl(null);
   };
 
-  // Обработчик выбора в меню "Добавить"
   const handleAddItem = (type) => {
     handleAddClose();
     if (type === "папку") {
@@ -103,76 +97,146 @@ function LibraryPage() {
     }
   };
 
-  // Обработчик временного скрытия элементов
   const handleToggleItems = () => {
     setIsItemsHidden((prev) => !prev);
   };
 
-  // Обработчик изменения сортировки
   const handleSortChange = (event) => {
     setSortBy(event.target.value);
   };
 
-  // Получение текущих данных для активной вкладки
   const currentItems = activeTab === 0 ? experiments : folders;
-
-  // Проверка, есть ли данные на текущей вкладке
   const hasItems = currentItems.length > 0 && !isItemsHidden;
 
   return (
-    <Box sx={{ p: 3 }}>
-      {/* Заголовок страницы */}
-      <Typography variant="h4" gutterBottom>
-        Библиотека
-      </Typography>
-
-      {/* Вкладки и кнопка "Добавить" */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
-        <Tabs value={activeTab} onChange={handleTabChange}>
-          <Tab label="Эксперименты" />
-          <Tab label="Папки" />
-        </Tabs>
-
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <Button
-            variant="outlined"
-            color="warning"
-            onClick={handleToggleItems}
-          >
-            {isItemsHidden ? "Вернуть элементы" : "Скрыть элементы"}
-          </Button>
-
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleAddClick}
-          >
-            Добавить
-          </Button>
-
-          {/* Меню для кнопки "Добавить" */}
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleAddClose}
-          >
-            <MenuItem onClick={() => handleAddItem("эксперимент")}>
-              Создать эксперимент
-            </MenuItem>
-            <MenuItem onClick={() => handleAddItem("папку")}>
-              Создать папку
-            </MenuItem>
-          </Menu>
+    <Container maxWidth="lg" sx={{ py: 3 }}>
+      <Paper elevation={2} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        {/* Шапка с заголовком и управлением */}
+        <Box sx={{ 
+          p: 2, 
+          backgroundColor: theme.palette.grey[100],
+        }}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              Библиотека экспериментов
+            </Typography>
+            
+            <Stack direction="row" spacing={1}>
+              <IconButton
+                onClick={handleToggleItems}
+                color={isItemsHidden ? "primary" : "default"}
+                size="small"
+              >
+                {isItemsHidden ? <VisibilityIcon /> : <VisibilityOffIcon />}
+              </IconButton>
+              
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleAddClick}
+                size="small"
+              >
+                Добавить
+              </Button>
+            </Stack>
+          </Stack>
         </Box>
-      </Box>
 
+        {/* Основное содержимое */}
+        <Box sx={{ p: 3 }}>
+          {/* Вкладки и фильтры */}
+          <Box sx={{ mb: 3 }}>
+            <Tabs 
+              value={activeTab} 
+              onChange={handleTabChange}
+              sx={{ mb: 2 }}
+            >
+              <Tab label="Эксперименты" />
+              <Tab label="Папки" />
+            </Tabs>
+
+            {hasItems && (
+              <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
+                <FormControl size="small" sx={{ minWidth: 180 }}>
+                  <InputLabel>Сортировка</InputLabel>
+                  <Select
+                    value={sortBy}
+                    onChange={handleSortChange}
+                    label="Сортировка"
+                  >
+                    <MenuItem value="date">По дате</MenuItem>
+                    <MenuItem value="name">По названию</MenuItem>
+                  </Select>
+                </FormControl>
+
+                <TextField
+                  size="small"
+                  fullWidth
+                  variant="outlined"
+                  placeholder="Поиск..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  InputProps={{
+                    startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+                  }}
+                />
+              </Stack>
+            )}
+          </Box>
+
+          {/* Список элементов */}
+          <Box>
+            {hasItems ? (
+              <List disablePadding>
+                {currentItems.map((item, index) => (
+                  <Box key={item.id}>
+                    <Link
+                      to={`/${activeTab === 0 ? 'experiment' : 'folder'}/${item.id}`}
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {activeTab === 0 ? (
+                        <ExperimentItem experiment={item} />
+                      ) : (
+                        <FolderItem folder={item} />
+                      )}
+                    </Link>
+                    {index !== currentItems.length - 1 && (
+                      <Divider sx={{ my: 2 }} />
+                    )}
+                  </Box>
+                ))}
+              </List>
+            ) : (
+              <Box sx={{ 
+                p: 3, 
+                textAlign: 'center',
+                backgroundColor: theme.palette.grey[50],
+                borderRadius: 1
+              }}>
+                <Typography variant="body1" color="text.secondary">
+                  {isItemsHidden ? 'Элементы скрыты' : 'Нет доступных элементов'}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Paper>
+
+      {/* Меню добавления */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleAddClose}
+      >
+        <MenuItem onClick={() => handleAddItem("эксперимент")}>
+          Создать эксперимент
+        </MenuItem>
+        <MenuItem onClick={() => handleAddItem("папку")}>
+          Создать папку
+        </MenuItem>
+      </Menu>
+
+      {/* Диалог создания папки */}
       <CreateFolderDialog
         open={folderDialogOpen}
         onClose={() => setFolderDialogOpen(false)}
@@ -186,78 +250,7 @@ function LibraryPage() {
           setFolders([...folders, newFolder]);
         }}
       />
-
-      {/* Поле сортировки и поисковая строка (отображаются только если есть элементы) */}
-      {hasItems && (
-        <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-          <FormControl sx={{ minWidth: 200 }}>
-            <InputLabel>Сортировать по</InputLabel>
-            <Select
-              value={sortBy}
-              onChange={handleSortChange}
-              label="Сортировать по"
-            >
-              <MenuItem value="date">Дате создания</MenuItem>
-              <MenuItem value="name">Названию</MenuItem>
-            </Select>
-          </FormControl>
-
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder="Поиск..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
-        </Box>
-      )}
-
-      {/* Список экспериментов или папок */}
-      <Paper elevation={3} sx={{ p: 2 }}>
-        {hasItems ? (
-          activeTab === 0 ? (
-            // Список экспериментов
-            <List>
-              {experiments.map((experiment, index) => (
-                <div key={experiment.id}>
-                  <Link
-                    to={`/experiment/${experiment.id}`}
-                    style={{ textDecoration: "none", color: "inherit" }}
-                  >
-                    <ExperimentItem experiment={experiment} />
-                  </Link>
-                  {index !== experiments.length - 1 && (
-                    <Divider sx={{ mt: 2, mb: 2 }} />
-                  )}
-                </div>
-              ))}
-            </List>
-          ) : (
-            // Список папок
-            <List>
-              {folders.map((folder, index) => (
-                <div key={folder.id}>
-                  <Link
-                    to={`/folder/${folder.id}`}
-                    style={{ textDecoration: "none", color: "inherit" }}
-                  >
-                    <FolderItem folder={folder} />
-                  </Link>
-                  {index !== folders.length - 1 && (
-                    <Divider sx={{ mt: 2, mb: 2 }} />
-                  )}
-                </div>
-              ))}
-            </List>
-          )
-        ) : (
-          // Надпись, если элементы отсутствуют
-          <Typography variant="body1" align="center" sx={{ p: 3 }}>
-            Элементы отсутствуют
-          </Typography>
-        )}
-      </Paper>
-    </Box>
+    </Container>
   );
 }
 

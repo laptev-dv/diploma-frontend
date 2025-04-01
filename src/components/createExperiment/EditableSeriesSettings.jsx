@@ -15,7 +15,11 @@ import {
   Slider,
 } from "@mui/material";
 
-const EditableSeriesSettings = ({ parameters, onParamChange, tasksCount = 1 }) => {
+const EditableSeriesSettings = ({
+  parameters,
+  onParamChange,
+  tasksCount = 1,
+}) => {
   const renderEditableRow = (
     label,
     field,
@@ -31,17 +35,18 @@ const EditableSeriesSettings = ({ parameters, onParamChange, tasksCount = 1 }) =
           size="small"
           fullWidth
           type={type}
-          label={`${label}${unit !== null ? `, ${unit}` : ''}`}
+          label={`${label}${unit !== null ? `, ${unit}` : ""}`}
           value={value}
           onChange={(e) => {
-            let val = type === "number" ? Number(e.target.value) : e.target.value;
-            
+            let val =
+              type === "number" ? Number(e.target.value) : e.target.value;
+
             // Применяем ограничения
             if (type === "number") {
               if (min !== null && val < min) val = min;
               if (max !== null && val > max) val = max;
             }
-            
+
             onParamChange(field, val);
           }}
           inputProps={{
@@ -55,9 +60,9 @@ const EditableSeriesSettings = ({ parameters, onParamChange, tasksCount = 1 }) =
 
   const handleEfficiencyChange = (event, newValue, activeThumb) => {
     if (!Array.isArray(newValue)) return;
-    
+
     const [min, max] = newValue;
-    
+
     if (activeThumb === 0) {
       onParamChange("efficiencyMin", Math.min(min, parameters.efficiencyMax));
     } else {
@@ -97,8 +102,8 @@ const EditableSeriesSettings = ({ parameters, onParamChange, tasksCount = 1 }) =
                 parameters.initialTaskNumber,
                 "number",
                 null,
-                1,  // min
-                tasksCount  // max
+                1, // min
+                tasksCount // max
               )}
             {renderEditableRow(
               "Количество предъявлений в задаче",
@@ -106,7 +111,7 @@ const EditableSeriesSettings = ({ parameters, onParamChange, tasksCount = 1 }) =
               parameters.presentationsPerTask,
               "number",
               "шт",
-              1  // min
+              1 // min
             )}
             {parameters.mode === "adaptive" &&
               renderEditableRow(
@@ -115,32 +120,42 @@ const EditableSeriesSettings = ({ parameters, onParamChange, tasksCount = 1 }) =
                 parameters.seriesTime,
                 "number",
                 "мин",
-                1  // min
+                1 // min
               )}
             {parameters.mode === "adaptive" && (
               <>
                 <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 1 } }}>
                   <TableCell>
                     <Typography gutterBottom sx={{ mb: 2 }}>
-                      Границы эффективности
+                      Границы эффективности, %
                     </Typography>
                     <Slider
+                      marks={[
+                        {
+                          value: 0,
+                          label: "0%",
+                        },
+                        {
+                          value: 100,
+                          label: "100%",
+                        },
+                      ]}
                       value={[
                         parameters.efficiencyMin,
                         parameters.efficiencyMax,
                       ]}
-                      onChange={(e, newValue, activeThumb) => 
+                      onChange={(e, newValue, activeThumb) =>
                         handleEfficiencyChange(e, newValue, activeThumb)
                       }
                       valueLabelDisplay="on"
                       min={0}
-                      max={1} 
-                      step={0.01}
+                      max={100}
+                      step={1}
                       disableSwap
                       sx={{
                         mt: 2,
-                        '& .MuiSlider-valueLabel': {
-                          backgroundColor: 'primary.main',
+                        "& .MuiSlider-valueLabel": {
+                          backgroundColor: "primary.main",
                           borderRadius: 1,
                         },
                       }}

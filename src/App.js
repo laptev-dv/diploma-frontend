@@ -3,16 +3,15 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import LibraryPage from './pages/LibraryPage';
-import SettingsPage from './pages/SettingsPage';
+import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
 import MainLayout from './layouts/MainLayout';
 import ExperimentLayout from './layouts/ExperimentLayout';
 import CreateExperimentPage from './pages/CreateExperimentPage';
 import FolderPage from './pages/FolderPage';
 import ExperimentPage from './pages/ExperimentPage';
-import ExperimentSessionsPage from './pages/ExperimentSessionsPage';
+import SessionsListPage from './pages/SessionsListPage';
 import SessionDetailPage from './pages/SessionDetailPage';
-import AdditionalInfoPage from './pages/AdditionalInfoPage';
 import ExperimentRunPage from './pages/ExperimentRunPage';
 
 function App() {
@@ -24,14 +23,13 @@ function App() {
           {/* Основные разделы */}
           <Route index element={<LibraryPage />} />
           <Route path="library" element={<LibraryPage />} />
-          <Route path="settings" element={<SettingsPage />} />
-          <Route path="additional-info" element={<AdditionalInfoPage />} />
+          <Route path="profile" element={<ProfilePage />} />
 
           {/* Работа с экспериментами */}
           <Route path="experiment">
             <Route path="create" element={<CreateExperimentPage />} />
             <Route path=":id" element={<ExperimentPage />} />
-            <Route path=":id/sessions" element={<ExperimentSessionsPage />} />
+            <Route path=":id/sessions" element={<SessionsListPage />} />
           </Route>
           
           {/* Работа с папками */}

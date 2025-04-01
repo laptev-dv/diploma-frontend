@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
+  Container,
   Typography,
   Button,
   Paper,
@@ -21,6 +22,10 @@ import {
   AppBar,
   Toolbar,
   Stack,
+  ListItem,
+  Grid,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Edit as EditIcon,
@@ -28,25 +33,27 @@ import {
   Info as InfoIcon,
   Delete as DeleteIcon,
   ArrowForward as ArrowForwardIcon,
+  ArrowBack as BackIcon,
 } from "@mui/icons-material";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import SessionItem from "../components/SessionItem";
 import ExperimentParameters from "../components/experimentDetails/ExperimentParameters";
 import axios from "axios";
+import SessionItem from "../components/SessionItem";
 
 function ExperimentPage() {
+  const theme = useTheme();
   const CACHE_KEY = "google-fonts-cache";
   const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 часа
 
   const { id } = useParams();
   const navigate = useNavigate();
+  const isMediumScreen = useMediaQuery(theme.breakpoints.up("md"));
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
 
-  // Функция для предварительной загрузки всех шрифтов
   const preloadFonts = (fontFamilies) => {
     fontFamilies.forEach((fontFamily) => {
       const link = document.createElement("link");
@@ -62,16 +69,14 @@ function ExperimentPage() {
   useEffect(() => {
     const fetchFonts = async () => {
       try {
-        // Проверяем кэш
         const cached = localStorage.getItem(CACHE_KEY);
         const cachedData = cached ? JSON.parse(cached) : null;
 
         if (cachedData && Date.now() - cachedData.timestamp < CACHE_EXPIRY) {
-          preloadFonts(cachedData.fonts); // Предзагружаем шрифты из кэша
+          preloadFonts(cachedData.fonts);
           return;
         }
 
-        // Получаем список шрифтов из Google Fonts API
         const response = await axios.get(
           "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyDgJzM14xNhFsgMoPqMcw14eSmfoIfgPd0&sort=popularity"
         );
@@ -80,7 +85,6 @@ function ExperimentPage() {
           .filter((font) => font.subsets.includes("cyrillic"))
           .map((font) => font.family);
 
-        // Сохраняем в кэш
         localStorage.setItem(
           CACHE_KEY,
           JSON.stringify({
@@ -89,13 +93,13 @@ function ExperimentPage() {
           })
         );
 
-        preloadFonts(popularFonts); // Предзагружаем новые шрифты
+        preloadFonts(popularFonts);
       } catch (error) {
         console.error("Error fetching fonts:", error);
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
           const cachedFonts = JSON.parse(cached).fonts;
-          preloadFonts(cachedFonts); // Предзагружаем шрифты из кэша даже при ошибке
+          preloadFonts(cachedFonts);
         }
       }
     };
@@ -110,8 +114,8 @@ function ExperimentPage() {
     createdAt: "20.03.2025",
     parameters: {
       mode: "adaptive",
-      efficiencyMin: 0.6,
-      efficiencyMax: 0.85,
+      efficiencyMin: 60,
+      efficiencyMax: 85,
       initialTaskNumber: 1,
       seriesTime: 1,
       presentationsPerTask: 5,
@@ -280,7 +284,6 @@ function ExperimentPage() {
         parameters: {
           ...prev.parameters,
           mode: newMode,
-          // Обновляем режим для всех задач
           tasks: prev.parameters.tasks.map((task) => ({
             ...task,
             parameters: {
@@ -326,68 +329,82 @@ function ExperimentPage() {
   };
 
   return (
-    <Box sx={{ p: 3, pb: 10 }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Typography variant="h4" sx={{ mr: 2 }}>
-            {experiment.name}
-          </Typography>
-          <Button
-            variant="outlined"
-            color="warning"
-            startIcon={<EditIcon />}
-            onClick={handleChangeData}
-          >
-            Изменить данные
-          </Button>
-          <ToggleButtonGroup
-            value={experiment.parameters.mode}
-            exclusive
-            onChange={handleModeChange}
-            color="warning"
-            size="small"
-            sx={{ ml: 2 }}
-          >
-            <ToggleButton value="adaptive">Адаптивный</ToggleButton>
-            <ToggleButton value="strict">Жесткий</ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-
-        <IconButton onClick={handleMenuOpen}>
-          <MoreVertIcon />
-        </IconButton>
-
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
+    <Box sx={{ pb: 10 }}>
+      {/* Верхняя часть с информацией об эксперименте */}
+      <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Paper
+          elevation={2}
+          sx={{ borderRadius: 2, overflow: "hidden", mb: 3 }}
         >
-          <MenuItem onClick={handleEditClick}>
-            <EditIcon sx={{ mr: 1 }} /> Редактировать
-          </MenuItem>
-          <MenuItem onClick={handleDeleteClick}>
-            <DeleteIcon sx={{ mr: 1 }} /> Удалить
-          </MenuItem>
-        </Menu>
-      </Box>
+          {/* Шапка с навигацией и названием */}
+          <Box
+            sx={{
+              p: 2,
+              backgroundColor: theme.palette.grey[100],
+            }}
+          >
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <IconButton onClick={() => navigate(-1)} size="small">
+                <BackIcon />
+              </IconButton>
 
-      <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 3 }}>
-        Создано: {experiment.createdAt} | Автор: {experiment.author}
-      </Typography>
+              <Stack direction="column" alignItems="start" spacing={0}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
+                  Создано: {experiment.createdAt} | Автор: {experiment.author}
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 500 }}>
+                  {experiment.name}
+                </Typography>
+              </Stack>
+            </Stack>
+          </Box>
 
-      <Typography variant="h6" gutterBottom>
-        История
-      </Typography>
-      <Paper elevation={3} sx={{ p: 2, mb: 4 }}>
-        {experiment.sessions.length > 0 ? (
-          <>
+          {/* Блок управления режимом */}
+          <Box
+            sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}` }}
+          >
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <ToggleButtonGroup
+                value={experiment.parameters.mode}
+                exclusive
+                onChange={handleModeChange}
+                color="primary"
+                size="small"
+              >
+                <ToggleButton value="adaptive">Адаптивный</ToggleButton>
+                <ToggleButton value="strict">Жесткий</ToggleButton>
+              </ToggleButtonGroup>
+
+              <Stack direction="row" spacing={1}>
+                <Button
+                  variant="outlined"
+                  startIcon={<EditIcon />}
+                  onClick={handleChangeData}
+                  size="small"
+                >
+                  Тест данных
+                </Button>
+                <IconButton onClick={handleMenuOpen} size="small">
+                  <MoreVertIcon />
+                </IconButton>
+              </Stack>
+            </Stack>
+          </Box>
+
+          {/* Блок истории сессий */}
+          <Box sx={{ p: 2 }}>
+            <Typography variant="subtitle1" gutterBottom>
+              История сессий
+            </Typography>
+
             <Tabs
               value={activeHistoryTab}
               onChange={handleHistoryTabChange}
@@ -397,46 +414,80 @@ function ExperimentPage() {
               <Tab label="Мои" />
             </Tabs>
 
-            <List>
-              {filteredSessions.slice(0, 3).map((session, index) => (
-                <Link
-                  key={session.id}
-                  to={`/session/${session.id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <SessionItem
-                    session={session}
-                    showDivider={
-                      index !== filteredSessions.length - 1 && index !== 2
-                    }
-                  />
-                </Link>
-              ))}
+            {experiment.sessions.length > 0 ? (
+              <>
+                {isMediumScreen ? (
+                  // Табличное представление для широких экранов
+                  <Grid container spacing={2}>
+                    {filteredSessions.slice(0, 4).map((session) => (
+                      <Grid item xs={12} md={6} key={session.id}>
+                        <Link
+                          to={`/session/${session.id}`}
+                          style={{ textDecoration: "none", color: "inherit" }}
+                        >
+                          <SessionItem session={session} compact />
+                        </Link>
+                      </Grid>
+                    ))}
+                  </Grid>
+                ) : (
+                  // Списковое представление для узких экранов
+                  <List disablePadding>
+                    {filteredSessions.slice(0, 3).map((session, index) => (
+                      <Box key={session.id}>
+                        <Link
+                          to={`/session/${session.id}`}
+                          style={{ textDecoration: "none", color: "inherit" }}
+                        >
+                          <SessionItem
+                            session={session}
+                            showDivider={
+                              index !== filteredSessions.length - 1 &&
+                              index !== 2
+                            }
+                          />
+                        </Link>
+                      </Box>
+                    ))}
+                  </List>
+                )}
 
-              {filteredSessions.length > 3 && (
-                <Button
-                  fullWidth
-                  endIcon={<ArrowForwardIcon />}
-                  sx={{ mt: 1 }}
-                  onClick={handleViewAllSessions}
-                >
-                  Посмотреть все
-                </Button>
-              )}
-            </List>
-          </>
-        ) : (
-          <Typography variant="body1" align="center" sx={{ p: 2 }}>
-            Нет сохраненных попыток
+                {experiment.sessions.length > (isMediumScreen ? 4 : 3) && (
+                  <Button
+                    fullWidth
+                    endIcon={<ArrowForwardIcon />}
+                    sx={{ mt: 2 }}
+                    onClick={handleViewAllSessions}
+                    size="small"
+                  >
+                    Посмотреть все
+                  </Button>
+                )}
+              </>
+            ) : (
+              <Box
+                sx={{
+                  p: 2,
+                  textAlign: "center",
+                  backgroundColor: theme.palette.grey[50],
+                  borderRadius: 1,
+                }}
+              >
+                <Typography variant="body1" color="text.secondary">
+                  Нет сохраненных сессий
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Paper>
+
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Параметры
           </Typography>
-        )}
-      </Paper>
-
-      <Typography variant="h6" gutterBottom>
-        Параметры
-      </Typography>
-
-      <ExperimentParameters parameters={experiment.parameters} />
+          <ExperimentParameters parameters={experiment.parameters} />
+        </Box>
+      </Container>
 
       {/* Фиксированная панель внизу */}
       <AppBar
@@ -452,7 +503,7 @@ function ExperimentPage() {
         }}
       >
         <Toolbar>
-          <Stack sx={{ flexGrow: 1 }} direction={'row-reverse'} gap={2}>
+          <Stack sx={{ flexGrow: 1 }} direction={"row-reverse"} gap={2}>
             <Button
               variant="contained"
               size="large"
@@ -472,6 +523,7 @@ function ExperimentPage() {
         </Toolbar>
       </AppBar>
 
+      {/* Диалоговые окна */}
       <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
         <DialogTitle>Редактировать эксперимент</DialogTitle>
         <DialogContent>
@@ -486,6 +538,7 @@ function ExperimentPage() {
           />
         </DialogContent>
         <DialogActions>
+          <Button onClick={() => setEditDialogOpen(false)}>Отмена</Button>
           <Button onClick={handleSaveChanges}>Сохранить</Button>
         </DialogActions>
       </Dialog>
@@ -499,11 +552,12 @@ function ExperimentPage() {
           <Typography>
             Вы уверены, что хотите удалить эксперимент "{experiment.name}"?
           </Typography>
-          <Alert severity="warning" sx={{ mt: 2 }}>
-            Это действие нельзя отменить.
+          <Alert severity="error" sx={{ mt: 2 }}>
+            Это действие нельзя отменить. Все данные будут удалены.
           </Alert>
         </DialogContent>
         <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)}>Отмена</Button>
           <Button onClick={handleDeleteExperiment} color="error">
             Удалить
           </Button>

@@ -36,8 +36,8 @@ const ExperimentRunPage = () => {
   const mode = useMemo(() => experiment?.parameters?.mode || "strict", [experiment]);
   const presentationsPerTask = useMemo(() => experiment?.parameters?.presentationsPerTask, [experiment]);
   const seriesTime = useMemo(() => (experiment?.parameters?.seriesTime || 1) * 60 * 1000, [experiment]);
-  const efficiencyMin = useMemo(() => experiment?.parameters?.efficiencyMin || 0.5, [experiment]);
-  const efficiencyMax = useMemo(() => experiment?.parameters?.efficiencyMax || 0.8, [experiment]);
+  const efficiencyMin = useMemo(() => experiment?.parameters?.efficiencyMin, [experiment]);
+  const efficiencyMax = useMemo(() => experiment?.parameters?.efficiencyMax, [experiment]);
   const currentTask = useMemo(() => tasks[activeTaskIndex] || {}, [tasks, activeTaskIndex]);
   const taskParameters = useMemo(() => currentTask?.parameters || {}, [currentTask]);
 
@@ -54,7 +54,7 @@ const ExperimentRunPage = () => {
     const avgResponseTime = responseTimes.length > 0 ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length) : 0;
 
     const totalAttempts = successCount + errorCount + missCount;
-    const efficiency = totalAttempts > 0 ? successCount / totalAttempts : 0;
+    const efficiencyPercantage = totalAttempts > 0 ? (successCount / totalAttempts) * 100 : 0;
 
     const taskExecution = {
       taskId: currentTask.id,
@@ -64,7 +64,7 @@ const ExperimentRunPage = () => {
       error: errorCount,
       miss: missCount,
       avgResponseTime,
-      efficiency: Number(efficiency.toFixed(3)),
+      efficiency: Number(efficiencyPercantage.toFixed(3)),
       parameters: {...currentTask.parameters},
       timestamp: new Date().toISOString(),
       presentationNumber: presentationCount + 1,

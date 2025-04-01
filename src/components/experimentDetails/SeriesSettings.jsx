@@ -104,17 +104,27 @@ const SeriesSettings = ({ parameters }) => {
                 <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 1 } }}>
                   <TableCell>
                     <Typography gutterBottom sx={{ mb: 2 }}>
-                      Границы эффективности
+                      Границы эффективности, %
                     </Typography>
                     <Slider
                       value={[
                         parameters.efficiencyMin,
                         parameters.efficiencyMax,
                       ]}
+                      marks={[
+                        {
+                          value: 0,
+                          label: '0%',
+                        },
+                        {
+                          value: 100,
+                          label: '100%',
+                        },
+                      ]}
                       valueLabelDisplay="on"
                       min={0}
-                      max={1}
-                      step={0.01}
+                      max={100}
+                      step={1}
                       disabled
                       sx={{
                         mt: 2,
