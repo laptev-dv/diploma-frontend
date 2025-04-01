@@ -2,15 +2,11 @@ import React from "react";
 import {
   Box,
   Typography,
-  Paper,
-  Divider,
-  Grid,
   AppBar,
   Toolbar,
   Stack,
   Button,
   Link,
-  LinearProgress,
 } from "@mui/material";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import SessionInfo from "../components/sessionDetails/SessionInfo";
@@ -125,41 +121,6 @@ function SessionDetailPage() {
   };
 
   const extendedResults = calculateExtendedMetrics(sessionData.results);
-
-  // Расчет средних значений
-  const calculateAverages = () => {
-    if (!extendedResults || extendedResults.length === 0) {
-      return {
-        avgCorrect: 0,
-        avgTime: 0,
-        avgEfficiency: 0,
-        avgWorkload: 0,
-        avgPerformance: 0,
-      };
-    }
-
-    return {
-      avgCorrect:
-        extendedResults.reduce((sum, item) => sum + item.correct, 0) /
-        extendedResults.length,
-      avgTime:
-        extendedResults.reduce((sum, item) => sum + item.avgResponseTime, 0) /
-        extendedResults.length /
-        1000,
-      avgEfficiency:
-        extendedResults.reduce((sum, item) => sum + item.efficiency, 0) /
-        extendedResults.length,
-      avgWorkload:
-        extendedResults.reduce((sum, item) => sum + item.workload, 0) /
-        extendedResults.length,
-      avgPerformance:
-        extendedResults.reduce((sum, item) => sum + item.performance, 0) /
-        extendedResults.length,
-    };
-  };
-
-  const { avgCorrect, avgTime, avgEfficiency, avgWorkload, avgPerformance } =
-    calculateAverages();
 
   return (
     <Box sx={{ p: 3 }}>

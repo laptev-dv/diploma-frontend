@@ -13,8 +13,6 @@ import {
   ListItemIcon,
   ListItemText,
   useTheme,
-  useMediaQuery,
-  Grid
 } from "@mui/material";
 import { useParams, Link } from "react-router-dom";
 import {
@@ -31,7 +29,6 @@ import EditFolderDialog from "../components/EditFolderDialog";
 
 function FolderPage() {
   const theme = useTheme();
-  const isMediumScreen = useMediaQuery(theme.breakpoints.up('md'));
   const { id } = useParams();
   const [isItemsHidden, setIsItemsHidden] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);

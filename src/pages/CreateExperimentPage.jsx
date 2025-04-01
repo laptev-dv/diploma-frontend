@@ -6,7 +6,8 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  Chip
+  Chip,
+  Container,
 } from "@mui/material";
 import { Save as SaveIcon } from "@mui/icons-material";
 import EditableExperimentParameters from "../components/createExperiment/EditableExperimentParameters";
@@ -14,9 +15,9 @@ import EditableExperimentParameters from "../components/createExperiment/Editabl
 function CreateExperimentPage() {
   const [experimentName, setExperimentName] = useState("Новый эксперимент");
   const [tasks, setTasks] = useState([
-    { 
-      id: "1", 
-      name: "Задача 2×2", 
+    {
+      id: "1",
+      name: "Задача 2×2",
       parameters: {
         mode: "adaptive",
         rows: 2,
@@ -37,8 +38,8 @@ function CreateExperimentPage() {
         responseTime: 1000,
         pauseTime: 300,
         initialTaskNumber: 1,
-      }
-    }
+      },
+    },
   ]);
 
   // Получаем текущий режим из первой задачи (можно доработать для нескольких задач)
@@ -56,7 +57,7 @@ function CreateExperimentPage() {
           mode: task.parameters.mode,
           gridSize: {
             rows: task.parameters.rows,
-            columns: task.parameters.columns
+            columns: task.parameters.columns,
           },
           appearance: {
             backgroundColor: task.parameters.backgroundColor,
@@ -65,52 +66,69 @@ function CreateExperimentPage() {
               font: task.parameters.symbolFont,
               width: task.parameters.symbolWidth,
               height: task.parameters.symbolHeight,
-              color: task.parameters.symbolColor
+              color: task.parameters.symbolColor,
             },
             padding: {
               horizontal: task.parameters.horizontalPadding,
-              vertical: task.parameters.verticalPadding
-            }
+              vertical: task.parameters.verticalPadding,
+            },
           },
           timing: {
             stimulusTime: Number(task.parameters.stimulusTime),
             responseTime: Number(task.parameters.responseTime),
             pauseTime: Number(task.parameters.pauseTime),
-            totalTime: Number(task.parameters.stimulusTime) + 
-                      Number(task.parameters.responseTime) + 
-                      Number(task.parameters.pauseTime)
+            totalTime:
+              Number(task.parameters.stimulusTime) +
+              Number(task.parameters.responseTime) +
+              Number(task.parameters.pauseTime),
           },
           modeSettings: {
             presentationsPerTask: task.parameters.presentationsPerTask,
-            ...(task.parameters.mode === "adaptive" ? {
-              seriesTime: task.parameters.seriesTime,
-              efficiencyMin: task.parameters.efficiencyMin,
-              efficiencyMax: task.parameters.efficiencyMax
-            } : {})
-          }
-        }
-      }))
+            ...(task.parameters.mode === "adaptive"
+              ? {
+                  seriesTime: task.parameters.seriesTime,
+                  efficiencyMin: task.parameters.efficiencyMin,
+                  efficiencyMax: task.parameters.efficiencyMax,
+                }
+              : {}),
+          },
+        },
+      })),
     };
 
-    console.log("Полные данные эксперимента:", JSON.stringify(experimentData, null, 2));
-    
+    console.log(
+      "Полные данные эксперимента:",
+      JSON.stringify(experimentData, null, 2)
+    );
+
     console.log("\nДетализация задач:");
     experimentData.tasks.forEach((task, index) => {
-      console.log(`\nЗадача #${index + 1}: ${task.taskName} (ID: ${task.taskId})`);
+      console.log(
+        `\nЗадача #${index + 1}: ${task.taskName} (ID: ${task.taskId})`
+      );
       console.log("Параметры:");
       console.log("- Режим:", task.parameters.mode);
-      console.log("- Размер сетки:", `${task.parameters.gridSize.rows}×${task.parameters.gridSize.columns}`);
+      console.log(
+        "- Размер сетки:",
+        `${task.parameters.gridSize.rows}×${task.parameters.gridSize.columns}`
+      );
       console.log("- Временные параметры:");
       console.log("  • Стимул:", task.parameters.timing.stimulusTime, "мс");
       console.log("  • Ответ:", task.parameters.timing.responseTime, "мс");
       console.log("  • Пауза:", task.parameters.timing.pauseTime, "мс");
       console.log("  • Общее время:", task.parameters.timing.totalTime, "мс");
-      
+
       if (task.parameters.mode === "adaptive") {
         console.log("- Настройки адаптивного режима:");
-        console.log("  • Время на серию:", task.parameters.modeSettings.seriesTime, "сек");
-        console.log("  • Диапазон эффективности:", 
-          `${task.parameters.modeSettings.efficiencyMin}–${task.parameters.modeSettings.efficiencyMax}`);
+        console.log(
+          "  • Время на серию:",
+          task.parameters.modeSettings.seriesTime,
+          "сек"
+        );
+        console.log(
+          "  • Диапазон эффективности:",
+          `${task.parameters.modeSettings.efficiencyMin}–${task.parameters.modeSettings.efficiencyMax}`
+        );
       }
     });
   };
@@ -120,13 +138,7 @@ function CreateExperimentPage() {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-      }}
-    >
+    <Container maxWidth="xl" sx={{ py: 3 }}>
       {/* Основное содержимое */}
       <Box
         component="main"
@@ -136,6 +148,10 @@ function CreateExperimentPage() {
           flex: 1,
         }}
       >
+        <Typography variant="h6" sx={{ fontWeight: 500, mb: 4 }}>
+          Создание эксперимента
+        </Typography>
+
         <TextField
           fullWidth
           label="Название эксперимента"
@@ -177,13 +193,13 @@ function CreateExperimentPage() {
       >
         <Toolbar>
           {/* Отображение текущего режима слева */}
-          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
             <Typography variant="body1" sx={{ mr: 2 }}>
               Текущий режим:
             </Typography>
-            <Chip 
-              label={currentMode === "adaptive" ? "Адаптивный" : "Жесткий"} 
-              color='primary'
+            <Chip
+              label={currentMode === "adaptive" ? "Адаптивный" : "Жесткий"}
+              color="primary"
               variant="outlined"
             />
           </Box>
@@ -208,7 +224,7 @@ function CreateExperimentPage() {
           </Box>
         </Toolbar>
       </AppBar>
-    </Box>
+    </Container>
   );
 }
 

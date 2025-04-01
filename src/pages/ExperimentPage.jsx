@@ -9,8 +9,6 @@ import {
   Tab,
   List,
   IconButton,
-  Menu,
-  MenuItem,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -22,18 +20,19 @@ import {
   AppBar,
   Toolbar,
   Stack,
-  ListItem,
   Grid,
   useTheme,
   useMediaQuery,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import {
   Edit as EditIcon,
   MoreVert as MoreVertIcon,
   Info as InfoIcon,
-  Delete as DeleteIcon,
   ArrowForward as ArrowForwardIcon,
   ArrowBack as BackIcon,
+  Delete as DeleteIcon,
 } from "@mui/icons-material";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import ExperimentParameters from "../components/experimentDetails/ExperimentParameters";
@@ -41,9 +40,10 @@ import axios from "axios";
 import SessionItem from "../components/SessionItem";
 
 function ExperimentPage() {
-  const theme = useTheme();
   const CACHE_KEY = "google-fonts-cache";
   const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 часа
+
+  const theme = useTheme();
 
   const { id } = useParams();
   const navigate = useNavigate();
@@ -343,23 +343,47 @@ function ExperimentPage() {
               backgroundColor: theme.palette.grey[100],
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <IconButton onClick={() => navigate(-1)} size="small">
-                <BackIcon />
-              </IconButton>
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+              spacing={2}
+            >
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <IconButton onClick={() => navigate(-1)} size="small">
+                  <BackIcon />
+                </IconButton>
 
-              <Stack direction="column" alignItems="start" spacing={0}>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 1 }}
-                >
-                  Создано: {experiment.createdAt} | Автор: {experiment.author}
-                </Typography>
-                <Typography variant="h6" sx={{ fontWeight: 500 }}>
-                  {experiment.name}
-                </Typography>
+                <Stack direction="column" alignItems="start" spacing={0}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mt: 1 }}
+                  >
+                    Создано: {experiment.createdAt} | Автор: {experiment.author}
+                  </Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 500 }}>
+                    {experiment.name}
+                  </Typography>
+                </Stack>
               </Stack>
+              <IconButton onClick={handleMenuOpen} size="small">
+                <MoreVertIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+              >
+                <MenuItem onClick={handleEditClick}>
+                  <EditIcon fontSize="small" sx={{ mr: 1 }} />
+                  Редактировать
+                </MenuItem>
+                <MenuItem onClick={handleDeleteClick}>
+                  <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+                  Удалить
+                </MenuItem>
+              </Menu>
             </Stack>
           </Box>
 
@@ -392,18 +416,13 @@ function ExperimentPage() {
                 >
                   Тест данных
                 </Button>
-                <IconButton onClick={handleMenuOpen} size="small">
-                  <MoreVertIcon />
-                </IconButton>
               </Stack>
             </Stack>
           </Box>
 
           {/* Блок истории сессий */}
           <Box sx={{ p: 2 }}>
-            <Typography gutterBottom>
-              История сессий
-            </Typography>
+            <Typography gutterBottom>История сессий</Typography>
 
             <Tabs
               value={activeHistoryTab}

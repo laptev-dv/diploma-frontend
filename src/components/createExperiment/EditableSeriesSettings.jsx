@@ -130,16 +130,7 @@ const EditableSeriesSettings = ({
                       Границы эффективности, %
                     </Typography>
                     <Slider
-                      marks={[
-                        {
-                          value: 0,
-                          label: "0%",
-                        },
-                        {
-                          value: 100,
-                          label: "100%",
-                        },
-                      ]}
+                      valueLabelFormat={(value) => `${value}%`}
                       value={[
                         parameters.efficiencyMin,
                         parameters.efficiencyMax,

@@ -1,13 +1,40 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Box, Button } from '@mui/material';
+import { Box } from '@mui/material';
 import FullscreenStimulus from '../components/FullscreenStimulus';
-import DevPanel from '../components/DevPanel';
+import ExperimentProgressBar from '../components/ExperimentProgressBar';
+import UserInputDisplay from '../components/UserInputDisplay';
+import { styled, keyframes } from '@mui/system';
+import axios from "axios";
 
 const MemoizedStimulus = React.memo(FullscreenStimulus);
 const TICK_INTERVAL = 100;
 
+// Анимация виньетки
+const vignettePulse = keyframes`
+  0% { opacity: 0; }
+  20% { opacity: 0.7; }
+  100% { opacity: 0; }
+`;
+
+// Стилизованный компонент для виньетки
+const VignetteOverlay = styled(Box)(({ color }) => ({
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  pointerEvents: 'none',
+  zIndex: 1000,
+  boxShadow: `inset 0 0 50px 20px ${color}`,
+  animation: `${vignettePulse} 0.8s ease-out`,
+  opacity: 0,
+}));
+
 const ExperimentRunPage = () => {
+  const CACHE_KEY = "google-fonts-cache";
+  const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 часа
+
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,6 +57,10 @@ const ExperimentRunPage = () => {
   const [taskResults, setTaskResults] = useState([]);
   const [isExperimentComplete, setIsExperimentComplete] = useState(false);
 
+  // Состояния для анимации виньетки
+  const [vignetteColor, setVignetteColor] = useState(null);
+  const [vignetteKey, setVignetteKey] = useState(0);
+
   // Получаем данные эксперимента
   const experiment = location.state?.experiment;
   const tasks = useMemo(() => experiment?.parameters?.tasks || [], [experiment]);
@@ -40,6 +71,84 @@ const ExperimentRunPage = () => {
   const efficiencyMax = useMemo(() => experiment?.parameters?.efficiencyMax, [experiment]);
   const currentTask = useMemo(() => tasks[activeTaskIndex] || {}, [tasks, activeTaskIndex]);
   const taskParameters = useMemo(() => currentTask?.parameters || {}, [currentTask]);
+
+  const preloadFonts = (fontFamilies) => {
+    fontFamilies.forEach((fontFamily) => {
+      const link = document.createElement("link");
+      link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(
+        / /g,
+        "+"
+      )}&display=swap`;
+      link.rel = "stylesheet";
+      document.head.appendChild(link);
+    });
+  };
+
+  useEffect(() => {
+    const fetchFonts = async () => {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        const cachedData = cached ? JSON.parse(cached) : null;
+
+        if (cachedData && Date.now() - cachedData.timestamp < CACHE_EXPIRY) {
+          preloadFonts(cachedData.fonts);
+          return;
+        }
+
+        const response = await axios.get(
+          "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyDgJzM14xNhFsgMoPqMcw14eSmfoIfgPd0&sort=popularity"
+        );
+
+        const popularFonts = response.data.items
+          .filter((font) => font.subsets.includes("cyrillic"))
+          .map((font) => font.family);
+
+        localStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({
+            fonts: popularFonts,
+            timestamp: Date.now(),
+          })
+        );
+
+        preloadFonts(popularFonts);
+      } catch (error) {
+        console.error("Error fetching fonts:", error);
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const cachedFonts = JSON.parse(cached).fonts;
+          preloadFonts(cachedFonts);
+        }
+      }
+    };
+
+    fetchFonts();
+  }, [CACHE_EXPIRY]);
+
+  // Эффект для обработки изменений счетчиков
+  useEffect(() => {
+    if (errorCount > 0 || missCount > 0) {
+      triggerVignette('#ff0000');
+    }
+  }, [errorCount]);
+
+  useEffect(() => {
+    if (missCount > 0) {
+      triggerVignette('#0000ff');
+    }
+  }, [missCount]);
+
+  useEffect(() => {
+    if (successCount > 0) {
+      triggerVignette('#00ff00');
+    }
+  }, [successCount]);
+
+  // Функция для запуска анимации виньетки
+  const triggerVignette = useCallback((color) => {
+    setVignetteColor(color);
+    setVignetteKey(prevKey => prevKey + 1);
+  }, [successCount, errorCount, missCount]);
 
   // Генерация новой позиции скрытого символа
   const generateNewHiddenPosition = useCallback(() => {
@@ -262,9 +371,10 @@ const ExperimentRunPage = () => {
     }
   }, [mode, seriesTime]);
 
-
   // Инициализация эксперимента
   useEffect(() => {
+    setCurrentPhase('stimulus');
+    setPhaseTimeLeft(taskParameters.stimulusTime)
     generateNewHiddenPosition();
   }, [generateNewHiddenPosition]);
 
@@ -317,8 +427,8 @@ const ExperimentRunPage = () => {
 
   // Прерывание эксперимента
   const handleInterrupt = useCallback(() => {
-    navigate(`/experiment/${id}`);
-  }, [navigate, id]);
+    completeExperiment();
+  }, [completeExperiment]);
 
   if (!experiment || tasks.length === 0) {
     return null;
@@ -335,43 +445,33 @@ const ExperimentRunPage = () => {
         left: 0,
       }}
     >
+      {/* Виньетка для визуальной обратной связи */}
+      {vignetteColor && (
+        <VignetteOverlay
+          color={vignetteColor}
+          key={vignetteKey}
+          onAnimationEnd={() => setVignetteColor(null)}
+        />
+      )}
+
+      <ExperimentProgressBar
+        currentPhase={currentPhase}
+        phaseTimeLeft={phaseTimeLeft}
+        currentTask={currentTask}
+        presentationCount={presentationCount}
+        presentationsPerTask={presentationsPerTask}
+        mode={mode}
+        seriesTimeLeft={seriesTimeLeft}
+        onInterrupt={handleInterrupt}
+      />
+
       <MemoizedStimulus
         parameters={taskParameters}
         hiddenPosition={currentPhase === "stimulus" ? hiddenPosition : null}
         showHidden={currentPhase !== "stimulus"}
       />
 
-      <DevPanel
-        timeLeft={phaseTimeLeft / 1000}
-        currentPhase={currentPhase}
-        currentTaskIndex={activeTaskIndex}
-        totalTasks={tasks.length}
-        presentationCount={presentationCount + 1}
-        presentationsPerTask={presentationsPerTask}
-        hiddenPosition={hiddenPosition}
-        taskParameters={taskParameters}
-        successCount={successCount}
-        errorCount={errorCount}
-        missCount={missCount}
-        userInput={userInput}
-        taskStats={taskResults}
-        seriesTimeLeft={seriesTimeLeft / 1000}
-        mode={mode}
-      />
-
-      <Button
-        variant="contained"
-        color="error"
-        onClick={handleInterrupt}
-        sx={{
-          position: "fixed",
-          bottom: 40,
-          right: 40,
-          zIndex: 1001,
-        }}
-      >
-        Прервать эксперимент
-      </Button>
+      <UserInputDisplay userInput={userInput} />
     </Box>
   );
 };

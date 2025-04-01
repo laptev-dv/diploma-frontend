@@ -111,16 +111,7 @@ const SeriesSettings = ({ parameters }) => {
                         parameters.efficiencyMin,
                         parameters.efficiencyMax,
                       ]}
-                      marks={[
-                        {
-                          value: 0,
-                          label: '0%',
-                        },
-                        {
-                          value: 100,
-                          label: '100%',
-                        },
-                      ]}
+                      valueLabelFormat={(value) => `${value}%`}
                       valueLabelDisplay="on"
                       min={0}
                       max={100}
@@ -129,7 +120,6 @@ const SeriesSettings = ({ parameters }) => {
                       sx={{
                         mt: 2,
                         '& .MuiSlider-valueLabel': {
-                          backgroundColor: 'primary.main',
                           borderRadius: 1,
                         },
                       }}

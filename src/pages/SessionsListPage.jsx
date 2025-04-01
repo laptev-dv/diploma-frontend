@@ -20,7 +20,6 @@ import {
   Edit as EditIcon,
   ArrowBack as BackIcon,
   Person as MySessionsIcon,
-  Info as InfoIcon
 } from "@mui/icons-material";
 import SessionItem from "../components/SessionItem";
 import ExportSessionsDialog from "../components/ExportSessionsDialog";
