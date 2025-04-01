@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -30,33 +30,92 @@ import {
   Science as ExperimentIcon,
   Edit as EditIcon,
 } from "@mui/icons-material";
+import { useAuth } from "../contexts/AuthContext";
+import { userApi } from "../api/userApi";
+import { authApi } from "../api/authApi";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
   const theme = useTheme();
-  const [user, setUser] = useState({ username: "Иван Иванов" });
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [profileData, setProfileData] = useState({ username: "" });
   const [editUsernameOpen, setEditUsernameOpen] = useState(false);
   const [newUsername, setNewUsername] = useState("");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleLogout = () => {
-    console.log("Logout logic here");
-    // Добавьте здесь логику выхода из системы
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await userApi.getProfile();
+        setProfileData(response.data);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+      logout();
+      navigate("/auth/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const handleDownload = (item) => {
     console.log(`Downloading ${item}`);
-    // Добавьте здесь логику загрузки
+    // Логика загрузки
   };
 
   const handleEditPassword = () => {
-    console.log("Edit password logic here");
-    // Добавьте здесь логику изменения пароля
+    setPasswordDialogOpen(true);
   };
 
-  const handleDeleteAccount = () => {
-    console.log("Account deletion logic here");
-    // Добавьте здесь логику удаления аккаунта
-    setDeleteConfirmOpen(false);
+  const handlePasswordSubmit = async () => {
+    if (newPassword !== confirmPassword) {
+      alert("Пароли не совпадают");
+      return;
+    }
+
+    try {
+      await userApi.changePassword(currentPassword, newPassword);
+      setPasswordDialogOpen(false);
+      alert("Пароль успешно изменен");
+    } catch (error) {
+      console.error("Password change failed:", error);
+      alert("Ошибка при изменении пароля");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await userApi.deleteAccount();
+      logout();
+      navigate("/auth/login");
+    } catch (error) {
+      console.error("Account deletion failed:", error);
+    } finally {
+      setDeleteConfirmOpen(false);
+    }
+  };
+
+  const handleUsernameUpdate = async () => {
+    try {
+      await userApi.updateUsername(newUsername);
+      setProfileData({ ...profileData, username: newUsername });
+      setEditUsernameOpen(false);
+    } catch (error) {
+      console.error("Username update failed:", error);
+    }
   };
 
   return (
@@ -85,13 +144,13 @@ const ProfilePage = () => {
             </ListItemIcon>
             <ListItemText
               primary="Имя пользователя"
-              secondary={user.username}
+              secondary={profileData.username}
               secondaryTypographyProps={{ color: "text.primary" }}
             />
             <IconButton
               edge="end"
               onClick={() => {
-                setNewUsername(user.username);
+                setNewUsername(profileData.username);
                 setEditUsernameOpen(true);
               }}
               sx={{ color: theme.palette.primary.main }}
@@ -222,13 +281,11 @@ const ProfilePage = () => {
       </Paper>
 
       {/* Диалог редактирования имени */}
-      <Dialog
-        open={editUsernameOpen}
-        onClose={() => setEditUsernameOpen(false)}
-      >
+      <Dialog open={editUsernameOpen} onClose={() => setEditUsernameOpen(false)}>
         <DialogTitle>Редактировать имя пользователя</DialogTitle>
-        <DialogContent sx={{ minWidth: 400, ьy: 2 }}>
+        <DialogContent sx={{ minWidth: 400, py: 2 }}>
           <TextField
+            margin="dense"
             autoFocus
             fullWidth
             variant="outlined"
@@ -240,12 +297,57 @@ const ProfilePage = () => {
         <DialogActions>
           <Button onClick={() => setEditUsernameOpen(false)}>Отмена</Button>
           <Button
-            onClick={() => {
-              setUser({ username: newUsername });
-              setEditUsernameOpen(false);
-            }}
+            onClick={handleUsernameUpdate}
             variant="contained"
             disabled={!newUsername.trim()}
+          >
+            Сохранить
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Диалог изменения пароля */}
+      <Dialog
+        open={passwordDialogOpen}
+        onClose={() => setPasswordDialogOpen(false)}
+      >
+        <DialogTitle>Изменить пароль</DialogTitle>
+        <DialogContent sx={{ minWidth: 400, py: 2 }}>
+          <TextField
+            margin="dense"
+            autoFocus
+            fullWidth
+            type="password"
+            variant="outlined"
+            label="Текущий пароль"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            type="password"
+            variant="outlined"
+            label="Новый пароль"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            type="password"
+            variant="outlined"
+            label="Подтвердите новый пароль"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPasswordDialogOpen(false)}>Отмена</Button>
+          <Button
+            onClick={handlePasswordSubmit}
+            variant="contained"
+            disabled={!currentPassword || !newPassword || !confirmPassword}
           >
             Сохранить
           </Button>
