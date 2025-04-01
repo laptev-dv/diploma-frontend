@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -15,62 +15,71 @@ import {
   Select,
   FormControl,
   InputLabel,
-  IconButton,
   useTheme,
-  Stack
+  Stack,
+  CircularProgress,
 } from "@mui/material";
 import {
   Add as AddIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
-  Search as SearchIcon
+  Search as SearchIcon,
 } from "@mui/icons-material";
 import { useNavigate, Link } from "react-router-dom";
 import ExperimentItem from "../components/ExperimentItem";
 import FolderItem from "../components/FolderItem";
 import CreateFolderDialog from "../components/CreateFolderDialog";
+import { experimentApi } from "../api/experimentApi";
+import { folderApi } from "../api/folderApi";
 
 function LibraryPage() {
   const theme = useTheme();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isItemsHidden, setIsItemsHidden] = useState(false);
   const [sortBy, setSortBy] = useState("date");
   const [anchorEl, setAnchorEl] = useState(null);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
+  const [loading, setLoading] = useState({
+    experiments: false,
+    folders: false,
+    creating: false
+  });
+  const [experiments, setExperiments] = useState([]);
+  const [folders, setFolders] = useState([]);
+  const [dataLoaded, setDataLoaded] = useState({
+    experiments: false,
+    folders: false
+  });
 
-  const experiments = [
-    {
-      id: 1,
-      name: "Эксперимент 1",
-      author: "Иван Иванов",
-      resultsCount: 10,
-      createdAt: "01.01.2025",
-    },
-    {
-      id: 2,
-      name: "Эксперимент 2",
-      author: "Петр Петров",
-      resultsCount: 5,
-      createdAt: "01.01.2025",
-    },
-  ];
+  // Загрузка данных при первом открытии вкладки
+  useEffect(() => {
+    const fetchData = async () => {
+      if (activeTab === 0 && !dataLoaded.experiments) {
+        setLoading(prev => ({ ...prev, experiments: true }));
+        try {
+          const response = await experimentApi.getAll();
+          setExperiments(response.data);
+          setDataLoaded(prev => ({ ...prev, experiments: true }));
+        } catch (error) {
+          console.error("Ошибка загрузки экспериментов:", error);
+        } finally {
+          setLoading(prev => ({ ...prev, experiments: false }));
+        }
+      } else if (activeTab === 1 && !dataLoaded.folders) {
+        setLoading(prev => ({ ...prev, folders: true }));
+        try {
+          const response = await folderApi.getAll();
+          setFolders(response.data);
+          setDataLoaded(prev => ({ ...prev, folders: true }));
+        } catch (error) {
+          console.error("Ошибка загрузки папок:", error);
+        } finally {
+          setLoading(prev => ({ ...prev, folders: false }));
+        }
+      }
+    };
 
-  const [folders, setFolders] = useState([
-    {
-      id: 1,
-      name: "Папка 1",
-      itemsCount: 2,
-      createdAt: "01.01.2025",
-    },
-    {
-      id: 2,
-      name: "Папка 2",
-      itemsCount: 3,
-      createdAt: "01.01.2025",
-    },
-  ]);
+    fetchData();
+  }, [activeTab, dataLoaded]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -97,39 +106,49 @@ function LibraryPage() {
     }
   };
 
-  const handleToggleItems = () => {
-    setIsItemsHidden((prev) => !prev);
-  };
-
   const handleSortChange = (event) => {
     setSortBy(event.target.value);
   };
 
+  const handleCreateFolder = async (name) => {
+    try {
+      setLoading(prev => ({ ...prev, creating: true }));
+      const response = await folderApi.create({ name });
+      const newFolder = response.data;
+      setFolders([...folders, newFolder]);
+      navigate(`/folder/${newFolder.id}`);
+    } catch (error) {
+      console.error("Ошибка создания папки:", error);
+    } finally {
+      setLoading(prev => ({ ...prev, creating: false }));
+      setFolderDialogOpen(false);
+    }
+  };
+
   const currentItems = activeTab === 0 ? experiments : folders;
-  const hasItems = currentItems.length > 0 && !isItemsHidden;
+  const hasItems = currentItems.length > 0;
+  const isLoading = activeTab === 0 ? loading.experiments : loading.folders;
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
-      <Paper elevation={2} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+      <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
         {/* Шапка с заголовком и управлением */}
-        <Box sx={{ 
-          p: 2, 
-          backgroundColor: theme.palette.grey[100],
-        }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Box
+          sx={{
+            p: 2,
+            backgroundColor: theme.palette.grey[100],
+          }}
+        >
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Typography variant="h6" sx={{ fontWeight: 500 }}>
-              Библиотека экспериментов
+              Библиотека
             </Typography>
-            
+
             <Stack direction="row" spacing={1}>
-              <IconButton
-                onClick={handleToggleItems}
-                color={isItemsHidden ? "primary" : "default"}
-                size="small"
-              >
-                {isItemsHidden ? <VisibilityIcon /> : <VisibilityOffIcon />}
-              </IconButton>
-              
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
@@ -146,11 +165,7 @@ function LibraryPage() {
         <Box sx={{ p: 3 }}>
           {/* Вкладки и фильтры */}
           <Box sx={{ mb: 3 }}>
-            <Tabs 
-              value={activeTab} 
-              onChange={handleTabChange}
-              sx={{ mb: 2 }}
-            >
+            <Tabs value={activeTab} onChange={handleTabChange} sx={{ mb: 2 }}>
               <Tab label="Эксперименты" />
               <Tab label="Папки" />
             </Tabs>
@@ -177,7 +192,9 @@ function LibraryPage() {
                   value={searchQuery}
                   onChange={handleSearchChange}
                   InputProps={{
-                    startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+                    startAdornment: (
+                      <SearchIcon color="action" sx={{ mr: 1 }} />
+                    ),
                   }}
                 />
               </Stack>
@@ -186,13 +203,25 @@ function LibraryPage() {
 
           {/* Список элементов */}
           <Box>
-            {hasItems ? (
+            {isLoading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  p: 3,
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : hasItems ? (
               <List disablePadding>
                 {currentItems.map((item, index) => (
                   <Box key={item.id}>
                     <Link
-                      to={`/${activeTab === 0 ? 'experiment' : 'folder'}/${item.id}`}
-                      style={{ textDecoration: 'none', color: 'inherit' }}
+                      to={`/${activeTab === 0 ? "experiment" : "folder"}/${
+                        item.id
+                      }`}
+                      style={{ textDecoration: "none", color: "inherit" }}
                     >
                       {activeTab === 0 ? (
                         <ExperimentItem experiment={item} />
@@ -207,14 +236,16 @@ function LibraryPage() {
                 ))}
               </List>
             ) : (
-              <Box sx={{ 
-                p: 3, 
-                textAlign: 'center',
-                backgroundColor: theme.palette.grey[50],
-                borderRadius: 1
-              }}>
+              <Box
+                sx={{
+                  p: 3,
+                  textAlign: "center",
+                  backgroundColor: theme.palette.grey[50],
+                  borderRadius: 1,
+                }}
+              >
                 <Typography variant="body1" color="text.secondary">
-                  {isItemsHidden ? 'Элементы скрыты' : 'Нет доступных элементов'}
+                  Нет доступных элементов
                 </Typography>
               </Box>
             )}
@@ -240,15 +271,8 @@ function LibraryPage() {
       <CreateFolderDialog
         open={folderDialogOpen}
         onClose={() => setFolderDialogOpen(false)}
-        onCreate={(name) => {
-          const newFolder = {
-            id: folders.length + 1,
-            name,
-            itemsCount: 0,
-            createdAt: new Date().toLocaleDateString(),
-          };
-          setFolders([...folders, newFolder]);
-        }}
+        onCreate={handleCreateFolder}
+        loading={loading.creating}
       />
     </Container>
   );

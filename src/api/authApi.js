@@ -4,8 +4,8 @@ let mockUsers = [
   {
     id: 1,
     username: 'Иван Иванов',
-    email: 'user@example.com',
-    password: 'password123' // В реальном приложении пароли должны быть хешированы!
+    email: 'email@email.com',
+    password: '1234' // В реальном приложении пароли должны быть хешированы!
   }
 ];
 

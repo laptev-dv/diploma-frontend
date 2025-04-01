@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -13,65 +13,52 @@ import {
   ListItemIcon,
   ListItemText,
   useTheme,
+  CircularProgress,
+  Alert
 } from "@mui/material";
-import { useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import {
   Add as AddIcon,
   MoreVert as MoreVertIcon,
-  Visibility as VisibilityIcon,
-  VisibilityOff as VisibilityOffIcon,
   Edit as EditIcon,
-  Delete as DeleteIcon
+  ArrowBack as BackIcon,
+  Delete as DeleteIcon,
 } from "@mui/icons-material";
 import FolderExperimentItem from "../components/FolderExperimentItem";
 import AddToFolderDialog from "../components/AddToFolderDialog";
 import EditFolderDialog from "../components/EditFolderDialog";
+import { folderApi } from "../api/folderApi";
 
 function FolderPage() {
   const theme = useTheme();
+  const navigate = useNavigate();
   const { id } = useParams();
-  const [isItemsHidden, setIsItemsHidden] = useState(false);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [folder, setFolder] = useState(null);
+
   const openMenu = Boolean(anchorEl);
 
-  const [folder, setFolder] = useState({
-    id: id,
-    name: `Папка ${id}`,
-    author: "Иван Иванов",
-    createdAt: "01.01.2025",
-    experiments: [
-      {
-        id: 1,
-        name: "Эксперимент 1",
-        author: "Иван Иванов",
-        resultsCount: 10,
-        createdAt: "01.01.2025",
-      },
-      {
-        id: 2,
-        name: "Эксперимент 2",
-        author: "Петр Петров",
-        resultsCount: 5,
-        createdAt: "01.01.2025",
-      },
-      {
-        id: 3,
-        name: "Эксперимент 3",
-        author: "Сергей Сергеев",
-        resultsCount: 8,
-        createdAt: "02.01.2025",
-      },
-      {
-        id: 4,
-        name: "Эксперимент 4",
-        author: "Алексей Алексеев",
-        resultsCount: 3,
-        createdAt: "03.01.2025",
-      },
-    ],
-  });
+  // Загрузка данных папки
+  useEffect(() => {
+    const loadFolder = async () => {
+      try {
+        setLoading(true);
+        const response = await folderApi.getByIdWithExperiments(id);
+        setFolder(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFolder();
+  }, [id]);
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -86,33 +73,85 @@ function FolderPage() {
     handleMenuClose();
   };
 
-  const handleDelete = () => {
-    alert("Папка будет удалена");
-    handleMenuClose();
-  };
-
-  const handleToggleItems = () => {
-    setIsItemsHidden(!isItemsHidden);
+  const handleDelete = async () => {
+    try {
+      await folderApi.delete(id);
+      navigate('/library');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      handleMenuClose();
+    }
   };
 
   const handleAddClick = () => {
     setDialogOpen(true);
   };
 
-  const handleSaveFolder = (updatedFolder) => {
-    setFolder(updatedFolder);
-    setEditDialogOpen(false);
+  const handleSaveFolder = async (updatedFolder) => {
+    try {
+      const response = await folderApi.update(id, updatedFolder);
+      setFolder(response.data);
+      setEditDialogOpen(false);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
-  const handleRemoveExperiment = (experimentId) => {
-    setFolder((prev) => ({
-      ...prev,
-      experiments: prev.experiments.filter((exp) => exp.id !== experimentId),
-    }));
+  const handleUpdateExperiments = async (experimentIds) => {
+    try {
+      const response = await folderApi.setExperiments(id, experimentIds);
+      setFolder(response.data);
+      setDialogOpen(false);
+    } catch (err) {
+      setError(err.message);
+    }
   };
+
+  const handleRemoveExperiment = async (experimentId) => {
+    try {
+      const newExperimentIds = folder.experimentIds.filter(id => id !== experimentId);
+      const response = await folderApi.setExperiments(folder.id, newExperimentIds);
+      setFolder(response.data);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  if (!folder && loading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 3 }}>
+        <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
+          <Box
+            sx={{
+              p: 2,
+              backgroundColor: theme.palette.grey[100],
+            }}
+          >
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              Загрузка папки...
+            </Typography>
+          </Box>
+          <Box sx={{ p: 3, textAlign: 'center' }}>
+            <CircularProgress />
+          </Box>
+        </Paper>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 3 }}>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      
       <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
         {/* Шапка с информацией о папке */}
         <Box
@@ -126,31 +165,29 @@ function FolderPage() {
             justifyContent="space-between"
             alignItems="center"
           >
-            <Box>
-              <Typography variant="body2" color="text.secondary">
-                Автор: {folder.author} | Создано: {folder.createdAt}
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 500 }}>
-                {folder.name}
-              </Typography>
-            </Box>
-
-            <Stack direction="row" spacing={1}>
-              <IconButton
-                onClick={handleToggleItems}
-                color={isItemsHidden ? "primary" : "default"}
-                size="small"
-              >
-                {isItemsHidden ? <VisibilityIcon /> : <VisibilityOffIcon />}
+            <Stack direction="row" spacing={1} alignItems='center'>
+              <IconButton onClick={() => navigate('/library')} size="small">
+                <BackIcon />
               </IconButton>
 
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Автор: {folder.author} | Создано: {new Date(folder.createdAt).toLocaleDateString()}
+                </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 500 }}>
+                  {folder.name}
+                </Typography>
+              </Box>
+            </Stack>
+
+            <Stack direction="row" spacing={1}>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={handleAddClick}
                 size="small"
               >
-                Добавить
+                Добавить \ Изменить
               </Button>
 
               <IconButton size="small" onClick={handleMenuClick}>
@@ -184,9 +221,13 @@ function FolderPage() {
 
         {/* Список экспериментов */}
         <Box sx={{ p: 2 }}>
-          {!isItemsHidden && folder.experiments.length > 0 ? (
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : folder.experiments.length > 0 ? (
             <List disablePadding>
-              {folder.experiments.map((experiment, index) => (
+              {folder.experiments.map((experiment) => (
                 <Box key={experiment.id}>
                   <Link
                     to={`/experiment/${experiment.id}`}
@@ -209,12 +250,10 @@ function FolderPage() {
               sx={{
                 p: 3,
                 textAlign: "center",
-                backgroundColor: theme.palette.grey[50],
-                borderRadius: 1,
               }}
             >
               <Typography variant="body1" color="text.secondary">
-                {isItemsHidden ? "Элементы скрыты" : "Папка пуста"}
+                Папка пуста
               </Typography>
             </Box>
           )}
@@ -226,7 +265,8 @@ function FolderPage() {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         folderId={id}
-        currentExperiments={folder.experiments}
+        currentExperimentIds={folder.experimentIds}
+        onSave={handleUpdateExperiments}
       />
 
       {/* Диалог редактирования папки */}

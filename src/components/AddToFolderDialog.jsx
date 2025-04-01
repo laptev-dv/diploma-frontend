@@ -10,28 +10,44 @@ import {
   ListItemText,
   Checkbox,
   Divider,
-  Box
+  Box,
+  CircularProgress
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from 'react-router-dom';
+import { experimentApi } from '../api/experimentApi';
 
-function AddToFolderDialog({ open, onClose, folderId, currentExperiments }) {
-  // Все доступные эксперименты
-  const allExperiments = [
-    { id: 1, name: 'Эксперимент 1', author: 'Иван Иванов' },
-    { id: 2, name: 'Эксперимент 2', author: 'Петр Петров' },
-    { id: 3, name: 'Эксперимент 3', author: 'Сергей Сергеев' }
-  ];
-
-  // Выбранные эксперименты (изначально те, что уже в папке)
+function AddToFolderDialog({ 
+  open, 
+  onClose, 
+  folderId, 
+  currentExperimentIds,
+  onSave 
+}) {
+  const [experiments, setExperiments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [selected, setSelected] = useState([]);
 
-  // Инициализация выбранных экспериментов
+  // Загрузка экспериментов и инициализация выбранных
   useEffect(() => {
-    if (currentExperiments) {
-      setSelected(currentExperiments.map(exp => exp.id));
+    const loadExperiments = async () => {
+      try {
+        setLoading(true);
+        const response = await experimentApi.getAll();
+        setExperiments(response.data);
+        setSelected(currentExperimentIds || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (open) {
+      loadExperiments();
     }
-  }, [currentExperiments]);
+  }, [open, currentExperimentIds]);
 
   const handleToggle = (experimentId) => {
     setSelected(prev => {
@@ -39,9 +55,9 @@ function AddToFolderDialog({ open, onClose, folderId, currentExperiments }) {
       const index = newSelected.indexOf(experimentId);
       
       if (index === -1) {
-        newSelected.push(experimentId); // Добавляем
+        newSelected.push(experimentId);
       } else {
-        newSelected.splice(index, 1); // Удаляем
+        newSelected.splice(index, 1);
       }
       
       return newSelected;
@@ -49,25 +65,14 @@ function AddToFolderDialog({ open, onClose, folderId, currentExperiments }) {
   };
 
   const handleSubmit = () => {
-    // Здесь будет логика сохранения изменений
-    const addedExperiments = allExperiments.filter(
-      exp => selected.includes(exp.id) && !currentExperiments.some(e => e.id === exp.id)
-    );
-    
-    const removedExperiments = currentExperiments.filter(
-      exp => !selected.includes(exp.id)
-    );
-
-    console.log('Добавлены:', addedExperiments);
-    console.log('Удалены:', removedExperiments);
-    onClose();
+    onSave(selected);
   };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          Добавить в папку
+          Управление экспериментами в папке
           <Button
             component={Link}
             to="/experiment/create"
@@ -81,25 +86,33 @@ function AddToFolderDialog({ open, onClose, folderId, currentExperiments }) {
       </DialogTitle>
       
       <DialogContent>
-        <List dense>
-          {allExperiments.map((experiment) => (
-            <React.Fragment key={experiment.id}>
-              <ListItem>
-                <ListItemText
-                  primary={experiment.name}
-                  secondary={`Автор: ${experiment.author}`}
-                  sx={{ my: 0 }}
-                />
-                <Checkbox
-                  edge="end"
-                  checked={selected.includes(experiment.id)}
-                  onChange={() => handleToggle(experiment.id)}
-                />
-              </ListItem>
-              <Divider />
-            </React.Fragment>
-          ))}
-        </List>
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+            <CircularProgress />
+          </Box>
+        ) : error ? (
+          <Box sx={{ p: 2, color: 'error.main' }}>{error}</Box>
+        ) : (
+          <List dense>
+            {experiments.map((experiment) => (
+              <React.Fragment key={experiment.id}>
+                <ListItem>
+                  <ListItemText
+                    primary={experiment.name}
+                    secondary={`Автор: ${experiment.author}`}
+                    sx={{ my: 0 }}
+                  />
+                  <Checkbox
+                    edge="end"
+                    checked={selected.includes(experiment.id)}
+                    onChange={() => handleToggle(experiment.id)}
+                  />
+                </ListItem>
+                <Divider />
+              </React.Fragment>
+            ))}
+          </List>
+        )}
       </DialogContent>
       
       <DialogActions>
@@ -107,8 +120,9 @@ function AddToFolderDialog({ open, onClose, folderId, currentExperiments }) {
         <Button 
           onClick={handleSubmit}
           variant="contained"
+          disabled={loading}
         >
-          Готово
+          Сохранить
         </Button>
       </DialogActions>
     </Dialog>
