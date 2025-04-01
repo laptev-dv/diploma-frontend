@@ -9,7 +9,7 @@ function AlertNotification({ alerts, removeAlert }) {
             key={alert.id}
             severity={alert.severity}
             onClose={() => removeAlert(alert.id)}
-            sx={{ width: '100wh' }}
+            sx={{ width: '50%', position: 'absolute', top: 0, left: 0 }}
         >
             {alert.message}
         </Alert>      

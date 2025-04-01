@@ -1,94 +1,78 @@
 import axios from '../axios';
 
-let mockUsers = [
-  {
-    id: 1,
-    username: 'Иван Иванов',
-    email: 'email@email.com',
-    password: '1234' // В реальном приложении пароли должны быть хешированы!
-  }
-];
-
 export const authApi = {
   // Вход в систему
   login: async (credentials) => {
     try {
-      const user = mockUsers.find(u => 
-        u.email === credentials.email && 
-        u.password === credentials.password
-      );
-      
-      if (!user) throw new Error('Неверные учетные данные');
+      const response = await axios.post('/auth/login', {
+        email: credentials.email,
+        password: credentials.password
+      });
       
       return {
         data: {
-          token: 'mock-jwt-token-' + Math.random().toString(36).substring(2),
+          token: response.data.token,
           user: {
-            id: user.id,
-            username: user.username,
-            email: user.email
+            id: response.data._id,
+            email: response.data.email
           }
         }
       };
     } catch (error) {
-      throw error;
+      throw new Error(error.response?.data?.message || 'Ошибка авторизации');
     }
   },
 
-  // Выход из системы
-  logout: async () => {
+  // Выход из системы (добавим на бэкенде)
+  logout: async (token) => {
     try {
-      // В реальном приложении здесь был бы запрос на сервер
+      await axios.post('/auth/logout', {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       return { data: { success: true } };
     } catch (error) {
-      throw error;
+      throw new Error(error.response?.data?.message || 'Ошибка выхода');
     }
   },
 
   // Регистрация
   register: async (userData) => {
     try {
-      if (mockUsers.some(u => u.email === userData.email)) {
-        throw new Error('Пользователь с таким email уже существует');
-      }
-      
-      const newUser = {
-        id: Math.max(...mockUsers.map(u => u.id)) + 1,
-        ...userData
-      };
-      
-      mockUsers.push(newUser);
+      const response = await axios.post('/auth/register', {
+        email: userData.email,
+        password: userData.password
+      });
       
       return {
         data: {
-          id: newUser.id,
-          username: newUser.username,
-          email: newUser.email
+          id: response.data._id,
+          email: response.data.email,
+          token: response.data.token
         }
       };
     } catch (error) {
-      throw error;
+      throw new Error(error.response?.data?.message || 'Ошибка регистрации');
     }
   },
 
-  // Проверка токена (для защищенных маршрутов)
+  // Проверка токена
   verifyToken: async (token) => {
     try {
-      // В реальном приложении здесь была бы проверка токена на сервере
-      if (!token) throw new Error('Токен не предоставлен');
+      const response = await axios.get('/auth/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       
       return {
         data: {
           valid: true,
           user: {
-            id: 1,
-            username: 'Иван Иванов',
-            email: 'user@example.com'
+            id: response.data._id,
+            email: response.data.email
           }
         }
       };
     } catch (error) {
-      throw error;
+      throw new Error(error.response?.data?.message);
     }
   }
 };

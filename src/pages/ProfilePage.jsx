@@ -63,8 +63,8 @@ const ProfilePage = () => {
 
   const handleLogout = async () => {
     try {
-      await authApi.logout();
-      logout();
+      // Вызываем logout из контекста, который уже содержит всю логику
+      await logout();
       navigate("/auth/login");
     } catch (error) {
       console.error("Logout failed:", error);

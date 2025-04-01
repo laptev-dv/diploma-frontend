@@ -60,7 +60,7 @@ function ExperimentPage() {
     const loadExperiment = async () => {
       try {
         setLoading(true);
-        const response = await experimentApi.getByIdWithDetails(id);
+        const response = await experimentApi.getById(id);
         setExperiment(response.data);
         setEditedName(response.data.name);
         

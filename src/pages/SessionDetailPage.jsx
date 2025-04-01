@@ -129,10 +129,9 @@ function SessionDetailPage() {
         <Link
           underline="hover"
           color="inherit"
-          href="/experiment/123"
           onClick={(e) => {
             e.preventDefault();
-            navigate("/experiment/123");
+            navigate(-1);
           }}
         >
           Эксперимент

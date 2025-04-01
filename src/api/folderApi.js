@@ -7,7 +7,7 @@ let mockFolders = [
     description: 'Основная папка для экспериментов',
     createdAt: '2023-05-10T08:00:00Z',
     updatedAt: '2023-05-12T16:30:00Z',
-    experimentIds: [1, 2]
+    author: 'Иван Иванов'
   },
   {
     id: 2,
@@ -15,77 +15,48 @@ let mockFolders = [
     description: 'Старые эксперименты',
     createdAt: '2023-05-18T11:20:00Z',
     updatedAt: '2023-05-20T09:45:00Z',
-    experimentIds: [3, 4]
+    author: 'Петр Петров'
+  },
+  {
+    id: 3,
+    name: 'Тестовая папка',
+    description: 'Для тестирования функционала',
+    createdAt: '2023-05-22T14:00:00Z',
+    updatedAt: '2023-05-22T15:30:00Z',
+    author: 'Сергей Сергеев'
   }
 ];
 
-let mockExperiments = [
-  { id: 1, name: 'Эксперимент 1', author: 'Иван Иванов' },
-  { id: 2, name: 'Эксперимент 2', author: 'Петр Петров' },
-  { id: 3, name: 'Эксперимент 3', author: 'Сергей Сергеев' },
-  { id: 4, name: 'Эксперимент 4', author: 'Алексей Алексеев' },
-  { id: 5, name: 'Эксперимент 5', author: 'Дмитрий Дмитриев' }
-];
-
 export const folderApi = {
-  // Получить папку по ID с экспериментами
-  getByIdWithExperiments: async (id) => {
+  getAll: async ({ search = '', sortBy = 'date' }) => {
+    await new Promise(r => setTimeout(r, 500)); // Имитация задержки сети
+    
     try {
-      const folder = mockFolders.find(f => f.id === parseInt(id));
-      if (!folder) throw new Error('Папка не найдена');
+      let data = [...mockFolders];
       
-      const experiments = mockExperiments.filter(exp => 
-        folder.experimentIds.includes(exp.id)
-      );
+      // Фильтрация по поисковому запросу
+      if (search) {
+        const searchLower = search.toLowerCase();
+        data = data.filter(folder => 
+          folder.name.toLowerCase().includes(searchLower) ||
+          folder.description.toLowerCase().includes(searchLower)
+        );
+      }
       
-      return { 
-        data: {
-          ...folder,
-          experiments
-        }
-      };
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  // Обновить эксперименты в папке
-  setExperiments: async (folderId, experimentIds) => {
-    try {
-      const index = mockFolders.findIndex(f => f.id === parseInt(folderId));
-      if (index === -1) throw new Error('Папка не найдена');
+      // Сортировка
+      if (sortBy === 'date') {
+        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      } else if (sortBy === 'name') {
+        data.sort((a, b) => a.name.localeCompare(b.name));
+      }
       
-      mockFolders[index] = {
-        ...mockFolders[index],
-        experimentIds,
-        updatedAt: new Date().toISOString()
-      };
-      
-      const experiments = mockExperiments.filter(exp => 
-        experimentIds.includes(exp.id)
-      );
-      
-      return { 
-        data: {
-          ...mockFolders[index],
-          experiments
-        }
-      };
+      return { data };
     } catch (error) {
       throw error;
     }
   },
 
   // Остальные методы остаются без изменений
-  getAll: async () => {
-    await new Promise(r => setTimeout(r, 2000));
-    try {
-      return { data: mockFolders };
-    } catch (error) {
-      throw error;
-    }
-  },
-
   getById: async (id) => {
     try {
       const folder = mockFolders.find(f => f.id === parseInt(id));
@@ -140,13 +111,20 @@ export const folderApi = {
     } catch (error) {
       throw error;
     }
-  }
-};
+  },
 
-export const experimentApi = {
-  getAll: async () => {
+  setExperiments: async (folderId, experimentIds) => {
     try {
-      return { data: mockExperiments };
+      const index = mockFolders.findIndex(f => f.id === parseInt(folderId));
+      if (index === -1) throw new Error('Папка не найдена');
+      
+      mockFolders[index] = {
+        ...mockFolders[index],
+        experimentIds,
+        updatedAt: new Date().toISOString()
+      };
+      
+      return { data: mockFolders[index] };
     } catch (error) {
       throw error;
     }
