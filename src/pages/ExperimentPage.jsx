@@ -401,7 +401,7 @@ function ExperimentPage() {
 
           {/* Блок истории сессий */}
           <Box sx={{ p: 2 }}>
-            <Typography variant="subtitle1" gutterBottom>
+            <Typography gutterBottom>
               История сессий
             </Typography>
 

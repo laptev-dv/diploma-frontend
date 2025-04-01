@@ -38,7 +38,6 @@ function SessionItem({ session, showDivider, onClick }) {
         />
         <Tooltip title="Экспорт результатов">
           <IconButton
-            edge="end"
             onClick={handleExportClick}
             aria-label="экспорт"
           >
@@ -48,7 +47,6 @@ function SessionItem({ session, showDivider, onClick }) {
         {session.isMine && (
           <Tooltip title="Удалить сессию">
             <IconButton
-              edge="end"
               onClick={handleDeleteClick}
               aria-label="удалить"
             >

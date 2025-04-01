@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { 
+import React, { useState } from "react";
+import {
   Box,
   Container,
   Paper,
@@ -18,8 +18,8 @@ import {
   Button,
   Typography,
   Alert,
-  useTheme
-} from '@mui/material';
+  useTheme,
+} from "@mui/material";
 import {
   Person as PersonIcon,
   Lock as LockIcon,
@@ -29,23 +29,48 @@ import {
   Window as WindowsIcon,
   Description as ManualIcon,
   Science as ExperimentIcon,
-  Edit as EditIcon
-} from '@mui/icons-material';
+  Edit as EditIcon,
+} from "@mui/icons-material";
 
 const ProfilePage = () => {
   const theme = useTheme();
-  const [user, setUser] = useState({ username: 'Иван Иванов' });
+  const [user, setUser] = useState({ username: "Иван Иванов" });
   const [editUsernameOpen, setEditUsernameOpen] = useState(false);
-  const [newUsername, setNewUsername] = useState('');
+  const [newUsername, setNewUsername] = useState("");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+
+  const handleLogout = () => {
+    console.log("Logout logic here");
+    // Добавьте здесь логику выхода из системы
+  };
+
+  const handleDownload = (item) => {
+    console.log(`Downloading ${item}`);
+    // Добавьте здесь логику загрузки
+  };
+
+  const handleEditPassword = () => {
+    console.log("Edit password logic here");
+    // Добавьте здесь логику изменения пароля
+  };
+
+  const handleDeleteAccount = () => {
+    console.log("Account deletion logic here");
+    // Добавьте здесь логику удаления аккаунта
+    setDeleteConfirmOpen(false);
+  };
 
   return (
     <Container maxWidth="md" sx={{ py: 3 }}>
-      <Typography variant="h5" gutterBottom sx={{ 
-        mb: 3,
-        fontWeight: 500,
-        color: theme.palette.text.primary
-      }}>
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{
+          mb: 3,
+          fontWeight: 500,
+          color: theme.palette.text.primary,
+        }}
+      >
         Профиль пользователя
       </Typography>
 
@@ -56,35 +81,42 @@ const ProfilePage = () => {
         </Box>
         <List>
           <ListItem sx={{ px: 3 }}>
-            <ListItemIcon sx={{ minWidth: 40 }}><PersonIcon color="primary" /></ListItemIcon>
-            <ListItemText 
-              primary="Имя пользователя" 
-              secondary={user.username} 
-              secondaryTypographyProps={{ color: 'text.primary' }}
+            <ListItemIcon sx={{ minWidth: 40 }}>
+              <PersonIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Имя пользователя"
+              secondary={user.username}
+              secondaryTypographyProps={{ color: "text.primary" }}
             />
-            <ListItemSecondaryAction>
-              <IconButton 
-                edge="end" 
-                onClick={() => { setNewUsername(user.username); setEditUsernameOpen(true); }}
-                sx={{ color: theme.palette.primary.main }}
-              >
-                <EditIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
+            <IconButton
+              edge="end"
+              onClick={() => {
+                setNewUsername(user.username);
+                setEditUsernameOpen(true);
+              }}
+              sx={{ color: theme.palette.primary.main }}
+            >
+              <EditIcon />
+            </IconButton>
           </ListItem>
           <Divider variant="inset" component="li" />
           <ListItem sx={{ px: 3 }}>
-            <ListItemIcon sx={{ minWidth: 40 }}><LockIcon color="primary" /></ListItemIcon>
-            <ListItemText 
-              primary="Пароль" 
-              secondary="••••••••" 
-              secondaryTypographyProps={{ color: 'text.primary' }}
+            <ListItemIcon sx={{ minWidth: 40 }}>
+              <LockIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Пароль"
+              secondary="••••••••"
+              secondaryTypographyProps={{ color: "text.primary" }}
             />
-            <ListItemSecondaryAction>
-              <IconButton edge="end" sx={{ color: theme.palette.primary.main }}>
-                <EditIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
+            <IconButton
+              edge="end"
+              onClick={handleEditPassword}
+              sx={{ color: theme.palette.primary.main }}
+            >
+              <EditIcon />
+            </IconButton>
           </ListItem>
         </List>
       </Paper>
@@ -95,20 +127,28 @@ const ProfilePage = () => {
           <Typography variant="subtitle1">Управление аккаунтом</Typography>
         </Box>
         <List>
-          <ListItem button sx={{ px: 3 }}>
-            <ListItemIcon sx={{ minWidth: 40 }}><ExitIcon color="action" /></ListItemIcon>
+          <ListItem
+            button
+            sx={{ px: 3, "&:hover": { cursor: "pointer" } }}
+            onClick={handleLogout}
+          >
+            <ListItemIcon sx={{ minWidth: 40 }}>
+              <ExitIcon color="action" />
+            </ListItemIcon>
             <ListItemText primary="Выйти из системы" />
           </ListItem>
           <Divider variant="inset" component="li" />
-          <ListItem 
-            button 
-            sx={{ px: 3 }}
+          <ListItem
+            button
+            sx={{ px: 3, "&:hover": { cursor: "pointer" } }}
             onClick={() => setDeleteConfirmOpen(true)}
           >
-            <ListItemIcon sx={{ minWidth: 40 }}><DeleteIcon color="error" /></ListItemIcon>
-            <ListItemText 
-              primary="Удалить аккаунт" 
-              primaryTypographyProps={{ color: 'error' }} 
+            <ListItemIcon sx={{ minWidth: 40 }}>
+              <DeleteIcon color="error" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Удалить аккаунт"
+              primaryTypographyProps={{ color: "error" }}
             />
           </ListItem>
         </List>
@@ -121,50 +161,74 @@ const ProfilePage = () => {
         </Box>
         <List>
           <ListItem sx={{ px: 3 }}>
-            <ListItemIcon sx={{ minWidth: 40 }}><WindowsIcon color="primary" /></ListItemIcon>
-            <ListItemText 
-              primary="Версия для Windows" 
-              secondary="Десктопное приложение" 
+            <ListItemIcon sx={{ minWidth: 40 }}>
+              <WindowsIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Версия для Windows"
+              secondary="Десктопное приложение"
             />
-            <ListItemSecondaryAction>
-              <IconButton edge="end" sx={{ color: theme.palette.primary.main }}>
-                <DownloadIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
+            <IconButton
+              edge="end"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownload("windows_app");
+              }}
+              sx={{ color: theme.palette.primary.main }}
+            >
+              <DownloadIcon />
+            </IconButton>
           </ListItem>
           <Divider variant="inset" component="li" />
           <ListItem sx={{ px: 3 }}>
-            <ListItemIcon sx={{ minWidth: 40 }}><ManualIcon color="primary" /></ListItemIcon>
-            <ListItemText 
-              primary="Руководство пользователя" 
-              secondary="Полное описание функций" 
+            <ListItemIcon sx={{ minWidth: 40 }}>
+              <ManualIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Руководство пользователя"
+              secondary="Полное описание функций"
             />
-            <ListItemSecondaryAction>
-              <IconButton edge="end" sx={{ color: theme.palette.primary.main }}>
-                <DownloadIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
+            <IconButton
+              edge="end"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownload("user_manual");
+              }}
+              sx={{ color: theme.palette.primary.main }}
+            >
+              <DownloadIcon />
+            </IconButton>
           </ListItem>
           <Divider variant="inset" component="li" />
           <ListItem sx={{ px: 3 }}>
-            <ListItemIcon sx={{ minWidth: 40 }}><ExperimentIcon color="primary" /></ListItemIcon>
-            <ListItemText 
-              primary="Проведение эксперимента" 
-              secondary="Инструкция по работе" 
+            <ListItemIcon sx={{ minWidth: 40 }}>
+              <ExperimentIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText
+              primary="Проведение эксперимента"
+              secondary="Инструкция по работе"
             />
-            <ListItemSecondaryAction>
-              <IconButton edge="end" sx={{ color: theme.palette.primary.main }}>
-                <DownloadIcon />
-              </IconButton>
-            </ListItemSecondaryAction>
+            <IconButton
+              edge="end"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownload("experiment_guide");
+              }}
+              sx={{ color: theme.palette.primary.main }}
+            >
+              <DownloadIcon />
+            </IconButton>
           </ListItem>
         </List>
       </Paper>
 
       {/* Диалог редактирования имени */}
-      <Dialog open={editUsernameOpen} onClose={() => setEditUsernameOpen(false)}>
+      <Dialog
+        open={editUsernameOpen}
+        onClose={() => setEditUsernameOpen(false)}
+      >
         <DialogTitle>Редактировать имя пользователя</DialogTitle>
-        <DialogContent sx={{ minWidth: 400, py: 2 }}>
+        <DialogContent sx={{ minWidth: 400, ьy: 2 }}>
           <TextField
             autoFocus
             fullWidth
@@ -176,8 +240,11 @@ const ProfilePage = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditUsernameOpen(false)}>Отмена</Button>
-          <Button 
-            onClick={() => { setUser({ username: newUsername }); setEditUsernameOpen(false); }}
+          <Button
+            onClick={() => {
+              setUser({ username: newUsername });
+              setEditUsernameOpen(false);
+            }}
             variant="contained"
             disabled={!newUsername.trim()}
           >
@@ -187,23 +254,24 @@ const ProfilePage = () => {
       </Dialog>
 
       {/* Диалог подтверждения удаления */}
-      <Dialog open={deleteConfirmOpen} onClose={() => setDeleteConfirmOpen(false)}>
+      <Dialog
+        open={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+      >
         <DialogTitle>Подтвердите удаление аккаунта</DialogTitle>
         <DialogContent>
           <Alert severity="error" sx={{ mb: 2 }}>
             Это действие невозможно отменить!
           </Alert>
           <Typography>
-            Все ваши данные будут безвозвратно удалены. Вы уверены, что хотите продолжить?
+            Все ваши данные будут безвозвратно удалены. Вы уверены, что хотите
+            продолжить?
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteConfirmOpen(false)}>Отмена</Button>
-          <Button 
-            onClick={() => { 
-              setDeleteConfirmOpen(false);
-              // Здесь должна быть логика удаления аккаунта
-            }}
+          <Button
+            onClick={handleDeleteAccount}
             color="error"
             variant="contained"
           >

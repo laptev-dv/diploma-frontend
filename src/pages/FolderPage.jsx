@@ -188,50 +188,25 @@ function FolderPage() {
         {/* Список экспериментов */}
         <Box sx={{ p: 2 }}>
           {!isItemsHidden && folder.experiments.length > 0 ? (
-            isMediumScreen ? (
-              // Табличное представление для широких экранов
-              <Grid container spacing={2}>
-                {folder.experiments.map((experiment) => (
-                  <Grid item xs={12} md={6} key={experiment.id}>
-                    <Link
-                      to={`/experiment/${experiment.id}`}
-                      style={{ textDecoration: "none", color: "inherit" }}
-                    >
-                      <FolderExperimentItem
-                        experiment={experiment}
-                        onRemove={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          handleRemoveExperiment(experiment.id);
-                        }}
-                        compact
-                      />
-                    </Link>
-                  </Grid>
-                ))}
-              </Grid>
-            ) : (
-              // Списковое представление для узких экранов
-              <List disablePadding>
-                {folder.experiments.map((experiment, index) => (
-                  <Box key={experiment.id}>
-                    <Link
-                      to={`/experiment/${experiment.id}`}
-                      style={{ textDecoration: "none", color: "inherit" }}
-                    >
-                      <FolderExperimentItem
-                        experiment={experiment}
-                        onRemove={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          handleRemoveExperiment(experiment.id);
-                        }}
-                      />
-                    </Link>
-                  </Box>
-                ))}
-              </List>
-            )
+            <List disablePadding>
+              {folder.experiments.map((experiment, index) => (
+                <Box key={experiment.id}>
+                  <Link
+                    to={`/experiment/${experiment.id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <FolderExperimentItem
+                      experiment={experiment}
+                      onRemove={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        handleRemoveExperiment(experiment.id);
+                      }}
+                    />
+                  </Link>
+                </Box>
+              ))}
+            </List>
           ) : (
             <Box
               sx={{
