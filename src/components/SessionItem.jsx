@@ -11,7 +11,7 @@ import {
   FileDownload as FileDownloadIcon,
 } from "@mui/icons-material";
 
-function SessionItem({ session, showDivider, onClick }) {
+function SessionItem({ session, showDivider, onClick, onDelete }) {
   const handleExportClick = (e) => {
     e.stopPropagation();
     console.log("Экспорт", session.id);
@@ -19,7 +19,7 @@ function SessionItem({ session, showDivider, onClick }) {
 
   const handleDeleteClick = (e) => {
     e.stopPropagation();
-    console.log("Удалить", session.id);
+    onDelete(session.id);
   };
 
   return (

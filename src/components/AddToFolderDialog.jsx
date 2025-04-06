@@ -11,102 +11,186 @@ import {
   Checkbox,
   Divider,
   Box,
-  CircularProgress
+  CircularProgress,
+  Typography,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Tooltip
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import {
+  Add as AddIcon,
+  Search as SearchIcon,
+  Clear as ClearIcon,
+  Info as InfoIcon
+} from '@mui/icons-material';
 import { Link } from 'react-router-dom';
-import { experimentApi } from '../api/experimentApi';
 
 function AddToFolderDialog({ 
-  open, 
-  onClose, 
-  folderId, 
-  currentExperimentIds,
-  onSave 
+  open,
+  onClose,
+  experiments = [],
+  selectedExperimentIds = [],
+  loading = false,
+  searchTerm = '',
+  onSearchChange,
+  onSave
 }) {
-  const [experiments, setExperiments] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [selected, setSelected] = useState([]);
+  const [localSelected, setLocalSelected] = useState([]);
 
-  // Загрузка экспериментов и инициализация выбранных
+  // Инициализируем и синхронизируем состояние при открытии диалога
   useEffect(() => {
-    const loadExperiments = async () => {
-      try {
-        setLoading(true);
-        const response = await experimentApi.getAll();
-        setExperiments(response.data);
-        setSelected(currentExperimentIds || []);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (open) {
-      loadExperiments();
+      setLocalSelected([...selectedExperimentIds]);
     }
-  }, [open, currentExperimentIds]);
+  }, [open, selectedExperimentIds]);
 
   const handleToggle = (experimentId) => {
-    setSelected(prev => {
+    setLocalSelected(prev => {
+      const currentIndex = prev.indexOf(experimentId);
       const newSelected = [...prev];
-      const index = newSelected.indexOf(experimentId);
       
-      if (index === -1) {
+      if (currentIndex === -1) {
         newSelected.push(experimentId);
       } else {
-        newSelected.splice(index, 1);
+        newSelected.splice(currentIndex, 1);
       }
       
       return newSelected;
     });
   };
 
+  const clearSearch = () => {
+    onSearchChange('');
+  };
+
   const handleSubmit = () => {
-    onSave(selected);
+    onSave(localSelected);
+    onClose();
+  };
+
+  const getExperimentInfo = (experiment) => {
+    return `Задач: ${experiment.parameters?.initialTaskNumber || 0}, 
+            Сессий: ${experiment.sessionsCount || 0}`;
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog 
+      open={open} 
+      onClose={onClose} 
+      fullWidth 
+      maxWidth="md"
+      scroll="paper"
+    >
       <DialogTitle>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          Управление экспериментами в папке
+          <Typography variant="h6">
+            Управление экспериментами в папке
+          </Typography>
           <Button
             component={Link}
             to="/experiment/create"
             variant="contained"
             startIcon={<AddIcon />}
             size="small"
+            sx={{ ml: 2 }}
           >
-            Создать
+            Создать эксперимент
           </Button>
         </Box>
       </DialogTitle>
       
-      <DialogContent>
+      <DialogContent dividers>
+        <Box sx={{ mb: 2 }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Поиск экспериментов по названию или автору..."
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+              endAdornment: searchTerm && (
+                <IconButton onClick={clearSearch} size="small">
+                  <ClearIcon fontSize="small" />
+                </IconButton>
+              )
+            }}
+          />
+        </Box>
+
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />
           </Box>
-        ) : error ? (
-          <Box sx={{ p: 2, color: 'error.main' }}>{error}</Box>
+        ) : experiments.length === 0 ? (
+          <Box sx={{ p: 2, textAlign: 'center' }}>
+            <Typography variant="body1" color="text.secondary">
+              {searchTerm ? 'Ничего не найдено' : 'Нет доступных экспериментов'}
+            </Typography>
+          </Box>
         ) : (
           <List dense>
             {experiments.map((experiment) => (
-              <React.Fragment key={experiment.id}>
-                <ListItem>
+              <React.Fragment key={experiment._id}>
+                <ListItem 
+                  sx={{ 
+                    bgcolor: localSelected.includes(experiment._id) 
+                      ? 'action.selected' 
+                      : 'background.paper',
+                    '&:hover': {
+                      bgcolor: 'action.hover'
+                    }
+                  }}
+                >
+                  <Checkbox
+                    edge="start"
+                    checked={localSelected.includes(experiment._id)}
+                    onChange={() => handleToggle(experiment._id)}
+                    tabIndex={-1}
+                    disableRipple
+                    inputProps={{ 'aria-labelledby': `checkbox-${experiment._id}` }}
+                  />
+                  
                   <ListItemText
+                    id={`checkbox-${experiment._id}`}
                     primary={experiment.name}
-                    secondary={`Автор: ${experiment.author}`}
+                    secondary={
+                      <>
+                        <Typography 
+                          component="span" 
+                          variant="body2" 
+                          color="text.primary"
+                        >
+                          Автор: {experiment.author?.name || 'Неизвестен'}
+                        </Typography>
+                        <br />
+                        <Typography 
+                          component="span" 
+                          variant="body2" 
+                          color="text.secondary"
+                        >
+                          {getExperimentInfo(experiment)}
+                        </Typography>
+                      </>
+                    }
                     sx={{ my: 0 }}
                   />
-                  <Checkbox
-                    edge="end"
-                    checked={selected.includes(experiment.id)}
-                    onChange={() => handleToggle(experiment.id)}
-                  />
+                  
+                  <Tooltip title="Подробнее об эксперименте">
+                    <IconButton
+                      component={Link}
+                      to={`/experiment/${experiment._id}`}
+                      edge="end"
+                      size="small"
+                    >
+                      <InfoIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </ListItem>
                 <Divider />
               </React.Fragment>
@@ -115,14 +199,20 @@ function AddToFolderDialog({
         )}
       </DialogContent>
       
-      <DialogActions>
-        <Button onClick={onClose}>Отмена</Button>
+      <DialogActions sx={{ p: 2 }}>
+        <Button 
+          onClick={onClose}
+          variant="outlined"
+          sx={{ mr: 1 }}
+        >
+          Отмена
+        </Button>
         <Button 
           onClick={handleSubmit}
           variant="contained"
           disabled={loading}
         >
-          Сохранить
+          Сохранить изменения
         </Button>
       </DialogActions>
     </Dialog>

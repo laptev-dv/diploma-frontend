@@ -36,7 +36,8 @@ import {
 import { useNavigate, useParams, Link } from "react-router-dom";
 import ExperimentParameters from "../components/experimentDetails/ExperimentParameters";
 import SessionItem from "../components/SessionItem";
-import { experimentApi } from "../api/experimentApi";
+import { sessionApi } from '../api/sessionApi';
+import { experimentApi } from '../api/experimentApi';
 
 function ExperimentPage() {
   const theme = useTheme();
@@ -85,7 +86,7 @@ function ExperimentPage() {
     const loadSessions = async () => {
       try {
         setSessionsLoading(true);
-        const response = await experimentApi.getSessions(id);
+        const response = await sessionApi.getByExperiment(id);
         setSessions(response.data);
       } catch (err) {
         setError(err.message);
@@ -99,6 +100,15 @@ function ExperimentPage() {
     }
   }, [id]);
 
+  const handleDeleteSession = async (sessionId) => {
+    try {
+      await sessionApi.delete(sessionId);
+      setSessions(sessions.filter(s => s.id !== sessionId));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+  
   const preloadFonts = (fontFamilies) => {
     fontFamilies.forEach((fontFamily) => {
       const link = document.createElement("link");
@@ -285,12 +295,12 @@ function ExperimentPage() {
                 {isMediumScreen ? (
                   <Grid container spacing={2}>
                     {filteredSessions.slice(0, 4).map((session) => (
-                      <Grid item xs={12} md={6} key={session.id}>
+                      <Grid item xs={12} md={6} key={session._id}>
                         <Link
-                          to={`/session/${session.id}`}
+                          to={`/session/${session._id}`}
                           style={{ textDecoration: "none", color: "inherit" }}
                         >
-                          <SessionItem session={session} compact />
+                          <SessionItem session={session} compact onDelete={handleDeleteSession}/>
                         </Link>
                       </Grid>
                     ))}
@@ -298,13 +308,14 @@ function ExperimentPage() {
                 ) : (
                   <List disablePadding>
                     {filteredSessions.slice(0, 3).map((session, index) => (
-                      <Box key={session.id}>
+                      <Box key={session._id}>
                         <Link
-                          to={`/session/${session.id}`}
+                          to={`/session/${session._id}`}
                           style={{ textDecoration: "none", color: "inherit" }}
                         >
                           <SessionItem
                             session={session}
+                            onDelete={handleDeleteSession}
                             showDivider={
                               index !== filteredSessions.length - 1 &&
                               index !== 2

@@ -150,7 +150,7 @@ export const experimentApi = {
           author: session.userName,
           date: session.date,
           duration: session.duration,
-          isMine: session.userId === session.experimentId.author, // Нужно уточнить логику
+          isMine: session.userId === session.experiment.author, // Нужно уточнить логику
           results: {
             efficiency: calculateEfficiency(session.results),
             completedTasks: session.results?.length || 0

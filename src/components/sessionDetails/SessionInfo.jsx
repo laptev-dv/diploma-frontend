@@ -11,7 +11,7 @@ import {
   CalendarToday
 } from '@mui/icons-material';
 
-import SessionResultsTable from "../SessionResultsTable"
+import SessionResultsTable from "./SessionResultsTable"
 
 const SessionInfo = ({ sessionData, extendedResults }) => {
   return (

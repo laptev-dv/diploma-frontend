@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 
-const StimulusPreview = ({ parameters }) => {
+const StimulusPreview = ({ parameters, hiddenPosition }) => {
   const { 
     symbolType = 'A',
     symbolColor = '#000000',
@@ -53,7 +53,7 @@ const StimulusPreview = ({ parameters }) => {
             >
               <Typography
                 sx={{
-                  color: symbolColor,
+                  color: hiddenPosition?.row === rowIndex + 1 && hiddenPosition?.col === colIndex + 1 ? 'transparent' : symbolColor,
                   fontFamily: symbolFont,
                   fontSize: `${symbolWidth * 0.8}px`, // Примерное соотношение
                   lineHeight: 1,

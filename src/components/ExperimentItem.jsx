@@ -20,7 +20,7 @@ function ExperimentItem({ experiment }) {
         </Typography>
       </Box>
       <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
-        Автор: {experiment.author} | Дата: {experiment.createdAt}
+        Автор: {experiment.author._id} | Дата: {experiment.createdAt}
       </Typography>
     </Box>
   );

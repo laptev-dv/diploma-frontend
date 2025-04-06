@@ -106,7 +106,6 @@ const DevPanel = ({
                   <TableCell>{task.success}</TableCell>
                   <TableCell>{task.error}</TableCell>
                   <TableCell>{task.miss}</TableCell>
-                  <TableCell>{task.avgResponseTime.toFixed(0)}ms</TableCell>
                 </TableRow>
               ))}
             </TableBody>

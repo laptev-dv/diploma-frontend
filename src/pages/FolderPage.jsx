@@ -28,6 +28,7 @@ import FolderExperimentItem from "../components/FolderExperimentItem";
 import AddToFolderDialog from "../components/AddToFolderDialog";
 import EditFolderDialog from "../components/EditFolderDialog";
 import { folderApi } from "../api/folderApi";
+import { experimentApi } from "../api/experimentApi";
 
 function FolderPage() {
   const theme = useTheme();
@@ -38,27 +39,54 @@ function FolderPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [folderLoading, setFolderLoading] = useState(true);
+  const [experimentsLoading, setExperimentsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [folder, setFolder] = useState(null);
+  const [allExperiments, setAllExperiments] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedExperiments, setSelectedExperiments] = useState([]);
 
   const openMenu = Boolean(anchorEl);
 
+  // Функция для загрузки данных папки
+  const loadFolderData = async () => {
+    try {
+      setFolderLoading(true);
+      const response = await folderApi.getById(id);
+      setFolder(response.data);
+      setSelectedExperiments(response.data.experiments.map(item => item._id) || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setFolderLoading(false);
+      setLoading(false);
+    }
+  };
+
   // Загрузка данных папки
   useEffect(() => {
-    const loadFolder = async () => {
+    loadFolderData();
+  }, [id]);
+
+  // Загрузка всех экспериментов при открытии диалога
+  useEffect(() => {
+    const loadExperiments = async () => {
+      if (!dialogOpen) return;
+      
       try {
-        setLoading(true);
-        const response = await folderApi.getById(id);
-        setFolder(response.data);
+        setExperimentsLoading(true);
+        const response = await experimentApi.getAll({ search: searchTerm });
+        setAllExperiments(response.data);
       } catch (err) {
         setError(err.message);
       } finally {
-        setLoading(false);
+        setExperimentsLoading(false);
       }
     };
 
-    loadFolder();
-  }, [id]);
+    loadExperiments();
+  }, [dialogOpen, searchTerm]);
 
   const handleMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -86,22 +114,23 @@ function FolderPage() {
 
   const handleAddClick = () => {
     setDialogOpen(true);
+    setSearchTerm('');
   };
 
   const handleSaveFolder = async (updatedFolder) => {
     try {
-      const response = await folderApi.update(id, updatedFolder);
-      setFolder(response.data);
+      await folderApi.update(id, updatedFolder);
+      await loadFolderData(); // Перезагружаем данные после обновления
       setEditDialogOpen(false);
     } catch (err) {
       setError(err.message);
     }
   };
 
-  const handleUpdateExperiments = async (experimentIds) => {
+  const handleUpdateExperiments = async (selectedExperimentIds) => {
     try {
-      const response = await folderApi.setExperiments(id, experimentIds);
-      setFolder(response.data);
+      await folderApi.setExperiments(id, selectedExperimentIds);
+      await loadFolderData(); // Перезагружаем данные после обновления
       setDialogOpen(false);
     } catch (err) {
       setError(err.message);
@@ -110,12 +139,19 @@ function FolderPage() {
 
   const handleRemoveExperiment = async (experimentId) => {
     try {
-      const newExperimentIds = folder.experimentIds.filter(id => id !== experimentId);
-      const response = await folderApi.setExperiments(folder.id, newExperimentIds);
-      setFolder(response.data);
+      const newExperimentIds = folder.experiments
+        .filter(exp => exp._id !== experimentId)
+        .map(exp => exp._id);
+      
+      await folderApi.setExperiments(folder._id, newExperimentIds);
+      await loadFolderData(); // Перезагружаем данные после удаления
     } catch (err) {
       setError(err.message);
     }
+  };
+
+  const handleSearchChange = (term) => {
+    setSearchTerm(term);
   };
 
   if (!folder && loading) {
@@ -172,7 +208,7 @@ function FolderPage() {
 
               <Box>
                 <Typography variant="body2" color="text.secondary">
-                  Автор: {folder.author} | Создано: {new Date(folder.createdAt).toLocaleDateString()}
+                  Автор: {folder.author.name} | Создано: {new Date(folder.createdAt).toLocaleDateString()}
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 500 }}>
                   {folder.name}
@@ -221,16 +257,16 @@ function FolderPage() {
 
         {/* Список экспериментов */}
         <Box sx={{ p: 2 }}>
-          {loading ? (
+          {folderLoading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
               <CircularProgress />
             </Box>
           ) : folder.experiments.length > 0 ? (
             <List disablePadding>
               {folder.experiments.map((experiment) => (
-                <Box key={experiment.id}>
+                <Box key={experiment._id}>
                   <Link
-                    to={`/experiment/${experiment.id}`}
+                    to={`/experiment/${experiment._id}`}
                     style={{ textDecoration: "none", color: "inherit" }}
                   >
                     <FolderExperimentItem
@@ -238,7 +274,7 @@ function FolderPage() {
                       onRemove={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
-                        handleRemoveExperiment(experiment.id);
+                        handleRemoveExperiment(experiment._id);
                       }}
                     />
                   </Link>
@@ -264,8 +300,11 @@ function FolderPage() {
       <AddToFolderDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        folderId={id}
-        currentExperimentIds={folder.experimentIds}
+        experiments={allExperiments}
+        selectedExperimentIds={selectedExperiments}
+        loading={experimentsLoading}
+        searchTerm={searchTerm}
+        onSearchChange={handleSearchChange}
         onSave={handleUpdateExperiments}
       />
 

@@ -18,7 +18,7 @@ function CreateExperimentPage() {
   const navigate = useNavigate();
 
   const [experiment, setExperiment] = useState({
-    experimentName: null,
+    experimentName: "",
     mode: "adaptive",
     presentationsPerTask: 20,
     seriesTime: 30,
@@ -56,7 +56,7 @@ function CreateExperimentPage() {
 
       // Подготавливаем данные для отправки
       const experimentData = {
-        name: experiment.experimentName || `Эксперимент за ${new Date().toISOString()}`,
+        name: experiment.experimentName.length > 0 ? experiment.experimentName : `Эксперимент за ${new Date().toISOString()}`,
         mode: experiment.mode,
         presentationsPerTask: experiment.presentationsPerTask,
         tasks: tasks.map((task) => ({

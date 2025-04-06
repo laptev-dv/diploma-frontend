@@ -214,7 +214,7 @@ function LibraryPage() {
             ) : hasItems ? (
               <List disablePadding>
                 {currentItems.map((item, index) => (
-                  <Box key={item.id}>
+                  <Box key={item._id}>
                     <Link
                       to={`/${activeTab === 0 ? "experiment" : "folder"}/${
                         item._id
