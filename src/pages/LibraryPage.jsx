@@ -38,7 +38,7 @@ function LibraryPage() {
   const [sortBy, setSortBy] = useState("date");
   const [anchorEl, setAnchorEl] = useState(null);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [experiments, setExperiments] = useState([]);
   const [folders, setFolders] = useState([]);
 
@@ -217,7 +217,7 @@ function LibraryPage() {
                   <Box key={item.id}>
                     <Link
                       to={`/${activeTab === 0 ? "experiment" : "folder"}/${
-                        item.id
+                        item._id
                       }`}
                       style={{ textDecoration: "none", color: "inherit" }}
                     >

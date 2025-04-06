@@ -48,7 +48,7 @@ function FolderPage() {
     const loadFolder = async () => {
       try {
         setLoading(true);
-        const response = await folderApi.getByIdWithExperiments(id);
+        const response = await folderApi.getById(id);
         setFolder(response.data);
       } catch (err) {
         setError(err.message);

@@ -36,7 +36,7 @@ export default function TaskItem({
         }
         secondary={
           <Typography variant="caption" color="text.secondary">
-            {`${task.parameters.rows}×${task.parameters.columns}`}
+            {`${task.rows}×${task.columns}`}
           </Typography>
         }
         sx={{ my: 0 }}

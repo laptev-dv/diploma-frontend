@@ -48,9 +48,11 @@ function ExperimentPage() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeHistoryTab, setActiveHistoryTab] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [experimentLoading, setExperimentLoading] = useState(true);
+  const [sessionsLoading, setSessionsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [experiment, setExperiment] = useState(null);
+  const [sessions, setSessions] = useState([]);
   const [editedName, setEditedName] = useState("");
 
   const openMenu = Boolean(anchorEl);
@@ -59,7 +61,7 @@ function ExperimentPage() {
   useEffect(() => {
     const loadExperiment = async () => {
       try {
-        setLoading(true);
+        setExperimentLoading(true);
         const response = await experimentApi.getById(id);
         setExperiment(response.data);
         setEditedName(response.data.name);
@@ -71,11 +73,30 @@ function ExperimentPage() {
       } catch (err) {
         setError(err.message);
       } finally {
-        setLoading(false);
+        setExperimentLoading(false);
       }
     };
 
     loadExperiment();
+  }, [id]);
+
+  // Загрузка сессий эксперимента
+  useEffect(() => {
+    const loadSessions = async () => {
+      try {
+        setSessionsLoading(true);
+        const response = await experimentApi.getSessions(id);
+        setSessions(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setSessionsLoading(false);
+      }
+    };
+
+    if (id) {
+      loadSessions();
+    }
   }, [id]);
 
   const preloadFonts = (fontFamilies) => {
@@ -145,7 +166,7 @@ function ExperimentPage() {
     navigate(`/experiment/${id}/sessions`);
   };
 
-  if (!experiment && loading) {
+  if (!experiment && experimentLoading) {
     return (
       <Container maxWidth="xl" sx={{ py: 3 }}>
         <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden", mb: 3 }}>
@@ -180,8 +201,8 @@ function ExperimentPage() {
 
   const filteredSessions =
     activeHistoryTab === 0
-      ? experiment.sessions
-      : experiment.sessions.filter((session) => session.isMine);
+      ? sessions
+      : sessions.filter((session) => session.isMine);
 
   return (
     <Box sx={{ pb: 10 }}>
@@ -215,7 +236,7 @@ function ExperimentPage() {
                     color="text.secondary"
                     sx={{ mt: 1 }}
                   >
-                    Создано: {new Date(experiment.createdAt).toLocaleDateString()} | Автор: {experiment.author}
+                    Создано: {new Date(experiment.createdAt).toLocaleDateString()} | Автор: {experiment.authorName}
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 500 }}>
                     {experiment.name}
@@ -255,11 +276,11 @@ function ExperimentPage() {
               <Tab label="Мои" />
             </Tabs>
 
-            {loading ? (
+            {sessionsLoading ? (
               <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
                 <CircularProgress />
               </Box>
-            ) : experiment.sessions.length > 0 ? (
+            ) : sessions.length > 0 ? (
               <>
                 {isMediumScreen ? (
                   <Grid container spacing={2}>
@@ -295,7 +316,7 @@ function ExperimentPage() {
                   </List>
                 )}
 
-                {experiment.sessions.length > (isMediumScreen ? 4 : 3) && (
+                {sessions.length > (isMediumScreen ? 4 : 3) && (
                   <Button
                     fullWidth
                     endIcon={<ArrowForwardIcon />}
@@ -325,7 +346,7 @@ function ExperimentPage() {
         </Paper>
 
         {/* Параметры эксперимента */}
-        {loading ? (
+        {experimentLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />
           </Box>
@@ -335,8 +356,7 @@ function ExperimentPage() {
               Параметры
             </Typography>
             <ExperimentParameters 
-              parameters={experiment.parameters} 
-              mode={experiment.mode}
+              parameters={experiment}
             />
           </Box>
         )}
@@ -362,7 +382,7 @@ function ExperimentPage() {
               size="large"
               onClick={handleStartExperiment}
               sx={{ px: 4 }}
-              disabled={loading}
+              disabled={experimentLoading}
             >
               Начать эксперимент
             </Button>
@@ -370,7 +390,7 @@ function ExperimentPage() {
               variant="outlined"
               startIcon={<InfoIcon />}
               onClick={handleOpenInstructions}
-              disabled={loading}
+              disabled={experimentLoading}
             >
               Инструкция
             </Button>

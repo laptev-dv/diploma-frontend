@@ -7,66 +7,42 @@ import ExperimentPreview from "../shared/ExperimentPreview";
 import EditableTimeParameters from "./EditableTimeParameters";
 
 function EditableExperimentParameters({
-  tasks: initialTasks = [],
+  tasks,
   onTasksChange,
+  experiment,
+  onExperimentChange,
 }) {
-  const [tasks, setTasks] = useState(
-    initialTasks.length > 0
-      ? initialTasks
-      : [
-          {
-            id: Date.now().toString(),
-            name: "Задача 4×4",
-            parameters: {
-              mode: "adaptive",
-              rows: 4,
-              columns: 4,
-              backgroundColor: "#ffffff",
-              symbolType: "X",
-              symbolFont: "Arial",
-              symbolWidth: 30,
-              symbolHeight: 30,
-              horizontalPadding: 5,
-              verticalPadding: 5,
-              symbolColor: "#000000",
-              presentationsPerTask: 20,
-              seriesTime: 30,
-              efficiencyMin: 50,
-              efficiencyMax: 80,
-              stimulusTime: 500,
-              responseTime: 1000,
-              pauseTime: 300,
-              initialTaskNumber: 1,
-            },
-          },
-        ]
-  );
 
   const [activeTaskId, setActiveTaskId] = useState(tasks[0]?.id || null);
   const activeTask = tasks.find((task) => task.id === activeTaskId);
-  const activeParameters = activeTask?.parameters || {};
 
   const handleTaskClick = (taskId) => {
     setActiveTaskId(taskId);
   };
 
-  const handleParamChange = (field, value) => {
+  const handleTaskParamChange = (field, value) => {
     const updatedTasks = tasks.map((task) => {
       if (task.id === activeTaskId) {
         return {
           ...task,
-          parameters: {
-            ...task.parameters,
-            [field]: value,
-          },
+          [field]: value,
         };
       }
       return task;
     });
 
-    setTasks(updatedTasks);
     onTasksChange(updatedTasks);
   };
+
+  const handleExperimentParamChange = (field, value) => {
+    const updatedExperiment = {
+      ...experiment,
+      [field]: value
+    }
+
+    onExperimentChange(updatedExperiment);
+  };
+
 
   const handleTaskNameChange = (taskId, newName) => {
     const updatedTasks = tasks.map((task) => {
@@ -79,13 +55,11 @@ function EditableExperimentParameters({
       return task;
     });
 
-    setTasks(updatedTasks);
     onTasksChange(updatedTasks);
   };
 
   const handleDeleteTask = (id) => {
     const updatedTasks = tasks.filter((task) => task.id !== id);
-    setTasks(updatedTasks);
 
     if (activeTaskId === id) {
       setActiveTaskId(updatedTasks[0]?.id || null);
@@ -108,7 +82,6 @@ function EditableExperimentParameters({
         newTask,
         ...tasks.slice(taskIndex + 1),
       ];
-      setTasks(updatedTasks);
       setActiveTaskId(newTask.id);
       onTasksChange(updatedTasks);
     }
@@ -129,8 +102,8 @@ function EditableExperimentParameters({
         }}
       >
         <EditableSeriesSettings
-          parameters={activeParameters}
-          onParamChange={handleParamChange}
+          parameters={experiment}
+          onParamChange={handleExperimentParamChange}
           tasksCount={tasks.length}
         />
         
@@ -144,7 +117,6 @@ function EditableExperimentParameters({
               onCopyTask={handleCopyTask}
               onTaskNameChange={handleTaskNameChange}
               onTasksChange={(newTasks) => {
-                setTasks(newTasks);
                 onTasksChange(newTasks);
               }}
             />
@@ -160,17 +132,17 @@ function EditableExperimentParameters({
             }}
           >
             <EditableExperimentGeneralParams
-              parameters={activeParameters}
-              onParamChange={handleParamChange}
+              parameters={activeTask}
+              onParamChange={handleTaskParamChange}
             />
 
             <EditableTimeParameters
               parameters={{
-                stimulusTime: activeParameters.stimulusTime,
-                responseTime: activeParameters.responseTime,
-                pauseTime: activeParameters.pauseTime,
+                stimulusTime: activeTask.stimulusTime,
+                responseTime: activeTask.responseTime,
+                pauseTime: activeTask.pauseTime,
               }}
-              onParamChange={handleParamChange}
+              onParamChange={handleTaskParamChange}
             />
           </Box>
         </Box>
@@ -183,7 +155,7 @@ function EditableExperimentParameters({
           height: "calc(100vh - 160px)",
         }}
       >
-        <ExperimentPreview parameters={activeParameters} />
+        <ExperimentPreview parameters={activeTask} />
       </Box>
     </Stack>
   );

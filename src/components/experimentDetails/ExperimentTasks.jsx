@@ -24,11 +24,11 @@ const ExperimentTasks = ({
 
         <List dense >
           {tasks.map((task, index) => (
-            <React.Fragment key={task.id}>
+            <React.Fragment key={task._id}>
               <TaskItem
                 task={task}
-                isActive={activeTaskId === task.id}
-                onClick={() => onTaskClick(task.id)}
+                isActive={activeTaskId === task._id}
+                onClick={() => onTaskClick(task._id)}
               />
               {index < tasks.length - 1 && <Divider />}
             </React.Fragment>

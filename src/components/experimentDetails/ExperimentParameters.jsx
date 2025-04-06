@@ -9,7 +9,7 @@ import ExperimentTasks from "./ExperimentTasks";
 
 function ExperimentParameters({ parameters }) {
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
-  const [activeTaskId, setActiveTaskId] = useState(parameters.tasks[0]?.id || null);
+  const [activeTaskId, setActiveTaskId] = useState(parameters.tasks[0]?._id || null);
 
   const handleFullscreenOpen = () => {
     setFullscreenOpen(true);
@@ -23,15 +23,14 @@ function ExperimentParameters({ parameters }) {
     setActiveTaskId(taskId);
   };
 
-  const activeTask = parameters.tasks.find(task => task.id === activeTaskId) || parameters.tasks[0];
-  const activeParameters = activeTask?.parameters || parameters;
+  const activeTask = parameters.tasks.find(task => task._id === activeTaskId) || parameters.tasks[0];
 
   return (
     <>
       <FullscreenPreview
         open={fullscreenOpen}
         onClose={handleFullscreenClose}
-        parameters={activeParameters}
+        parameters={activeTask}
       />
 
       <Stack direction="row" gap={3}>
@@ -81,14 +80,14 @@ function ExperimentParameters({ parameters }) {
               }}
             >
               {/* Основные параметры эксперимента */}
-              <ExperimentGeneralParams parameters={activeParameters} />
+              <ExperimentGeneralParams parameters={activeTask} />
 
               {/* Временные параметры */}
               <TimeParameters
                 parameters={{
-                  stimulusTime: activeParameters.stimulusTime,
-                  responseTime: activeParameters.responseTime,
-                  pauseTime: activeParameters.pauseTime,
+                  stimulusTime: activeTask.stimulusTime,
+                  responseTime: activeTask.responseTime,
+                  pauseTime: activeTask.pauseTime,
                 }}
               />
             </Box>
@@ -105,7 +104,7 @@ function ExperimentParameters({ parameters }) {
           }}
         >
           <ExperimentPreview
-            parameters={activeParameters}
+            parameters={activeTask}
             onFullscreen={handleFullscreenOpen}
           />
         </Box>

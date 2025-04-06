@@ -2,28 +2,31 @@ import axios from '../axios';
 
 let mockFolders = [
   {
-    id: 1,
+    _id: 1,
     name: 'Основная папка',
     description: 'Основная папка для экспериментов',
     createdAt: '2023-05-10T08:00:00Z',
     updatedAt: '2023-05-12T16:30:00Z',
-    author: 'Иван Иванов'
+    author: 'Иван Иванов',
+    experiments: []
   },
   {
-    id: 2,
+    _id: 2,
     name: 'Архив',
     description: 'Старые эксперименты',
     createdAt: '2023-05-18T11:20:00Z',
     updatedAt: '2023-05-20T09:45:00Z',
-    author: 'Петр Петров'
+    author: 'Петр Петров',
+    experiments: []
   },
   {
-    id: 3,
+    _id: 3,
     name: 'Тестовая папка',
     description: 'Для тестирования функционала',
     createdAt: '2023-05-22T14:00:00Z',
     updatedAt: '2023-05-22T15:30:00Z',
-    author: 'Сергей Сергеев'
+    author: 'Сергей Сергеев',
+    experiments: []
   }
 ];
 
