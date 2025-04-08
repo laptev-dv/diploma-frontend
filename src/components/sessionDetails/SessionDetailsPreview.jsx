@@ -120,8 +120,7 @@ const SessionDetailsPreview = ({ parameters }) => {
                 <PrevIcon />
               </IconButton>
               <Typography variant="body1" color={textColor}>
-                Предъявление {currentPresentationIndex + 1}/
-                {parameters.presentations.length}
+                {currentPresentationIndex + 1}/{parameters.presentations.length}
               </Typography>
               <IconButton onClick={handleNext} sx={{ color: textColor }}>
                 <NextIcon />
@@ -214,18 +213,24 @@ const SessionDetailsPreview = ({ parameters }) => {
             />
           </Box>
           <Stack spacing={2} sx={{ mt: 2 }}>
-            <Stack direction="row" justifyContent="center" spacing={2}>
+            <Stack direction="row" justifyContent="center" spacing={2} alignItems='center'>
               <IconButton onClick={handlePrev}>
                 <PrevIcon />
               </IconButton>
               <Typography variant="body1">
-                Предъявление {currentPresentationIndex + 1}/
-                {parameters.presentations.length}
+                {currentPresentationIndex + 1}/{parameters.presentations.length}
               </Typography>
               <IconButton onClick={handleNext}>
                 <NextIcon />
               </IconButton>
             </Stack>
+
+            <Box>
+              <Typography variant="subtitle2">Время на ответ:</Typography>
+              <Typography variant="body1">
+                {currentPresentation.responseTime}
+              </Typography>
+            </Box>
 
             <Box>
               <Typography variant="subtitle2">Правильный ответ:</Typography>

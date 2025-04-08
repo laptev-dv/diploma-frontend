@@ -56,7 +56,6 @@ const ExperimentRunPage = () => {
   const [userInput, setUserInput] = useState([]);
   const [presentationResults, setPresentationResults] = useState([]);
   const [taskResults, setTaskResults] = useState([]);
-  const [isExperimentComplete, setIsExperimentComplete] = useState(false);
 
   // Состояния для анимации виньетки
   const [vignetteColor, setVignetteColor] = useState(null);
@@ -160,11 +159,7 @@ const ExperimentRunPage = () => {
 
   // Сохранение статистики по выполнению задачи
   const saveTaskExecution = useCallback(() => {
-    const totalAttempts = successCount + errorCount + missCount;
-    const efficiencyPercantage = totalAttempts > 0 ? (successCount / totalAttempts) * 100 : 0;
-
     const taskExecution = {
-      taskName: currentTask.name,
       taskId: currentTask._id,
       presentations: [...presentationResults],
     };
@@ -172,7 +167,7 @@ const ExperimentRunPage = () => {
     setTaskResults(prev => [...prev, taskExecution]);
     setPresentationResults([]); // Очищаем результаты предъявлений
     return taskExecution;
-  }, [currentTask, activeTaskIndex, successCount, errorCount, missCount, presentationResults]);
+  }, [currentTask, activeTaskIndex, presentationResults]);
 
   // Завершение эксперимента
   const completeExperiment = useCallback(async () => {
@@ -200,14 +195,6 @@ const ExperimentRunPage = () => {
       navigate(`/experiment/${id}`);
     }
   }, [mode, taskResults, experiment, seriesTime, seriesTimeLeft, navigate, presentationsPerTask, tasks, currentTask, efficiencyMin, efficiencyMax, saveTaskExecution]);
-
-  // Обработка завершения времени в адаптивном режиме
-  const handleSeriesTimeEnd = useCallback(() => {
-    if (mode !== "adaptive") return;
-    
-    // Устанавливаем флаг, что нужно завершить после текущей задачи
-    setShouldCompleteAfterCurrentTask(true);
-  }, [mode]);
 
   // Определение следующей задачи (для адаптивного режима)
   const getNextTaskIndex = useCallback(
@@ -262,8 +249,7 @@ const ExperimentRunPage = () => {
     (e) => {
       if (
         currentPhase === "pause" ||
-        userInput.length >= 2 ||
-        isExperimentComplete
+        userInput.length >= 2
       )
         return;
       if (!/^[1-9]$/.test(e.key)) return;
@@ -287,7 +273,6 @@ const ExperimentRunPage = () => {
     [
       currentPhase,
       userInput,
-      isExperimentComplete,
       currentTask,
       phaseTimeLeft,
       checkAnswer,
@@ -389,8 +374,6 @@ const ExperimentRunPage = () => {
 
   // Таймер фаз
   useEffect(() => {
-    if (isExperimentComplete) return;
-
     const timer = setInterval(() => {
       setPhaseTimeLeft((prev) => {
         const newTime = prev - TICK_INTERVAL;
@@ -403,17 +386,17 @@ const ExperimentRunPage = () => {
     }, TICK_INTERVAL);
 
     return () => clearInterval(timer);
-  }, [goToNextPhase, currentPhase, currentTask, isExperimentComplete]);
+  }, [goToNextPhase, currentPhase, currentTask]);
 
   // Таймер общего времени (для адаптивного режима)
   useEffect(() => {
-    if (mode !== "adaptive" || isExperimentComplete) return;
+    if (mode !== "adaptive") return;
 
     const timer = setInterval(() => {
       setSeriesTimeLeft((prev) => {
         const newTime = prev - TICK_INTERVAL;
         if (newTime <= 0) {
-          handleSeriesTimeEnd();
+          setShouldCompleteAfterCurrentTask(true);
           return 0;
         }
         return newTime;
@@ -421,7 +404,7 @@ const ExperimentRunPage = () => {
     }, TICK_INTERVAL);
 
     return () => clearInterval(timer);
-  }, [mode, isExperimentComplete, handleSeriesTimeEnd]);
+  }, [mode]);
 
   // Прерывание эксперимента
   const handleInterrupt = useCallback(() => {
