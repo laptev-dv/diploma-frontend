@@ -40,14 +40,22 @@ const ExperimentRunPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const experiment = location.state?.experiment;
+
+  const seriesTime = useMemo(
+    () => (experiment?.seriesTime || 1) * 60 * 1000,
+    [experiment]
+  );
+
   // Состояния эксперимента
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [currentResponseTime, setCurrentResponseTime] = useState(null);
   const [hiddenPosition, setHiddenPosition] = useState(null);
   const [activeTaskIndex, setActiveTaskIndex] = useState(0);
   const [presentationCount, setPresentationCount] = useState(0);
-  const [currentPhase, setCurrentPhase] = useState("stimulus");
-  const [phaseTimeLeft, setPhaseTimeLeft] = useState(0);
-  const [seriesTimeLeft, setSeriesTimeLeft] = useState(0);
-  const [shouldCompleteAfterCurrentTask, setShouldCompleteAfterCurrentTask] = useState(false);
+  const [seriesTimeLeft, setSeriesTimeLeft] = useState(seriesTime);
+  const [shouldCompleteAfterCurrentTask, setShouldCompleteAfterCurrentTask] =
+    useState(false);
 
   // Счетчики и статистика
   const [successCount, setSuccessCount] = useState(0);
@@ -62,14 +70,22 @@ const ExperimentRunPage = () => {
   const [vignetteKey, setVignetteKey] = useState(0);
 
   // Получаем данные эксперимента
-  const experiment = location.state?.experiment;
   const tasks = useMemo(() => experiment?.tasks || [], [experiment]);
   const mode = useMemo(() => experiment?.mode || "strict", [experiment]);
-  const presentationsPerTask = useMemo(() => experiment?.presentationsPerTask, [experiment]);
-  const seriesTime = useMemo(() => (experiment?.seriesTime || 1) * 60 * 1000, [experiment]);
+  const presentationsPerTask = useMemo(
+    () => experiment?.presentationsPerTask,
+    [experiment]
+  );
   const efficiencyMin = useMemo(() => experiment?.efficiencyMin, [experiment]);
   const efficiencyMax = useMemo(() => experiment?.efficiencyMax, [experiment]);
-  const currentTask = useMemo(() => tasks[activeTaskIndex] || {}, [tasks, activeTaskIndex]);
+  const currentTask = useMemo(
+    () => tasks[activeTaskIndex] || {},
+    [tasks, activeTaskIndex]
+  );
+
+  const [currentPhase, setCurrentPhase] = useState("stimulus");
+  const [phaseTimeLeft, setPhaseTimeLeft] = useState(currentTask.stimulusTime);
+  const [timerIsRunning, setTimerIsRunning] = useState(true);
 
   const preloadFonts = (fontFamilies) => {
     fontFamilies.forEach((fontFamily) => {
@@ -126,28 +142,28 @@ const ExperimentRunPage = () => {
 
   // Эффект для обработки изменений счетчиков
   useEffect(() => {
-    if (errorCount > 0 || missCount > 0) {
-      triggerVignette('#ff0000');
+    if (errorCount > 0) {
+      triggerVignette("#ff0000");
     }
   }, [errorCount]);
 
   useEffect(() => {
     if (missCount > 0) {
-      triggerVignette('#0000ff');
+      triggerVignette("#0000ff");
     }
   }, [missCount]);
 
   useEffect(() => {
     if (successCount > 0) {
-      triggerVignette('#00ff00');
+      triggerVignette("#00ff00");
     }
   }, [successCount]);
 
   // Функция для запуска анимации виньетки
-  const triggerVignette = useCallback((color) => {
+  const triggerVignette = (color) => {
     setVignetteColor(color);
-    setVignetteKey(prevKey => prevKey + 1);
-  }, [successCount, errorCount, missCount]);
+    setVignetteKey((prevKey) => prevKey + 1);
+  };
 
   // Генерация новой позиции скрытого символа
   const generateNewHiddenPosition = useCallback(() => {
@@ -164,37 +180,40 @@ const ExperimentRunPage = () => {
       presentations: [...presentationResults],
     };
 
-    setTaskResults(prev => [...prev, taskExecution]);
-    setPresentationResults([]); // Очищаем результаты предъявлений
+    setTaskResults((prev) => [...prev, taskExecution]);
+    setPresentationResults([]);
     return taskExecution;
-  }, [currentTask, activeTaskIndex, presentationResults]);
+  }, [currentTask, presentationResults]);
 
   // Завершение эксперимента
   const completeExperiment = useCallback(async () => {
+    setIsCompleting(true);
+    setTimerIsRunning(false);
+    
     try {
       const lastExecution = saveTaskExecution();
       const finalStats = [...taskResults, lastExecution];
-  
+
       // Подготовка данных для сохранения
       const sessionData = {
         experimentId: id,
         results: finalStats,
       };
-  
-      // Отправка данных на сервер
+
+      // // Отправка данных на сервер
       const response = await sessionApi.create(sessionData);
-      
+
       if (response.data?._id) {
         navigate(`/session/${response.data._id}`);
       } else {
-        throw new Error('Не удалось получить ID созданной сессии');
+        throw new Error("Не удалось получить ID созданной сессии");
       }
     } catch (error) {
-      console.error('Ошибка сохранения сессии:', error);
+      console.error("Ошибка сохранения сессии:", error);
       // Можно добавить обработку ошибки (например, показать уведомление)
       navigate(`/experiment/${id}`);
     }
-  }, [mode, taskResults, experiment, seriesTime, seriesTimeLeft, navigate, presentationsPerTask, tasks, currentTask, efficiencyMin, efficiencyMax, saveTaskExecution]);
+  }, [id, taskResults, navigate, saveTaskExecution]);
 
   // Определение следующей задачи (для адаптивного режима)
   const getNextTaskIndex = useCallback(
@@ -215,68 +234,72 @@ const ExperimentRunPage = () => {
       }
       return currentIndex;
     },
-    [mode, tasks.length, efficiencyMin, efficiencyMax, shouldCompleteAfterCurrentTask, completeExperiment]
+    [
+      mode,
+      tasks.length,
+      efficiencyMin,
+      efficiencyMax,
+      shouldCompleteAfterCurrentTask,
+      completeExperiment,
+    ]
   );
 
   // Проверка ответа пользователя
-  const checkAnswer = useCallback(
-    (input, responseTime) => {
-      const [row, col] = input;
-      const isCorrect =
-        row === hiddenPosition.row + 1 && col === hiddenPosition.col + 1;
+  const checkAnswer = useCallback(() => {
+    console.log(`checkAnswer ${new Date().toISOString()}`);
+    const [row, col] = userInput;
 
-        const presentationResult = {
-          responseTime,
-          correctAnswer: { row: hiddenPosition.row + 1, column: hiddenPosition.col + 1 },
-          userAnswer: { row: row, column: col },
-        };
-  
-        setPresentationResults(prev => [...prev, presentationResult]);
+    let userAnswer = null;
+    if (row && col) {
+      userAnswer = { row: row, column: col };
+    }
 
-      if (isCorrect) {
-        setSuccessCount((prev) => prev + 1);
-      } else {
-        setErrorCount((prev) => prev + 1);
-      }
+    const isCorrect =
+      row === hiddenPosition.row + 1 && col === hiddenPosition.col + 1;
 
-      return isCorrect;
-    },
-    [hiddenPosition]
-  );
+    if (userInput.length < 2) {
+      setMissCount((prev) => prev + 1);
+    } else if (isCorrect) {
+      setSuccessCount((prev) => prev + 1);
+    } else {
+      setErrorCount((prev) => prev + 1);
+    }
+
+    const presentationResult = {
+      responseTime: currentResponseTime || currentTask.responseTime + currentTask.stimulusTime,
+      correctAnswer: {
+        row: hiddenPosition.row + 1,
+        column: hiddenPosition.col + 1,
+      },
+      userAnswer: userAnswer,
+    };
+
+    setPresentationResults((prev) => [...prev, presentationResult]);
+  }, [hiddenPosition, userInput, currentResponseTime, currentTask]);
 
   // Обработчик ввода с клавиатуры
   const handleKeyDown = useCallback(
     (e) => {
-      if (
-        currentPhase === "pause" ||
-        userInput.length >= 2
-      )
-        return;
+      if (currentPhase === "pause" || userInput.length >= 2) return;
       if (!/^[1-9]$/.test(e.key)) return;
 
       const newInput = [...userInput, parseInt(e.key, 10)];
       setUserInput(newInput);
 
       if (newInput.length === 2) {
-        let responseTime = currentTask.stimulusTime
+        let responseTime = currentTask.stimulusTime;
         if (currentPhase === "stimulus") {
           responseTime -= phaseTimeLeft;
         } else if (currentPhase === "response") {
           responseTime += currentTask.responseTime - phaseTimeLeft;
-        } 
-        
-        checkAnswer(newInput, responseTime);
-        setCurrentPhase("pause");
-        setPhaseTimeLeft(currentTask.pauseTime);
+        }
+        console.log("set", currentPhase, responseTime)
+        setCurrentResponseTime(responseTime);
+        setCurrentPhase("response");
+        setPhaseTimeLeft(0);
       }
     },
-    [
-      currentPhase,
-      userInput,
-      currentTask,
-      phaseTimeLeft,
-      checkAnswer,
-    ]
+    [currentPhase, userInput, currentTask, phaseTimeLeft]
   );
 
   // Переход к следующей фазе
@@ -285,18 +308,7 @@ const ExperimentRunPage = () => {
       setCurrentPhase("response");
       setPhaseTimeLeft(currentTask.responseTime);
     } else if (currentPhase === "response") {
-      if (userInput.length < 2) {
-        setMissCount((prev) => prev + 1);
-        setPresentationResults(prev => [...prev, {
-          responseTime: currentTask.stimulusTime + currentTask.responseTime,
-          correctAnswer: { 
-            row: hiddenPosition.row + 1, 
-            column: hiddenPosition.col + 1 
-          },
-          userAnswer: null,
-        }]);
-      }
-
+      checkAnswer();
       setCurrentPhase("pause");
       setPhaseTimeLeft(currentTask.pauseTime);
     } else if (currentPhase === "pause") {
@@ -327,11 +339,13 @@ const ExperimentRunPage = () => {
         setPresentationCount(newCount);
       }
 
+      setCurrentResponseTime(null);
       setCurrentPhase("stimulus");
       setPhaseTimeLeft(currentTask.stimulusTime);
       setUserInput([]);
       generateNewHiddenPosition();
     }
+    setTimerIsRunning(true);
   }, [
     currentPhase,
     currentTask,
@@ -340,53 +354,46 @@ const ExperimentRunPage = () => {
     tasks.length,
     mode,
     presentationCount,
-    userInput.length,
     generateNewHiddenPosition,
     saveTaskExecution,
     getNextTaskIndex,
     completeExperiment,
+    checkAnswer,
   ]);
 
   // Инициализация эксперимента
   useEffect(() => {
-    if (mode === "adaptive") {
-      setSeriesTimeLeft(seriesTime);
-    }
-  }, [mode, seriesTime]);
-
-  // Инициализация эксперимента
-  useEffect(() => {
-    setCurrentPhase('stimulus');
-    setPhaseTimeLeft(currentTask.stimulusTime)
     generateNewHiddenPosition();
   }, [generateNewHiddenPosition]);
 
   useEffect(() => {
-    if (!experiment || tasks.length === 0) {
-      navigate(`/experiment/${id}`);
-      return;
-    }
-    
     window.addEventListener("keydown", handleKeyDown);
 
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [experiment, id, navigate, tasks, handleKeyDown]);
+  }, [handleKeyDown]);
 
   // Таймер фаз
   useEffect(() => {
+    if (!timerIsRunning) return;
+
     const timer = setInterval(() => {
       setPhaseTimeLeft((prev) => {
-        const newTime = prev - TICK_INTERVAL;
-        if (newTime <= 0) {
-          goToNextPhase();
-          return getPhaseDuration(currentPhase, currentTask);
-        }
-        return newTime;
-      });
+        console.log(prev - TICK_INTERVAL)
+        return prev - TICK_INTERVAL
+    });
     }, TICK_INTERVAL);
 
     return () => clearInterval(timer);
-  }, [goToNextPhase, currentPhase, currentTask]);
+  }, [currentPhase, currentTask, timerIsRunning]);
+
+  useEffect(() => {
+    if (isCompleting) return;
+
+    if (phaseTimeLeft <= 0) {
+      setTimerIsRunning(false);
+      goToNextPhase();
+    }
+  }, [phaseTimeLeft, isCompleting, goToNextPhase]);
 
   // Таймер общего времени (для адаптивного режима)
   useEffect(() => {
@@ -411,9 +418,7 @@ const ExperimentRunPage = () => {
     completeExperiment();
   }, [completeExperiment]);
 
-  if (!experiment || tasks.length === 0) {
-    return null;
-  }
+  // Рефы для актуальных значений
 
   return (
     <Box
@@ -456,14 +461,5 @@ const ExperimentRunPage = () => {
     </Box>
   );
 };
-
-function getPhaseDuration(currentPhase, currentTask) {
-  switch(currentPhase) {
-    case 'stimulus': return currentTask.responseTime;
-    case 'response': return currentTask.pauseTime;
-    case 'pause': return currentTask.stimulusTime;
-    default: return 0;
-  }
-}
 
 export default ExperimentRunPage;

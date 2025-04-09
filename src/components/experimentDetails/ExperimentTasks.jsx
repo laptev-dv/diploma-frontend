@@ -1,40 +1,36 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  List,
-  Divider,
-} from "@mui/material";
+import { Typography, Paper, List, Divider } from "@mui/material";
 import TaskItem from "./TaskItem";
 
-const ExperimentTasks = ({
-  tasks,
-  activeTaskId,
-  onTaskClick,
-}) => {
+const ExperimentTasks = ({ tasks, activeTaskId, onTaskClick }) => {
   return (
     <Paper
       elevation={3}
+      sx={{
+        paddingLeft: 2,
+        paddingRight: 1,
+        paddingY: 2,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
-      <Box sx={{ p: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          Задачи ({tasks.length} шт)
-        </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Задачи ({tasks.length} шт)
+      </Typography>
 
-        <List dense >
-          {tasks.map((task, index) => (
-            <React.Fragment key={task._id}>
-              <TaskItem
-                task={task}
-                isActive={activeTaskId === task._id}
-                onClick={() => onTaskClick(task._id)}
-              />
-              {index < tasks.length - 1 && <Divider />}
-            </React.Fragment>
-          ))}
-        </List>
-      </Box>
+      <List dense sx={{ paddingRight: 1, height: "100%", overflowY: "auto" }}>
+        {tasks.map((task, index) => (
+          <React.Fragment key={task._id}>
+            <TaskItem
+              task={task}
+              isActive={activeTaskId === task._id}
+              onClick={() => onTaskClick(task._id)}
+            />
+            {index < tasks.length - 1 && <Divider />}
+          </React.Fragment>
+        ))}
+      </List>
     </Paper>
   );
 };

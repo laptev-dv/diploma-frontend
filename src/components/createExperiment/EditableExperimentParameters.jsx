@@ -106,9 +106,17 @@ function EditableExperimentParameters({
           onParamChange={handleExperimentParamChange}
           tasksCount={tasks.length}
         />
-        
+
         <Box sx={{ display: "flex", gap: 3 }}>
-          <Box sx={{ flex: 1, minWidth: 320 }}>
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 320,
+              position: "sticky",
+              top: 80,
+              height: "calc(100vh - 220px)",
+            }}
+          >
             <EditableExperimentTasks
               tasks={tasks}
               activeTaskId={activeTaskId}
@@ -152,7 +160,7 @@ function EditableExperimentParameters({
           flex: 1,
           position: "sticky",
           top: 80,
-          height: "calc(100vh - 160px)",
+          height: "calc(100vh - 220px)",
         }}
       >
         <ExperimentPreview parameters={activeTask} />

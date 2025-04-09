@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Paper,
-  List,
-  Divider,
-} from "@mui/material";
+import { Typography, Paper, List, Divider } from "@mui/material";
 import {
   DndContext,
   closestCenter,
@@ -64,42 +58,46 @@ const EditableExperimentTasks = ({
     <Paper
       elevation={3}
       sx={{
-        position: 'sticky', 
-        top: 80,
-        height: 'calc(100vh - 160px)'
+        paddingLeft: 2,
+        paddingRight: 1,
+        paddingY: 2,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <Box sx={{ p: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          Задачи ({tasks.length} шт)
-        </Typography>
+      <Typography variant="subtitle1" gutterBottom>
+        Задачи ({tasks.length} шт)
+      </Typography>
 
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
-            <List dense>
-              {tasks.map((task, index) => (
-                <React.Fragment key={task.id}>
-                  <TaskItem
-                    id={task.id}
-                    task={task}
-                    onDelete={onDeleteTask}
-                    onCopy={onCopyTask}
-                    isActive={activeTaskId === task.id}
-                    onClick={() => onTaskClick(task.id)}
-                    isDeleteDisabled={tasks.length <= 1}
-                    onTaskNameChange={onTaskNameChange}
-                  />
-                  {index < tasks.length - 1 && <Divider />}
-                </React.Fragment>
-              ))}
-            </List>
-          </SortableContext>
-        </DndContext>
-      </Box>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
+          <List
+            dense
+            sx={{ paddingRight: 1, height: "100%", overflowY: "auto" }}
+          >
+            {tasks.map((task, index) => (
+              <React.Fragment key={task.id}>
+                <TaskItem
+                  id={task.id}
+                  task={task}
+                  onDelete={onDeleteTask}
+                  onCopy={onCopyTask}
+                  isActive={activeTaskId === task.id}
+                  onClick={() => onTaskClick(task.id)}
+                  isDeleteDisabled={tasks.length <= 1}
+                  onTaskNameChange={onTaskNameChange}
+                />
+                {index < tasks.length - 1 && <Divider />}
+              </React.Fragment>
+            ))}
+          </List>
+        </SortableContext>
+      </DndContext>
     </Paper>
   );
 };

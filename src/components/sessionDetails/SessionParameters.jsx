@@ -62,7 +62,7 @@ function SessionParameters({ sessionData }) {
                 minWidth: 320,
                 position: "sticky",
                 top: 80,
-                height: "calc(100vh - 160px)",
+                height: "calc(100vh - 220px)"
               }}
             >
               <SessionResults
@@ -105,7 +105,7 @@ function SessionParameters({ sessionData }) {
             flex: 1,
             position: "sticky",
             top: 80,
-            height: "calc(100vh - 200px)",
+            height: "calc(100vh - 220px)"
           }}
         >
           <SessionDetailsPreview
