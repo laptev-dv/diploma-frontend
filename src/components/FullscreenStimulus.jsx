@@ -1,23 +1,50 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 
 const FullscreenStimulus = ({ parameters, hiddenPosition }) => {
   const { 
-    symbolType = 'A',
-    symbolColor = '#000000',
-    symbolFont = 'Arial',
-    symbolWidth = 24,
-    symbolHeight = 24,
-    rows = 4,
-    columns = 4,
-    horizontalPadding = 5,
-    verticalPadding = 5,
+    symbolType,
+    symbolColor,
+    symbolFont,
+    symbolWidth,
+    symbolHeight,
+    rows,
+    columns,
+    horizontalPadding,
+    verticalPadding,
     backgroundColor
   } = parameters;
   
-  // Рассчитываем общие размеры
+  const symbolRef = useRef(null);
+  const [transform, setTransform] = useState('');
+
+  // Рассчитываем общие размеры сетки
   const totalWidth = columns * (symbolWidth + horizontalPadding) - horizontalPadding;
   const totalHeight = rows * (symbolHeight + verticalPadding) - verticalPadding;
+
+  useEffect(() => {
+    if (symbolRef.current) {
+      // Создаем временный элемент для измерения
+      const temp = document.createElement('div');
+      temp.style.position = 'absolute';
+      temp.style.visibility = 'hidden';
+      temp.style.whiteSpace = 'nowrap';
+      temp.style.fontFamily = symbolFont;
+      temp.style.fontSize = '100px';
+      temp.textContent = symbolType;
+      document.body.appendChild(temp);
+      
+      const naturalWidth = temp.offsetWidth;
+      const naturalHeight = temp.offsetHeight;
+      document.body.removeChild(temp);
+
+      // Рассчитываем масштаб
+      const scaleX = symbolWidth / naturalWidth;
+      const scaleY = symbolHeight / naturalHeight;
+      
+      setTransform(`scale(${scaleX}, ${scaleY})`);
+    }
+  }, [symbolType, symbolFont, symbolWidth, symbolHeight]);
 
   return (
     <Box
@@ -30,6 +57,7 @@ const FullscreenStimulus = ({ parameters, hiddenPosition }) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: 'background.default',
         zIndex: 1000
       }}
     >
@@ -38,62 +66,44 @@ const FullscreenStimulus = ({ parameters, hiddenPosition }) => {
           width: totalWidth,
           height: totalHeight,
           backgroundColor,
-          display: 'flex',
-          flexDirection: 'column',
+          display: 'grid',
+          gridTemplateColumns: `repeat(${columns}, ${symbolWidth}px)`,
+          gridTemplateRows: `repeat(${rows}, ${symbolHeight}px)`,
+          gap: `${verticalPadding}px ${horizontalPadding}px`,
+          padding: 0,
           overflow: 'hidden'
         }}
       >
-        {Array.from({ length: rows }).map((_, rowIndex) => (
-          <Box 
-            key={`row-${rowIndex}`}
-            sx={{
-              display: 'flex',
-              height: symbolHeight,
-              marginBottom: rowIndex < rows - 1 ? `${verticalPadding}px` : 0
-            }}
-          >
-            {Array.from({ length: columns }).map((_, colIndex) => (
-              <Box
-                key={`cell-${rowIndex}-${colIndex}`}
-                sx={{
-                  width: symbolWidth,
-                  height: symbolHeight,
-                  marginRight: colIndex < columns - 1 ? `${horizontalPadding}px` : 0,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: 
-                    hiddenPosition?.row === rowIndex && 
-                    hiddenPosition?.col === colIndex 
-                      ? backgroundColor 
-                      : 'transparent'
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: 
-                      hiddenPosition?.row === rowIndex && 
-                      hiddenPosition?.col === colIndex 
-                        ? 'transparent' 
-                        : symbolColor,
-                    fontFamily: symbolFont,
-                    fontSize: `${symbolWidth * 0.8}px`,
-                    lineHeight: 1,
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    textAlign: 'center',
-                    overflow: 'hidden'
-                  }}
-                >
-                  {symbolType}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-        ))}
+        {Array.from({ length: rows * columns }).map((_, index) => {
+          const row = Math.floor(index / columns) + 1;
+          const col = (index % columns) + 1;
+          const isHidden = hiddenPosition?.row === row && hiddenPosition?.col === col;
+          
+          return (
+            <Typography
+              key={`cell-${row}-${col}`}
+              ref={symbolRef}
+              sx={{
+                color: isHidden ? 'transparent' : symbolColor,
+                fontFamily: symbolFont,
+                fontSize: '100px',
+                lineHeight: 1,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                transformOrigin: 'center center',
+                transform: transform,
+                width: '100%',
+                height: '100%',
+                margin: 0,
+                padding: 0,
+                backgroundColor: isHidden ? backgroundColor : 'transparent'
+              }}
+            >
+              {symbolType}
+            </Typography>
+          );
+        })}
       </Box>
     </Box>
   );

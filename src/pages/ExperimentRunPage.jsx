@@ -110,23 +110,17 @@ const ExperimentRunPage = () => {
           return;
         }
 
-        const response = await axios.get(
-          "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyDgJzM14xNhFsgMoPqMcw14eSmfoIfgPd0&sort=popularity"
-        );
-
-        const popularFonts = response.data.items
-          .filter((font) => font.subsets.includes("cyrillic"))
-          .map((font) => font.family);
+        const fonts = experiment.tasks.map(task => task.symbolFont);
 
         localStorage.setItem(
           CACHE_KEY,
           JSON.stringify({
-            fonts: popularFonts,
+            fonts: fonts,
             timestamp: Date.now(),
           })
         );
 
-        preloadFonts(popularFonts);
+        preloadFonts(fonts);
       } catch (error) {
         console.error("Error fetching fonts:", error);
         const cached = localStorage.getItem(CACHE_KEY);

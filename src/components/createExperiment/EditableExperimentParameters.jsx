@@ -20,12 +20,12 @@ function EditableExperimentParameters({
     setActiveTaskId(taskId);
   };
 
-  const handleTaskParamChange = (field, value) => {
+  const handleTaskParamChange = (updatedParams) => {
     const updatedTasks = tasks.map((task) => {
       if (task.id === activeTaskId) {
         return {
           ...task,
-          [field]: value,
+          ...updatedParams,
         };
       }
       return task;
@@ -114,7 +114,7 @@ function EditableExperimentParameters({
               minWidth: 320,
               position: "sticky",
               top: 80,
-              height: "calc(100vh - 220px)",
+              height: "calc(100vh - 200px)"
             }}
           >
             <EditableExperimentTasks
@@ -160,7 +160,7 @@ function EditableExperimentParameters({
           flex: 1,
           position: "sticky",
           top: 80,
-          height: "calc(100vh - 220px)",
+          height: "calc(100vh - 168px)"
         }}
       >
         <ExperimentPreview parameters={activeTask} />

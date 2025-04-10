@@ -51,7 +51,9 @@ function EditableTimeParameters({ parameters, onParamChange }) {
       [field]: value,
     };
     setLocalParams(newParams);
-    onParamChange(field, toMilliseconds(value));
+    onParamChange({
+      [field]: toMilliseconds(value),
+    });
   };
 
   // Рассчитываем производные значения (в миллисекундах)

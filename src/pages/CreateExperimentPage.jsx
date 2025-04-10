@@ -115,7 +115,7 @@ function CreateExperimentPage() {
         component="main"
         sx={{
           p: 3,
-          pb: 10,
+          pb: 5,
           flex: 1,
         }}
       >

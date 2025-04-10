@@ -58,14 +58,11 @@ const SessionDetailsPreview = ({ parameters }) => {
     );
   };
 
-  const currentPresentation =
-    parameters.presentations[currentPresentationIndex];
-  const isCorrect =
-    currentPresentation.userAnswer &&
-    currentPresentation.userAnswer?.row ===
-      currentPresentation.correctAnswer.row &&
-    currentPresentation.userAnswer.column ===
-      currentPresentation.correctAnswer.column;
+  const currentPresentation = parameters.presentations[currentPresentationIndex];
+  const isCorrect = currentPresentation?.userAnswer?.row ===
+    currentPresentation?.correctAnswer?.row &&
+    currentPresentation?.userAnswer?.column ===
+    currentPresentation?.correctAnswer?.column;
 
   const backgroundColor = parameters.task.backgroundColor || "#ffffff";
   const isDarkBackground = getBrightness(backgroundColor) < 128;
@@ -73,6 +70,26 @@ const SessionDetailsPreview = ({ parameters }) => {
   const buttonColor = isDarkBackground
     ? "rgba(255, 255, 255, 0.1)"
     : "rgba(0, 0, 0, 0.1)";
+
+  if (!currentPresentation) {
+    return (
+      <Paper
+        elevation={3}
+        sx={{
+          p: 2,
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h6" color="text.secondary">
+          Нет данных для отображения
+        </Typography>
+      </Paper>
+    );
+  }
 
   return (
     <>
@@ -109,8 +126,8 @@ const SessionDetailsPreview = ({ parameters }) => {
           <StimulusPreview
             parameters={{
               ...parameters.task,
-              targetRow: currentPresentation.correctAnswer.row,
-              targetColumn: currentPresentation.correctAnswer.column,
+              targetRow: currentPresentation?.correctAnswer?.row,
+              targetColumn: currentPresentation?.correctAnswer?.column,
             }}
           />
 
@@ -132,7 +149,7 @@ const SessionDetailsPreview = ({ parameters }) => {
                 Правильный ответ:
               </Typography>
               <Typography variant="body1" color={textColor}>
-                {formatAnswer(currentPresentation.correctAnswer)}
+                {formatAnswer(currentPresentation?.correctAnswer)}
               </Typography>
             </Box>
 
@@ -207,9 +224,9 @@ const SessionDetailsPreview = ({ parameters }) => {
             <StimulusPreview
               parameters={parameters.task}
               hiddenPosition={{ 
-                row: currentPresentation.correctAnswer.row, 
-                col: currentPresentation.correctAnswer.column,
-            }}
+                row: currentPresentation.correctAnswer?.row, 
+                col: currentPresentation.correctAnswer?.column,
+              }}
             />
           </Box>
           <Stack spacing={2} sx={{ mt: 2 }}>
@@ -228,7 +245,7 @@ const SessionDetailsPreview = ({ parameters }) => {
             <Box>
               <Typography variant="subtitle2">Время на ответ:</Typography>
               <Typography variant="body1">
-                {currentPresentation.responseTime}
+                {currentPresentation.responseTime || "Нет данных"}
               </Typography>
             </Box>
 

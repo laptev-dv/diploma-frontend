@@ -10,6 +10,7 @@ import {
   CircularProgress,
   IconButton,
   Alert,
+  Container,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import SessionInfo from "../components/sessionDetails/SessionInfo";
@@ -43,17 +44,17 @@ function SessionDetailPage() {
 
   const calculateExtendedMetrics = (results) => {
     if (!results || results.length === 0) return [];
-    
-    return results.map(task => {
+
+    return results.map((task) => {
       const totalPresentations = task.presentations.length;
       const successRate = task.successCount / totalPresentations;
       const errorRate = task.errorCount / totalPresentations;
       const missRate = task.missCount / totalPresentations;
-      
+
       // Расчет дополнительных метрик
-      const performanceScore = successRate * (1 - (task.avgResponseTime / 10000));
+      const performanceScore = successRate * (1 - task.avgResponseTime / 10000);
       const taskDifficulty = (task.rows * task.columns) / task.stimulusTime;
-      
+
       return {
         ...task,
         successRate: Number((successRate * 100).toFixed(1)),
@@ -66,15 +67,15 @@ function SessionDetailPage() {
           columns: task.columns,
           stimulusTime: task.stimulusTime,
           responseTime: task.responseTime,
-          pauseTime: task.pauseTime
-        }
+          pauseTime: task.pauseTime,
+        },
       };
     });
   };
 
   if (loading) {
     return (
-      <Box sx={{ p: 3, display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ p: 3, display: "flex", justifyContent: "center" }}>
         <CircularProgress />
       </Box>
     );
@@ -99,93 +100,99 @@ function SessionDetailPage() {
   }
 
   const extendedResults = calculateExtendedMetrics(sessionData.results || []);
-  const overallStats = extendedResults.reduce((acc, task) => {
-    acc.totalPresentations += task.presentations?.length || 0;
-    acc.totalSuccess += task.successCount || 0;
-    acc.totalErrors += task.errorCount || 0;
-    acc.totalMisses += task.missCount || 0;
-    acc.totalResponseTime += (task.avgResponseTime || 0) * (task.presentations?.length || 0);
-    return acc;
-  }, {
-    totalPresentations: 0,
-    totalSuccess: 0,
-    totalErrors: 0,
-    totalMisses: 0,
-    totalResponseTime: 0
-  });
+  const overallStats = extendedResults.reduce(
+    (acc, task) => {
+      acc.totalPresentations += task.presentations?.length || 0;
+      acc.totalSuccess += task.successCount || 0;
+      acc.totalErrors += task.errorCount || 0;
+      acc.totalMisses += task.missCount || 0;
+      acc.totalResponseTime +=
+        (task.avgResponseTime || 0) * (task.presentations?.length || 0);
+      return acc;
+    },
+    {
+      totalPresentations: 0,
+      totalSuccess: 0,
+      totalErrors: 0,
+      totalMisses: 0,
+      totalResponseTime: 0,
+    }
+  );
 
-  const overallEfficiency = overallStats.totalPresentations > 0 
-    ? (overallStats.totalSuccess / overallStats.totalPresentations) * 100
-    : 0;
-  const avgResponseTime = overallStats.totalPresentations > 0
-    ? overallStats.totalResponseTime / overallStats.totalPresentations
-    : 0;
+  const overallEfficiency =
+    overallStats.totalPresentations > 0
+      ? (overallStats.totalSuccess / overallStats.totalPresentations) * 100
+      : 0;
+  const avgResponseTime =
+    overallStats.totalPresentations > 0
+      ? overallStats.totalResponseTime / overallStats.totalPresentations
+      : 0;
 
   return (
-    <Box sx={{ p: 3, pb: 10 }}>
-      <Stack direction={'row'} alignItems="center" spacing={1}>
-        <IconButton onClick={() => navigate(-1)} size="small">
-          <NavigateBackIcon />
-        </IconButton>
-        <Link
-          component="button"
-          underline="hover"
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Stack direction={"row"} alignItems="center" spacing={1}>
+          <IconButton onClick={() => navigate(-1)} size="small">
+            <NavigateBackIcon />
+          </IconButton>
+          <Link
+            component="button"
+            underline="hover"
+            color="inherit"
+            onClick={() => navigate(-1)}
+          >
+            Назад к эксперименту
+          </Link>
+        </Stack>
+
+        <Typography variant="h4" gutterBottom sx={{ mt: 2 }}>
+          Детали сессии #{sessionData._id}
+        </Typography>
+
+        <SessionInfo
+          sessionData={{
+            ...sessionData,
+            date: new Date(sessionData.date).toLocaleString(),
+            duration: formatDuration(sessionData.duration),
+            overallEfficiency: Number(overallEfficiency.toFixed(1)),
+            avgResponseTime: Number(avgResponseTime.toFixed(0)),
+            tasksCount: sessionData.results?.length || 0,
+            totalPresentations: overallStats.totalPresentations,
+            totalSuccess: overallStats.totalSuccess,
+            totalErrors: overallStats.totalErrors,
+            totalMisses: overallStats.totalMisses,
+          }}
+          extendedResults={extendedResults}
+        />
+
+        <SessionParameters sessionData={sessionData} />
+
+        <AppBar
+          position="fixed"
           color="inherit"
-          onClick={() => navigate(-1)}
+          elevation={0}
+          sx={{
+            top: "auto",
+            bottom: 0,
+            borderTop: "1px solid",
+            borderColor: "divider",
+            backgroundColor: "background.default",
+          }}
         >
-          Назад к эксперименту
-        </Link>
-      </Stack>
-
-      <Typography variant="h4" gutterBottom sx={{ mt: 2 }}>
-        Детали сессии #{sessionData._id}
-      </Typography>
-
-      <SessionInfo
-        sessionData={{
-          ...sessionData,
-          date: new Date(sessionData.date).toLocaleString(),
-          duration: formatDuration(sessionData.duration),
-          overallEfficiency: Number(overallEfficiency.toFixed(1)),
-          avgResponseTime: Number(avgResponseTime.toFixed(0)),
-          tasksCount: sessionData.results?.length || 0,
-          totalPresentations: overallStats.totalPresentations,
-          totalSuccess: overallStats.totalSuccess,
-          totalErrors: overallStats.totalErrors,
-          totalMisses: overallStats.totalMisses
-        }}
-        extendedResults={extendedResults}
-      />
-
-      <SessionParameters sessionData={sessionData}/>
-
-      <AppBar
-        position="fixed"
-        color="inherit"
-        elevation={0}
-        sx={{
-          top: "auto",
-          bottom: 0,
-          borderTop: "1px solid",
-          borderColor: "divider",
-          backgroundColor: "background.default",
-        }}
-      >
-        <Toolbar>
-          <Stack sx={{ flexGrow: 1 }} direction={"row-reverse"} gap={2}>
-            <Button
-              variant="contained"
-              size="large"
-              onClick={() => exportSessionData(sessionData)}
-              startIcon={<FileDownloadIcon />}
-              sx={{ px: 4 }}
-            >
-              Экспортировать
-            </Button>
-          </Stack>
-        </Toolbar>
-      </AppBar>
-    </Box>
+          <Toolbar>
+            <Stack sx={{ flexGrow: 1 }} direction={"row-reverse"} gap={2}>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={() => exportSessionData(sessionData)}
+                startIcon={<FileDownloadIcon />}
+                sx={{ px: 4 }}
+              >
+                Экспортировать
+              </Button>
+            </Stack>
+          </Toolbar>
+        </AppBar>
+    </Container>
   );
 }
 
@@ -194,18 +201,20 @@ function formatDuration(milliseconds) {
   const seconds = Math.floor(milliseconds / 1000);
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 
 function exportSessionData(sessionData) {
   const dataStr = JSON.stringify(sessionData, null, 2);
-  const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
-  
+  const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(
+    dataStr
+  )}`;
+
   const exportFileDefaultName = `session_${sessionData._id}.json`;
-  
-  const linkElement = document.createElement('a');
-  linkElement.setAttribute('href', dataUri);
-  linkElement.setAttribute('download', exportFileDefaultName);
+
+  const linkElement = document.createElement("a");
+  linkElement.setAttribute("href", dataUri);
+  linkElement.setAttribute("download", exportFileDefaultName);
   linkElement.click();
 }
 

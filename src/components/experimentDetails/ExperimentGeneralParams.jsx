@@ -191,9 +191,9 @@ const ExperimentGeneralParams = ({ parameters }) => {
               </TableCell>
             </TableRow>
             {renderDualNumberRow(
-              parameters.symbolWidth || 30,
+              parameters.symbolWidth,
               "Ширина",
-              parameters.symbolHeight || 30,
+              parameters.symbolHeight,
               "Высота",
               "пикс",
               true

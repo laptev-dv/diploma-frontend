@@ -7,14 +7,14 @@ import {
   TableHead, 
   TableRow,
   Chip,
-  Box,
   Typography,
-  Paper
+  Paper,
+  Stack
 } from '@mui/material';
 import { 
   CheckCircle,
   Cancel,
-  Timer
+  AccessTimeFilled as Timer,
 } from '@mui/icons-material';
 
 const SessionResultsTable = ({ results }) => {
@@ -45,7 +45,7 @@ const SessionResultsTable = ({ results }) => {
             <TableRow key={task.taskId || index}>
               <TableCell>{task.taskName || `${index + 1}`}</TableCell>
               <TableCell align="center">
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                <Stack justifyContent='center' gap={1} direction='row'>
                   <Chip 
                     icon={<CheckCircle />} 
                     label={task.successCount} 
@@ -64,12 +64,12 @@ const SessionResultsTable = ({ results }) => {
                     color="warning" 
                     size="small" 
                   />
-                </Box>
+                </Stack>
               </TableCell>
               <TableCell align="center">{(task.efficiency * 100).toFixed(1)}%</TableCell>
-              <TableCell align="center">{0}</TableCell>
-              <TableCell align="center">{0}</TableCell>
-              <TableCell align="center">{0}</TableCell>
+              <TableCell align="center">{task.avgResponseTime}</TableCell>
+              <TableCell align="center">{task.workload}</TableCell>
+              <TableCell align="center">{(task.finalScore * 100).toFixed(1)}%</TableCell>
               <TableCell align="center">{0}</TableCell>
             </TableRow>
           ))}

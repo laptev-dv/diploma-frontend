@@ -36,8 +36,8 @@ import {
 import { useNavigate, useParams, Link } from "react-router-dom";
 import ExperimentParameters from "../components/experimentDetails/ExperimentParameters";
 import SessionItem from "../components/SessionItem";
-import { sessionApi } from '../api/sessionApi';
-import { experimentApi } from '../api/experimentApi';
+import { sessionApi } from "../api/sessionApi";
+import { experimentApi } from "../api/experimentApi";
 
 function ExperimentPage() {
   const theme = useTheme();
@@ -66,10 +66,12 @@ function ExperimentPage() {
         const response = await experimentApi.getById(id);
         setExperiment(response.data);
         setEditedName(response.data.name);
-        
+
+        const fontFamilies = response.data.tasks.map((task) => task.symbolFont);
+
         // Предзагрузка шрифтов
-        if (response.data.fontFamilies) {
-          preloadFonts(response.data.fontFamilies);
+        if (fontFamilies) {
+          preloadFonts(fontFamilies);
         }
       } catch (err) {
         setError(err.message);
@@ -79,7 +81,7 @@ function ExperimentPage() {
     };
 
     loadExperiment();
-  }, [id]);
+  }, []);
 
   // Загрузка сессий эксперимента
   useEffect(() => {
@@ -103,21 +105,28 @@ function ExperimentPage() {
   const handleDeleteSession = async (sessionId) => {
     try {
       await sessionApi.delete(sessionId);
-      setSessions(sessions.filter(s => s.id !== sessionId));
+      setSessions(sessions.filter((s) => s.id !== sessionId));
     } catch (err) {
       setError(err.message);
     }
   };
-  
+
   const preloadFonts = (fontFamilies) => {
     fontFamilies.forEach((fontFamily) => {
-      const link = document.createElement("link");
-      link.href = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(
+      const fontUrl = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(
         / /g,
         "+"
       )}&display=swap`;
-      link.rel = "stylesheet";
-      document.head.appendChild(link);
+      const existingLinks = Array.from(
+        document.head.querySelectorAll('link[rel="stylesheet"]')
+      );
+
+      if (!existingLinks.some((link) => link.href === fontUrl)) {
+        const link = document.createElement("link");
+        link.href = fontUrl;
+        link.rel = "stylesheet";
+        document.head.appendChild(link);
+      }
     });
   };
 
@@ -179,7 +188,10 @@ function ExperimentPage() {
   if (!experiment && experimentLoading) {
     return (
       <Container maxWidth="xl" sx={{ py: 3 }}>
-        <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden", mb: 3 }}>
+        <Paper
+          elevation={2}
+          sx={{ borderRadius: 2, overflow: "hidden", mb: 3 }}
+        >
           <Box
             sx={{
               p: 2,
@@ -193,7 +205,7 @@ function ExperimentPage() {
               <CircularProgress size={24} />
             </Stack>
           </Box>
-          <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Box sx={{ p: 3, textAlign: "center" }}>
             <CircularProgress />
           </Box>
         </Paper>
@@ -215,9 +227,8 @@ function ExperimentPage() {
       : sessions.filter((session) => session.isMine);
 
   return (
-    <Box sx={{ pb: 10 }}>
-      {/* Верхняя часть с информацией об эксперименте */}
-      <Container maxWidth="xl" sx={{ py: 3 }}>
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      <Box sx={{ pb: 5 }}>
         <Paper
           elevation={2}
           sx={{ borderRadius: 2, overflow: "hidden", mb: 3 }}
@@ -246,7 +257,9 @@ function ExperimentPage() {
                     color="text.secondary"
                     sx={{ mt: 1 }}
                   >
-                    Создано: {new Date(experiment.createdAt).toLocaleDateString()} | Автор: {experiment.authorName}
+                    Создано:{" "}
+                    {new Date(experiment.createdAt).toLocaleDateString()} |
+                    Автор: {experiment.authorName}
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 500 }}>
                     {experiment.name}
@@ -287,7 +300,7 @@ function ExperimentPage() {
             </Tabs>
 
             {sessionsLoading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
                 <CircularProgress />
               </Box>
             ) : sessions.length > 0 ? (
@@ -300,7 +313,11 @@ function ExperimentPage() {
                           to={`/session/${session._id}`}
                           style={{ textDecoration: "none", color: "inherit" }}
                         >
-                          <SessionItem session={session} compact onDelete={handleDeleteSession}/>
+                          <SessionItem
+                            session={session}
+                            compact
+                            onDelete={handleDeleteSession}
+                          />
                         </Link>
                       </Grid>
                     ))}
@@ -358,7 +375,7 @@ function ExperimentPage() {
 
         {/* Параметры эксперимента */}
         {experimentLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
             <CircularProgress />
           </Box>
         ) : (
@@ -366,95 +383,90 @@ function ExperimentPage() {
             <Typography variant="h6" gutterBottom>
               Параметры
             </Typography>
-            <ExperimentParameters 
-              parameters={experiment}
-            />
+            <ExperimentParameters parameters={experiment} />
           </Box>
         )}
-      </Container>
 
-      {/* Фиксированная панель внизу */}
-      <AppBar
-        position="fixed"
-        color="inherit"
-        elevation={0}
-        sx={{
-          top: "auto",
-          bottom: 0,
-          borderTop: "1px solid",
-          borderColor: "divider",
-          backgroundColor: "background.default",
-        }}
-      >
-        <Toolbar>
-          <Stack sx={{ flexGrow: 1 }} direction={"row-reverse"} gap={2}>
-            <Button
-              variant="contained"
-              size="large"
-              onClick={handleStartExperiment}
-              sx={{ px: 4 }}
-              disabled={experimentLoading}
-            >
-              Начать эксперимент
+        {/* Фиксированная панель внизу */}
+        <AppBar
+          position="fixed"
+          color="inherit"
+          elevation={0}
+          sx={{
+            top: "auto",
+            bottom: 0,
+            borderTop: "1px solid",
+            borderColor: "divider",
+            backgroundColor: "background.default",
+          }}
+        >
+          <Toolbar>
+            <Stack sx={{ flexGrow: 1 }} direction={"row-reverse"} gap={2}>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={handleStartExperiment}
+                sx={{ px: 4 }}
+                disabled={experimentLoading}
+              >
+                Начать эксперимент
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<InfoIcon />}
+                onClick={handleOpenInstructions}
+                disabled={experimentLoading}
+              >
+                Инструкция
+              </Button>
+            </Stack>
+          </Toolbar>
+        </AppBar>
+
+        {/* Диалоговые окна */}
+        <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
+          <DialogTitle>Редактировать эксперимент</DialogTitle>
+          <DialogContent>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Название эксперимента"
+              fullWidth
+              variant="standard"
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setEditDialogOpen(false)}>Отмена</Button>
+            <Button onClick={handleSaveChanges} disabled={!editedName.trim()}>
+              Сохранить
             </Button>
-            <Button
-              variant="outlined"
-              startIcon={<InfoIcon />}
-              onClick={handleOpenInstructions}
-              disabled={experimentLoading}
-            >
-              Инструкция
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+        >
+          <DialogTitle>Удалить эксперимент?</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Вы уверены, что хотите удалить эксперимент "{experiment?.name}"?
+            </Typography>
+            <Alert severity="error" sx={{ mt: 2 }}>
+              Это действие нельзя отменить. Все данные будут удалены.
+            </Alert>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteDialogOpen(false)}>Отмена</Button>
+            <Button onClick={handleDeleteExperiment} color="error">
+              Удалить
             </Button>
-          </Stack>
-        </Toolbar>
-      </AppBar>
-
-      {/* Диалоговые окна */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)}>
-        <DialogTitle>Редактировать эксперимент</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Название эксперимента"
-            fullWidth
-            variant="standard"
-            value={editedName}
-            onChange={(e) => setEditedName(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)}>Отмена</Button>
-          <Button 
-            onClick={handleSaveChanges}
-            disabled={!editedName.trim()}
-          >
-            Сохранить
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      >
-        <DialogTitle>Удалить эксперимент?</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Вы уверены, что хотите удалить эксперимент "{experiment?.name}"?
-          </Typography>
-          <Alert severity="error" sx={{ mt: 2 }}>
-            Это действие нельзя отменить. Все данные будут удалены.
-          </Alert>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Отмена</Button>
-          <Button onClick={handleDeleteExperiment} color="error">
-            Удалить
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </Container>
   );
 }
 

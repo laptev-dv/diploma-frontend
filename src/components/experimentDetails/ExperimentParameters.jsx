@@ -60,7 +60,7 @@ function ExperimentParameters({ parameters }) {
                 minWidth: 320,
                 position: "sticky",
                 top: 80,
-                height: "calc(100vh - 220px)"
+                height: "calc(100vh - 200px)"
               }}
             >
               <ExperimentTasks
@@ -100,7 +100,7 @@ function ExperimentParameters({ parameters }) {
             flex: 1,
             position: "sticky",
             top: 80,
-            height: "calc(100vh - 220px)"
+            height: "calc(100vh - 168px)"
           }}
         >
           <ExperimentPreview
