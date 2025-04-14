@@ -51,7 +51,7 @@ const ExperimentRunPage = () => {
   const [isCompleting, setIsCompleting] = useState(false);
   const [currentResponseTime, setCurrentResponseTime] = useState(null);
   const [hiddenPosition, setHiddenPosition] = useState(null);
-  const [activeTaskIndex, setActiveTaskIndex] = useState(0);
+  const [activeTaskIndex, setActiveTaskIndex] = useState((experiment?.initialTaskNumber - 1) || 0);
   const [presentationCount, setPresentationCount] = useState(0);
   const [seriesTimeLeft, setSeriesTimeLeft] = useState(seriesTime);
   const [shouldCompleteAfterCurrentTask, setShouldCompleteAfterCurrentTask] =
@@ -417,7 +417,7 @@ const ExperimentRunPage = () => {
   return (
     <Box
       sx={{
-        backgroundColor: currentTask.backgroundColor || "#ffffff",
+        backgroundColor: currentTask.backgroundColor,
         height: "100vh",
         width: "100vw",
         position: "fixed",
