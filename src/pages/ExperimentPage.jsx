@@ -5,8 +5,6 @@ import {
   Typography,
   Button,
   Paper,
-  Tabs,
-  Tab,
   List,
   IconButton,
   Dialog,
@@ -18,9 +16,7 @@ import {
   AppBar,
   Toolbar,
   Stack,
-  Grid,
   useTheme,
-  useMediaQuery,
   Menu,
   MenuItem,
   CircularProgress,
@@ -33,22 +29,26 @@ import {
   ArrowBack as BackIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
 import ExperimentParameters from "../components/experimentDetails/ExperimentParameters";
 import SessionItem from "../components/SessionItem";
 import { sessionApi } from "../api/sessionApi";
 import { experimentApi } from "../api/experimentApi";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
+import ExperimentBreadcrumbs from "../components/experimentDetails/ExperimentBreadCrumbs";
 
 function ExperimentPage() {
+  const location = useLocation();
+  const folderId = location.state?.fromFolder;
+
   const theme = useTheme();
   const { id } = useParams();
   const navigate = useNavigate();
-  const isMediumScreen = useMediaQuery(theme.breakpoints.up("md"));
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [activeHistoryTab, setActiveHistoryTab] = useState(0);
   const [experimentLoading, setExperimentLoading] = useState(true);
   const [sessionsLoading, setSessionsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -152,10 +152,6 @@ function ExperimentPage() {
     handleMenuClose();
   };
 
-  const handleHistoryTabChange = (event, newValue) => {
-    setActiveHistoryTab(newValue);
-  };
-
   const handleStartExperiment = () => {
     navigate(`/experiment/${id}/run`, { state: { experiment } });
   };
@@ -221,13 +217,10 @@ function ExperimentPage() {
     );
   }
 
-  const filteredSessions =
-    activeHistoryTab === 0
-      ? sessions
-      : sessions.filter((session) => session.isMine);
-
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
+      <ExperimentBreadcrumbs folderId={folderId}/>
+
       <Box sx={{ pb: 5 }}>
         <Paper
           elevation={2}
@@ -247,19 +240,19 @@ function ExperimentPage() {
               spacing={2}
             >
               <Stack direction="row" alignItems="center" spacing={2}>
-                <IconButton onClick={() => navigate(-1)} size="small">
-                  <BackIcon />
-                </IconButton>
-
                 <Stack direction="column" alignItems="start" spacing={0}>
                   <Typography
                     variant="body2"
                     color="text.secondary"
                     sx={{ mt: 1 }}
                   >
-                    Создано:{" "}
-                    {new Date(experiment.createdAt).toLocaleDateString()} |
-                    Автор: {experiment.authorName}
+                    {format(
+                      new Date(experiment.createdAt),
+                      "dd.MM.yyyy HH:mm",
+                      {
+                        locale: ru,
+                      }
+                    )}
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 500 }}>
                     {experiment.name}
@@ -288,63 +281,33 @@ function ExperimentPage() {
 
           {/* Блок истории сессий */}
           <Box sx={{ p: 2 }}>
-            <Typography gutterBottom>История сессий</Typography>
-
-            <Tabs
-              value={activeHistoryTab}
-              onChange={handleHistoryTabChange}
-              sx={{ mb: 2 }}
-            >
-              <Tab label="Все" />
-              <Tab label="Мои" />
-            </Tabs>
-
             {sessionsLoading ? (
               <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
                 <CircularProgress />
               </Box>
             ) : sessions.length > 0 ? (
               <>
-                {isMediumScreen ? (
-                  <Grid container spacing={2}>
-                    {filteredSessions.slice(0, 4).map((session) => (
-                      <Grid item xs={12} md={6} key={session._id}>
-                        <Link
-                          to={`/session/${session._id}`}
-                          style={{ textDecoration: "none", color: "inherit" }}
-                        >
-                          <SessionItem
-                            session={session}
-                            compact
-                            onDelete={handleDeleteSession}
-                          />
-                        </Link>
-                      </Grid>
-                    ))}
-                  </Grid>
-                ) : (
-                  <List disablePadding>
-                    {filteredSessions.slice(0, 3).map((session, index) => (
-                      <Box key={session._id}>
-                        <Link
-                          to={`/session/${session._id}`}
-                          style={{ textDecoration: "none", color: "inherit" }}
-                        >
-                          <SessionItem
-                            session={session}
-                            onDelete={handleDeleteSession}
-                            showDivider={
-                              index !== filteredSessions.length - 1 &&
-                              index !== 2
-                            }
-                          />
-                        </Link>
-                      </Box>
-                    ))}
-                  </List>
-                )}
+                <Typography gutterBottom>История сессий</Typography>
+                <List disablePadding>
+                  {sessions.slice(0, 3).map((session, index) => (
+                    <Box key={session._id}>
+                      <Link
+                        to={`/session/${session._id}`}
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        <SessionItem
+                          session={session}
+                          onDelete={handleDeleteSession}
+                          showDivider={
+                            index !== sessions.length - 1 && index !== 2
+                          }
+                        />
+                      </Link>
+                    </Box>
+                  ))}
+                </List>
 
-                {sessions.length > (isMediumScreen ? 4 : 3) && (
+                {sessions.length > 3 && (
                   <Button
                     fullWidth
                     endIcon={<ArrowForwardIcon />}
@@ -361,13 +324,9 @@ function ExperimentPage() {
                 sx={{
                   p: 2,
                   textAlign: "center",
-                  backgroundColor: theme.palette.grey[50],
-                  borderRadius: 1,
                 }}
               >
-                <Typography variant="body1" color="text.secondary">
-                  Нет сохраненных сессий
-                </Typography>
+                <Typography variant="body1">Нет сохраненных сессий</Typography>
               </Box>
             )}
           </Box>
@@ -380,9 +339,6 @@ function ExperimentPage() {
           </Box>
         ) : (
           <Box>
-            <Typography variant="h6" gutterBottom>
-              Параметры
-            </Typography>
             <ExperimentParameters parameters={experiment} />
           </Box>
         )}

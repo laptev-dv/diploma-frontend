@@ -97,14 +97,11 @@ const ExperimentPreview = ({ parameters }) => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
+            flexDirection: "row-reverse",
             alignItems: "center",
             mb: 2,
           }}
         >
-          <Typography variant="subtitle1" gutterBottom>
-            Предпросмотр
-          </Typography>
           <Button
             startIcon={<FullscreenIcon />}
             size="small"

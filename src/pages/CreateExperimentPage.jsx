@@ -11,10 +11,14 @@ import {
 } from "@mui/material";
 import { Save as SaveIcon } from "@mui/icons-material";
 import EditableExperimentParameters from "../components/createExperiment/EditableExperimentParameters";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { experimentApi } from "../api/experimentApi";
+import ExperimentBreadcrumbs from "../components/experimentDetails/ExperimentBreadCrumbs";
 
 function CreateExperimentPage() {
+  const location = useLocation();
+  const folderId = location.state?.fromFolder;
+
   const navigate = useNavigate();
 
   const [experiment, setExperiment] = useState({
@@ -56,7 +60,10 @@ function CreateExperimentPage() {
 
       // Подготавливаем данные для отправки
       const experimentData = {
-        name: experiment.experimentName.length > 0 ? experiment.experimentName : `Эксперимент за ${new Date().toISOString()}`,
+        name:
+          experiment.experimentName.length > 0
+            ? experiment.experimentName
+            : `Новый эксперимент`,
         mode: experiment.mode,
         presentationsPerTask: experiment.presentationsPerTask,
         tasks: tasks.map((task) => ({
@@ -109,26 +116,14 @@ function CreateExperimentPage() {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
-      {/* Основное содержимое */}
-      <Box
-        component="main"
-        sx={{
-          p: 3,
-          pb: 5,
-          flex: 1,
-        }}
-      >
-        <Typography
-          variant="h5"
-          gutterBottom
-          sx={{
-            mb: 3,
-            fontWeight: 500,
-          }}
-        >
-          Создание эксперимента
-        </Typography>
+    <Container
+      maxWidth="xl"
+      sx={{
+        p: 3,
+        pb: 8,
+      }}
+    >
+      <ExperimentBreadcrumbs folderId={folderId} lastName="Новый эксперимент" />
 
         <TextField
           fullWidth
@@ -161,7 +156,6 @@ function CreateExperimentPage() {
           experiment={experiment}
           onExperimentChange={handleExperimentChange}
         />
-      </Box>
 
       {/* Фиксированная панель внизу */}
       <AppBar

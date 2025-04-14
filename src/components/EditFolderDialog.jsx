@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -6,8 +6,8 @@ import {
   DialogContentText,
   DialogActions,
   Button,
-  TextField
-} from '@mui/material';
+  TextField,
+} from "@mui/material";
 
 function EditFolderDialog({ open, onClose, folder, onSave }) {
   const [name, setName] = useState(folder.name);
@@ -38,8 +38,12 @@ function EditFolderDialog({ open, onClose, folder, onSave }) {
         />
       </DialogContent>
       <DialogActions>
-        <Button 
-          onClick={handleSave} 
+        <Button onClick={onClose} variant="outlined" sx={{ mr: 1 }}>
+          Отменить
+        </Button>
+        <Button
+          variant="contained"
+          onClick={handleSave}
           disabled={!name.trim() || name === folder.name}
         >
           Сохранить

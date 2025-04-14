@@ -14,7 +14,8 @@ import {
   ListItemText,
   useTheme,
   CircularProgress,
-  Alert
+  Alert,
+  Divider,
 } from "@mui/material";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import {
@@ -29,6 +30,8 @@ import AddToFolderDialog from "../components/AddToFolderDialog";
 import EditFolderDialog from "../components/EditFolderDialog";
 import { folderApi } from "../api/folderApi";
 import { experimentApi } from "../api/experimentApi";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 function FolderPage() {
   const theme = useTheme();
@@ -208,7 +211,9 @@ function FolderPage() {
 
               <Box>
                 <Typography variant="body2" color="text.secondary">
-                  Автор: {folder.author.name} | Создано: {new Date(folder.createdAt).toLocaleDateString()}
+                  {format(new Date(folder.createdAt), "dd.MM.yyyy HH:mm", {
+                              locale: ru,
+                            })}
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 500 }}>
                   {folder.name}
@@ -263,10 +268,11 @@ function FolderPage() {
             </Box>
           ) : folder.experiments.length > 0 ? (
             <List disablePadding>
-              {folder.experiments.map((experiment) => (
+              {folder.experiments.map((experiment, index) => (
                 <Box key={experiment._id}>
                   <Link
                     to={`/experiment/${experiment._id}`}
+                    state={{ fromFolder: folder._id }}
                     style={{ textDecoration: "none", color: "inherit" }}
                   >
                     <FolderExperimentItem
@@ -278,6 +284,9 @@ function FolderPage() {
                       }}
                     />
                   </Link>
+                  {index !== folder.experiments.length - 1 && (
+                      <Divider sx={{ my: 1 }} />
+                    )}
                 </Box>
               ))}
             </List>
@@ -306,6 +315,7 @@ function FolderPage() {
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
         onSave={handleUpdateExperiments}
+        folderId={folder._id}
       />
 
       {/* Диалог редактирования папки */}

@@ -10,16 +10,18 @@ import {
   Delete as DeleteIcon,
   FileDownload as FileDownloadIcon,
 } from "@mui/icons-material";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 function SessionItem({ session, showDivider, onClick, onDelete }) {
   const handleExportClick = (e) => {
     e.stopPropagation();
-    console.log("Экспорт", session.id);
+    console.log("Экспорт", session._id);
   };
 
   const handleDeleteClick = (e) => {
     e.stopPropagation();
-    onDelete(session.id);
+    onDelete(session._id);
   };
 
   return (
@@ -34,22 +36,22 @@ function SessionItem({ session, showDivider, onClick, onDelete }) {
       >
         <ListItemText
           primary={session.author}
-          secondary={`${session.date} | Длительность: ${session.duration}`}
+          secondary={`${format(
+            new Date(session.createdAt),
+            "dd.MM.yyyy HH:mm",
+            {
+              locale: ru,
+            }
+          )}`}
         />
         <Tooltip title="Экспорт результатов">
-          <IconButton
-            onClick={handleExportClick}
-            aria-label="экспорт"
-          >
+          <IconButton onClick={handleExportClick} aria-label="экспорт">
             <FileDownloadIcon />
           </IconButton>
         </Tooltip>
         {session.isMine && (
           <Tooltip title="Удалить сессию">
-            <IconButton
-              onClick={handleDeleteClick}
-              aria-label="удалить"
-            >
+            <IconButton onClick={handleDeleteClick} aria-label="удалить">
               <DeleteIcon />
             </IconButton>
           </Tooltip>

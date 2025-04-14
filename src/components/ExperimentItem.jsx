@@ -1,28 +1,51 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
+import React from "react";
+import { Stack, Typography, Chip } from "@mui/material";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 function ExperimentItem({ experiment }) {
   return (
-    <Box sx={{ 
-      display: 'block',
-      '&:hover': {
-        backgroundColor: 'action.hover',
-      },
-      p: 1,
-      borderRadius: 1
-    }}>
-      <Typography variant="body2" color="textSecondary">
-        Результатов: {experiment.resultsCount}
-      </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
-        <Typography variant="h6">
+    <Stack
+      direction="row"
+      justifyContent='space-between'
+      alignItems='center'
+      sx={{
+        p: 1,
+        borderColor: "divider",
+        "&:hover": {
+          backgroundColor: "action.hover",
+        },
+        transition: "background-color 0.2s ease",
+      }}
+    >
+      <Stack direction="column">
+        {/* Верхняя строка - статистика */}
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ display: "block", mb: 0.5 }}
+        >
+           {experiment.sessionsCount} сессий • { format(new Date(experiment.createdAt), "dd.MM.yyyy HH:mm", {
+            locale: ru,
+          })}
+        </Typography>
+
+        {/* Основное название */}
+        <Typography variant="subtitle1" sx={{ fontWeight: 500, pr: 6 }}>
           {experiment.name}
         </Typography>
-      </Box>
-      <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
-        Автор: {experiment.author._id} | Дата: {experiment.createdAt}
-      </Typography>
-    </Box>
+      </Stack>
+      {/* Чип режима - позиционирован абсолютно справа */}
+      <Chip
+        label={experiment.mode === "adaptive" ? "Адаптивный" : "Жёсткий"}
+        size="small"
+        variant="outlined"
+        sx={{
+          borderColor: experiment.mode === "adaptive" ? "primary.main" : "secondary.main",
+          color: experiment.mode === "adaptive" ? "primary.main" : "secondary.main",
+        }}
+      />
+    </Stack>
   );
 }
 

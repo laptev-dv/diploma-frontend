@@ -13,6 +13,7 @@ import {
   InputLabel,
   FormControl,
   Slider,
+  Stack,
 } from "@mui/material";
 
 const EditableSeriesSettings = ({
@@ -125,10 +126,9 @@ const EditableSeriesSettings = ({
             {parameters.mode === "adaptive" && (
               <>
                 <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 1 } }}>
-                  <TableCell>
-                    <Typography gutterBottom sx={{ mb: 2 }}>
-                      Границы эффективности, %
-                    </Typography>
+                <TableCell>
+                    <Stack direction='row' justifyContent="space-between" alignItems='center' spacing={8} sx={{mt:2}}>
+                    <Typography variant="body2">Эффективность,&nbsp;%</Typography>
                     <Slider
                       valueLabelFormat={(value) => `${value}%`}
                       value={[
@@ -151,6 +151,7 @@ const EditableSeriesSettings = ({
                         },
                       }}
                     />
+                    </Stack>
                   </TableCell>
                 </TableRow>
               </>

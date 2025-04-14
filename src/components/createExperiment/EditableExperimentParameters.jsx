@@ -111,7 +111,7 @@ function EditableExperimentParameters({
           <Box
             sx={{
               flex: 1,
-              minWidth: 320,
+              minWidth: 240,
               position: "sticky",
               top: 80,
               height: "calc(100vh - 200px)"
@@ -132,7 +132,7 @@ function EditableExperimentParameters({
 
           <Box
             sx={{
-              flex: 2,
+              flex: 1,
               display: "flex",
               flexDirection: "column",
               gap: 3,

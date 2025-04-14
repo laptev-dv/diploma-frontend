@@ -61,7 +61,7 @@ export default function EditableTaskItem({
       style={style}
       sx={{
         px: 1,
-        py: 0.5,
+        py: 1,
         borderLeft: isActive ? "3px solid" : "none",
         borderColor: "primary.main",
         backgroundColor: isActive ? "#1976d21f" : "transparent",
@@ -81,7 +81,7 @@ export default function EditableTaskItem({
       </ListItemIcon>
       <ListItemText
         primary={
-          <Stack direction="row" spacing={1} marginRight={3}>
+          <Stack direction="row" spacing={1} marginRight={1}>
             <TextField
               fullWidth
               variant="outlined"

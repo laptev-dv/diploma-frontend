@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -16,25 +16,26 @@ import {
   TextField,
   InputAdornment,
   IconButton,
-  Tooltip
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Search as SearchIcon,
   Clear as ClearIcon,
-  Info as InfoIcon
-} from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+} from "@mui/icons-material";
+import { Link } from "react-router-dom";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
-function AddToFolderDialog({ 
+function AddToFolderDialog({
   open,
   onClose,
   experiments = [],
   selectedExperimentIds = [],
   loading = false,
-  searchTerm = '',
+  searchTerm = "",
   onSearchChange,
-  onSave
+  onSave,
+  folderId,
 }) {
   const [localSelected, setLocalSelected] = useState([]);
 
@@ -46,22 +47,22 @@ function AddToFolderDialog({
   }, [open, selectedExperimentIds]);
 
   const handleToggle = (experimentId) => {
-    setLocalSelected(prev => {
+    setLocalSelected((prev) => {
       const currentIndex = prev.indexOf(experimentId);
       const newSelected = [...prev];
-      
+
       if (currentIndex === -1) {
         newSelected.push(experimentId);
       } else {
         newSelected.splice(currentIndex, 1);
       }
-      
+
       return newSelected;
     });
   };
 
   const clearSearch = () => {
-    onSearchChange('');
+    onSearchChange("");
   };
 
   const handleSubmit = () => {
@@ -69,16 +70,11 @@ function AddToFolderDialog({
     onClose();
   };
 
-  const getExperimentInfo = (experiment) => {
-    return `Задач: ${experiment.parameters?.initialTaskNumber || 0}, 
-            Сессий: ${experiment.sessionsCount || 0}`;
-  };
-
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      fullWidth 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
       maxWidth="md"
       scroll="paper"
     >
@@ -90,6 +86,7 @@ function AddToFolderDialog({
           <Button
             component={Link}
             to="/experiment/create"
+            state={{fromFolder: folderId}}
             variant="contained"
             startIcon={<AddIcon />}
             size="small"
@@ -99,14 +96,15 @@ function AddToFolderDialog({
           </Button>
         </Box>
       </DialogTitle>
-      
+
       <DialogContent dividers>
         <Box sx={{ mb: 2 }}>
           <TextField
             fullWidth
             variant="outlined"
-            placeholder="Поиск экспериментов по названию или автору..."
+            placeholder="Поиск..."
             value={searchTerm}
+            size="small"
             onChange={(e) => onSearchChange(e.target.value)}
             InputProps={{
               startAdornment: (
@@ -118,33 +116,33 @@ function AddToFolderDialog({
                 <IconButton onClick={clearSearch} size="small">
                   <ClearIcon fontSize="small" />
                 </IconButton>
-              )
+              ),
             }}
           />
         </Box>
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", p: 3 }}>
             <CircularProgress />
           </Box>
         ) : experiments.length === 0 ? (
-          <Box sx={{ p: 2, textAlign: 'center' }}>
+          <Box sx={{ p: 2, textAlign: "center" }}>
             <Typography variant="body1" color="text.secondary">
-              {searchTerm ? 'Ничего не найдено' : 'Нет доступных экспериментов'}
+              {searchTerm ? "Ничего не найдено" : "Нет доступных экспериментов"}
             </Typography>
           </Box>
         ) : (
           <List dense>
             {experiments.map((experiment) => (
               <React.Fragment key={experiment._id}>
-                <ListItem 
-                  sx={{ 
-                    bgcolor: localSelected.includes(experiment._id) 
-                      ? 'action.selected' 
-                      : 'background.paper',
-                    '&:hover': {
-                      bgcolor: 'action.hover'
-                    }
+                <ListItem
+                  sx={{
+                    bgcolor: localSelected.includes(experiment._id)
+                      ? "action.selected"
+                      : "background.paper",
+                    "&:hover": {
+                      bgcolor: "action.hover",
+                    },
                   }}
                 >
                   <Checkbox
@@ -153,44 +151,33 @@ function AddToFolderDialog({
                     onChange={() => handleToggle(experiment._id)}
                     tabIndex={-1}
                     disableRipple
-                    inputProps={{ 'aria-labelledby': `checkbox-${experiment._id}` }}
+                    inputProps={{
+                      "aria-labelledby": `checkbox-${experiment._id}`,
+                    }}
                   />
-                  
+
                   <ListItemText
                     id={`checkbox-${experiment._id}`}
                     primary={experiment.name}
                     secondary={
                       <>
-                        <Typography 
-                          component="span" 
-                          variant="body2" 
-                          color="text.primary"
-                        >
-                          Автор: {experiment.author?.name || 'Неизвестен'}
-                        </Typography>
-                        <br />
-                        <Typography 
-                          component="span" 
-                          variant="body2" 
+                        <Typography
+                          variant="body2"
                           color="text.secondary"
+                          sx={{ display: "block", mb: 0.5 }}
                         >
-                          {getExperimentInfo(experiment)}
+                          {experiment.mode === "adaptive" ? "Адаптивный" : "Жёсткий"} • {format(
+                            new Date(experiment.createdAt),
+                            "dd.MM.yyyy HH:mm",
+                            {
+                              locale: ru,
+                            }
+                          )}
                         </Typography>
                       </>
                     }
                     sx={{ my: 0 }}
                   />
-                  
-                  <Tooltip title="Подробнее об эксперименте">
-                    <IconButton
-                      component={Link}
-                      to={`/experiment/${experiment._id}`}
-                      edge="end"
-                      size="small"
-                    >
-                      <InfoIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
                 </ListItem>
                 <Divider />
               </React.Fragment>
@@ -198,21 +185,13 @@ function AddToFolderDialog({
           </List>
         )}
       </DialogContent>
-      
+
       <DialogActions sx={{ p: 2 }}>
-        <Button 
-          onClick={onClose}
-          variant="outlined"
-          sx={{ mr: 1 }}
-        >
-          Отмена
+        <Button onClick={onClose} variant="outlined" sx={{ mr: 1 }}>
+          Отменить
         </Button>
-        <Button 
-          onClick={handleSubmit}
-          variant="contained"
-          disabled={loading}
-        >
-          Сохранить изменения
+        <Button onClick={handleSubmit} variant="contained" disabled={loading}>
+          Сохранить
         </Button>
       </DialogActions>
     </Dialog>

@@ -228,7 +228,7 @@ function LibraryPage() {
                       )}
                     </Link>
                     {index !== currentItems.length - 1 && (
-                      <Divider sx={{ my: 2 }} />
+                      <Divider sx={{ my: 1 }} />
                     )}
                   </Box>
                 ))}

@@ -1,45 +1,68 @@
 import React from "react";
-import { Box, Typography, IconButton } from "@mui/material";
+import { Stack, Chip, Typography, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 function FolderExperimentItem({ experiment, onRemove }) {
   return (
-    <Box
+    <Stack
+      direction="row"
+      justifyContent="space-between"
+      alignItems="center"
       sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        width: "100%",
+        p: 1,
+        borderColor: "divider",
         "&:hover": {
           backgroundColor: "action.hover",
         },
-        p: 1,
-        borderRadius: 1,
+        transition: "background-color 0.2s ease",
       }}
     >
-      <Box sx={{ flexGrow: 1 }}>
-        <Typography variant="body2" color="textSecondary">
-          Результатов: {experiment.resultsCount}
+      <Stack direction="column">
+        {/* Верхняя строка - статистика */}
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ display: "block", mb: 0.5 }}
+        >
+          {experiment.sessions.length} сессий •{" "}
+          {format(new Date(experiment.createdAt), "dd.MM.yyyy HH:mm", {
+            locale: ru,
+          })}
         </Typography>
-        <Typography variant="h6">{experiment.name}</Typography>
-        <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
-          Автор: {experiment.author} | Дата: {experiment.createdAt}
-        </Typography>
-      </Box>
 
-      <IconButton
-        aria-label="delete"
-        onClick={onRemove}
-        color="error"
-        sx={{
-          "&:hover": {
-            backgroundColor: "rgba(255, 0, 0, 0.1)",
-          },
-        }}
-      >
-        <DeleteIcon />
-      </IconButton>
-    </Box>
+        {/* Основное название */}
+        <Typography variant="subtitle1" sx={{ fontWeight: 500, pr: 6 }}>
+          {experiment.name}
+        </Typography>
+      </Stack>
+
+      <Stack direction="row" alignItems='center' spacing={1}>
+        {/* Чип режима - позиционирован абсолютно справа */}
+        <Chip
+          label={experiment.mode === "adaptive" ? "Адаптивный" : "Жёсткий"}
+          size="small"
+          variant="outlined"
+          sx={{
+            borderColor:
+              experiment.mode === "adaptive"
+                ? "primary.main"
+                : "secondary.main",
+            color:
+              experiment.mode === "adaptive"
+                ? "primary.main"
+                : "secondary.main",
+          }}
+        />
+        <IconButton
+          aria-label="delete"
+          onClick={onRemove}
+        >
+          <DeleteIcon />
+        </IconButton>
+      </Stack>
+    </Stack>
   );
 }
 

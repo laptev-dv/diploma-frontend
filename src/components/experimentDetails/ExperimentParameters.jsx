@@ -57,7 +57,7 @@ function ExperimentParameters({ parameters }) {
             <Box
               sx={{
                 flex: 3,
-                minWidth: 320,
+                minWidth: 240,
                 position: "sticky",
                 top: 80,
                 height: "calc(100vh - 200px)"
@@ -100,7 +100,8 @@ function ExperimentParameters({ parameters }) {
             flex: 1,
             position: "sticky",
             top: 80,
-            height: "calc(100vh - 168px)"
+            height: "calc(100vh - 168px)",
+            minWidth: 200
           }}
         >
           <ExperimentPreview

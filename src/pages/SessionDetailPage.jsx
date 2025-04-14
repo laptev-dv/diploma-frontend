@@ -18,6 +18,7 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import NavigateBackIcon from "@mui/icons-material/NavigateBefore";
 import { sessionApi } from "../api/sessionApi";
 import SessionParameters from "../components/sessionDetails/SessionParameters";
+import SessionBreadCrumbs from "../components/sessionDetails/SessionBreadCrumbs";
 
 function SessionDetailPage() {
   const { id } = useParams();
@@ -130,19 +131,7 @@ function SessionDetailPage() {
 
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
-        <Stack direction={"row"} alignItems="center" spacing={1}>
-          <IconButton onClick={() => navigate(-1)} size="small">
-            <NavigateBackIcon />
-          </IconButton>
-          <Link
-            component="button"
-            underline="hover"
-            color="inherit"
-            onClick={() => navigate(-1)}
-          >
-            Назад к эксперименту
-          </Link>
-        </Stack>
+        <SessionBreadCrumbs experimentId={sessionData.experiment._id}/>
 
         <Typography variant="h4" gutterBottom sx={{ mt: 2 }}>
           Детали сессии #{sessionData._id}
