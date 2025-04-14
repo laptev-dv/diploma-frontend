@@ -20,6 +20,7 @@ import {
   Clear as ClearIcon,
 } from "@mui/icons-material";
 import StimulusPreview from "../shared/StimulusPreview";
+import { formatDuration } from '../../utils'
 
 const getBrightness = (hexColor) => {
   const color = hexColor.replace(/^#/, "");
@@ -180,17 +181,7 @@ const SessionDetailsPreview = ({ parameters }) => {
         elevation={3}
         sx={{ p: 2, display: "flex", flexDirection: "column", height: "100%" }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 2,
-          }}
-        >
-          <Typography variant="subtitle1" gutterBottom>
-            Детали выполнения
-          </Typography>
+        <Stack direction="row-reverse">
           <Button
             startIcon={<FullscreenIcon />}
             size="small"
@@ -198,7 +189,7 @@ const SessionDetailsPreview = ({ parameters }) => {
           >
             Полный экран
           </Button>
-        </Box>
+        </Stack>
 
         <Box
           sx={{
@@ -206,7 +197,7 @@ const SessionDetailsPreview = ({ parameters }) => {
             flexDirection: "column",
             borderRadius: "4px",
             height: "100%",
-            p: 2,
+            py: 2,
           }}
         >
           <Box
@@ -214,23 +205,27 @@ const SessionDetailsPreview = ({ parameters }) => {
               display: "flex",
               flexDirection: "column",
               backgroundColor,
-              borderRadius: "4px",
+              borderRadius: 1,
               height: "100%",
-              alignItems: 'center',
-              justifyContent: 'center',
-              p: 2,
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <StimulusPreview
               parameters={parameters.task}
-              hiddenPosition={{ 
-                row: currentPresentation.correctAnswer?.row, 
+              hiddenPosition={{
+                row: currentPresentation.correctAnswer?.row,
                 col: currentPresentation.correctAnswer?.column,
               }}
             />
           </Box>
           <Stack spacing={2} sx={{ mt: 2 }}>
-            <Stack direction="row" justifyContent="center" spacing={2} alignItems='center'>
+            <Stack
+              direction="row"
+              justifyContent="center"
+              spacing={2}
+              alignItems="center"
+            >
               <IconButton onClick={handlePrev}>
                 <PrevIcon />
               </IconButton>
@@ -245,7 +240,7 @@ const SessionDetailsPreview = ({ parameters }) => {
             <Box>
               <Typography variant="subtitle2">Время на ответ:</Typography>
               <Typography variant="body1">
-                {currentPresentation.responseTime || "Нет данных"}
+                {formatDuration(currentPresentation.responseTime) || "Нет данных"}
               </Typography>
             </Box>
 

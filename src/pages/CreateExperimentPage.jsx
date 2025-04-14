@@ -178,7 +178,7 @@ function CreateExperimentPage() {
             </Typography>
             <Chip
               label={experiment.mode === "adaptive" ? "Адаптивный" : "Жесткий"}
-              color="primary"
+              color={experiment.mode === "adaptive" ? "primary" : "secondary"}
               variant="outlined"
             />
           </Box>

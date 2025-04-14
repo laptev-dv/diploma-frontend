@@ -251,10 +251,9 @@ function FolderPage() {
           </MenuItem>
           <MenuItem
             onClick={handleDelete}
-            sx={{ color: theme.palette.error.main }}
           >
             <ListItemIcon>
-              <DeleteIcon fontSize="small" color="error" />
+              <DeleteIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Удалить</ListItemText>
           </MenuItem>

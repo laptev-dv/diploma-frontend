@@ -160,7 +160,8 @@ function EditableExperimentParameters({
           flex: 1,
           position: "sticky",
           top: 80,
-          height: "calc(100vh - 168px)"
+          height: "calc(100vh - 168px)",
+          maxWidth: 720
         }}
       >
         <ExperimentPreview parameters={activeTask} />

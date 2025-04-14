@@ -298,6 +298,7 @@ function ExperimentPage() {
                         <SessionItem
                           session={session}
                           onDelete={handleDeleteSession}
+                          onExport={() => {}}
                           showDivider={
                             index !== sessions.length - 1 && index !== 2
                           }
@@ -311,7 +312,7 @@ function ExperimentPage() {
                   <Button
                     fullWidth
                     endIcon={<ArrowForwardIcon />}
-                    sx={{ mt: 2 }}
+                    sx={{ mt: 1, py: 2 }}
                     onClick={handleViewAllSessions}
                     size="small"
                   >

@@ -16,6 +16,8 @@ import {
   TextField,
   InputAdornment,
   IconButton,
+  Stack,
+  Chip,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -86,7 +88,7 @@ function AddToFolderDialog({
           <Button
             component={Link}
             to="/experiment/create"
-            state={{fromFolder: folderId}}
+            state={{ fromFolder: folderId }}
             variant="contained"
             startIcon={<AddIcon />}
             size="small"
@@ -160,13 +162,25 @@ function AddToFolderDialog({
                     id={`checkbox-${experiment._id}`}
                     primary={experiment.name}
                     secondary={
-                      <>
+                      <Stack direction='row' alignItems='center' spacing={1}>
+                        <Chip
+                          color={
+                            experiment.mode === "adaptive"
+                              ? "primary"
+                              : "secondary"
+                          }
+                          sx={{ width: 8, height: 8}}
+                        />
                         <Typography
                           variant="body2"
                           color="text.secondary"
                           sx={{ display: "block", mb: 0.5 }}
                         >
-                          {experiment.mode === "adaptive" ? "Адаптивный" : "Жёсткий"} • {format(
+                          {experiment.mode === "adaptive"
+                            ? "Адаптивный"
+                            : "Жёсткий"}{" "}
+                          •{" "}
+                          {format(
                             new Date(experiment.createdAt),
                             "dd.MM.yyyy HH:mm",
                             {
@@ -174,7 +188,7 @@ function AddToFolderDialog({
                             }
                           )}
                         </Typography>
-                      </>
+                      </Stack>
                     }
                     sx={{ my: 0 }}
                   />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -7,90 +7,135 @@ import {
   List,
   Button,
   Stack,
-  IconButton,
   useTheme,
   AppBar,
-  Toolbar
+  Toolbar,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
-import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
+import { useParams, Link as RouterLink } from "react-router-dom";
 import {
   FileDownload as ExportIcon,
-  ArrowBack as BackIcon,
 } from "@mui/icons-material";
 import SessionItem from "../components/SessionItem";
 import ExportSessionsDialog from "../components/ExportSessionsDialog";
+import { sessionApi } from "../api/sessionApi";
+import SessionBreadCrumbs from "../components/sessionDetails/SessionBreadCrumbs";
 
 function SessionsListPage() {
   const theme = useTheme();
-  const navigate = useNavigate();
   const { id } = useParams();
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  const [sessions, setSessions] = useState(
-    Array(3).fill().map((_, i) => ({
-      id: i + 1,
-      author: `Автор ${i + 1}`,
-      date: `0${i + 1}.01.2025 10:00`,
-      duration: `${10 + i} мин`,
-      isMine: i % 2 === 0,
-    }))
-  );
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Загрузка сессий эксперимента
+  useEffect(() => {
+    const loadSessions = async () => {
+      try {
+        setLoading(true);
+        const response = await sessionApi.getByExperiment(id);
+        setSessions(response.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      loadSessions();
+    }
+  }, [id]);
 
   const handleExportClick = () => {
     setExportDialogOpen(true);
   };
 
-  return (
-    <Box sx={{ pb: 10 }}>
-      <Container maxWidth="md" sx={{ py: 3 }}>
-        <Paper elevation={2} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-          {/* Шапка с навигацией */}
-          <Box sx={{ 
-            p: 2, 
-            backgroundColor: theme.palette.grey[100],
-          }}>
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <IconButton onClick={() => navigate(-1)} size="small">
-                <BackIcon />
-              </IconButton>
-              <Typography variant="h6" sx={{ fontWeight: 500 }}>
-                Сессии эксперимента #{id}
-              </Typography>
-            </Stack>
-          </Box>
+  const handleDeleteSession = async (sessionId) => {
+    try {
+      await sessionApi.delete(sessionId);
+      setSessions(sessions.filter((s) => s._id !== sessionId));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
-          {/* Список сессий */}
-          <Box sx={{ p: 2 }}>
-            {sessions.length > 0 ? (
-              <List disablePadding>
-                {sessions.map((session, index) => (
-                  <Box key={session.id}>
-                    <RouterLink
-                      to={`/session/${session.id}`}
-                      style={{ textDecoration: "none", color: "inherit" }}
-                    >
-                      <SessionItem
-                        session={session}
-                        showDivider={index !== sessions.length - 1}
-                      />
-                    </RouterLink>
-                  </Box>
-                ))}
-              </List>
-            ) : (
-              <Box sx={{ 
-                p: 3, 
-                textAlign: 'center',
-                backgroundColor: theme.palette.grey[50],
-                borderRadius: 1
-              }}>
-                <Typography variant="body1" color="text.secondary">
-                  Нет доступных сессий
-                </Typography>
-              </Box>
-            )}
-          </Box>
-        </Paper>
+  if (loading) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 3, textAlign: "center" }}>
+        <CircularProgress />
       </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+  }
+
+  return (
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      <SessionBreadCrumbs experimentId={id} lastName="Все сессии"/>
+      <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
+        {/* Шапка с навигацией */}
+        <Box
+          sx={{
+            p: 2,
+            backgroundColor: theme.palette.grey[100],
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              Все сессии эксперимента
+            </Typography>
+          </Stack>
+        </Box>
+
+        {/* Список сессий */}
+        <Box sx={{ p: 2 }}>
+          {sessions.length > 0 ? (
+            <List disablePadding>
+              {sessions.map((session, index) => (
+                <Box key={session._id}>
+                  <RouterLink
+                    to={`/session/${session._id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
+                    <SessionItem
+                      session={session}
+                      onDelete={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        handleDeleteSession(session._id);
+                      }}
+                      onExport={() => {}}
+                      showDivider={index !== sessions.length - 1}
+                    />
+                  </RouterLink>
+                </Box>
+              ))}
+            </List>
+          ) : (
+            <Box
+              sx={{
+                p: 3,
+                textAlign: "center",
+                backgroundColor: theme.palette.grey[50],
+                borderRadius: 1,
+              }}
+            >
+              <Typography variant="body1" color="text.secondary">
+                Нет доступных сессий
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      </Paper>
 
       {/* Фиксированная панель внизу */}
       <AppBar
@@ -106,7 +151,12 @@ function SessionsListPage() {
         }}
       >
         <Toolbar>
-          <Stack direction="row" spacing={2} sx={{ flexGrow: 1 }} justifyContent="flex-end">
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{ flexGrow: 1 }}
+            justifyContent="flex-end"
+          >
             <Button
               variant="contained"
               startIcon={<ExportIcon />}
@@ -124,7 +174,7 @@ function SessionsListPage() {
         onClose={() => setExportDialogOpen(false)}
         sessions={sessions}
       />
-    </Box>
+    </Container>
   );
 }
 

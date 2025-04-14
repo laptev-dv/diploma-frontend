@@ -16,6 +16,9 @@ import {
   Typography
 } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { formatDuration } from './../utils';
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 function ExportSessionsDialog({ open, onClose, sessions }) {
   const [selectedSessions, setSelectedSessions] = useState([]);
@@ -59,15 +62,21 @@ function ExportSessionsDialog({ open, onClose, sessions }) {
         <Typography variant="body1" gutterBottom>
           Выберите сессии для экспорта:
         </Typography>
-        
+
         <List dense>
           <ListItem disablePadding>
             <ListItemButton onClick={handleSelectAll}>
               <ListItemIcon>
                 <Checkbox
                   edge="start"
-                  checked={selectedSessions.length === sessions.length && sessions.length > 0}
-                  indeterminate={selectedSessions.length > 0 && selectedSessions.length < sessions.length}
+                  checked={
+                    selectedSessions.length === sessions.length &&
+                    sessions.length > 0
+                  }
+                  indeterminate={
+                    selectedSessions.length > 0 &&
+                    selectedSessions.length < sessions.length
+                  }
                   tabIndex={-1}
                   disableRipple
                 />
@@ -76,7 +85,7 @@ function ExportSessionsDialog({ open, onClose, sessions }) {
             </ListItemButton>
           </ListItem>
           <Divider />
-          
+
           {sessions.map((session) => (
             <ListItem key={session.id} disablePadding>
               <ListItemButton onClick={() => handleToggle(session.id)}>
@@ -88,9 +97,20 @@ function ExportSessionsDialog({ open, onClose, sessions }) {
                     disableRipple
                   />
                 </ListItemIcon>
-                <ListItemText 
-                  primary={`Сессия от ${session.date}`}
-                  secondary={`Автор: ${session.author} | Длительность: ${session.duration}`}
+                <ListItemText
+                  primary={`Сессия от ${format(
+                    new Date(session.createdAt),
+                    "dd.MM.yyyy HH:mm",
+                    {
+                      locale: ru,
+                    }
+                  )}
+                  `}
+                  secondary={`Длительность: ${
+                    session.totalSeriesTime > 0
+                      ? formatDuration(session.totalSeriesTime)
+                      : "—"
+                  }`}
                 />
               </ListItemButton>
             </ListItem>
@@ -98,9 +118,9 @@ function ExportSessionsDialog({ open, onClose, sessions }) {
         </List>
       </DialogContent>
       <DialogActions>
-        <Button 
-          onClick={handleExport} 
-          variant="contained" 
+        <Button
+          onClick={handleExport}
+          variant="contained"
           disabled={selectedSessions.length === 0}
           startIcon={<FileDownloadIcon />}
         >

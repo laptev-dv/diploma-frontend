@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Typography,
   AppBar,
   Toolbar,
   Stack,
   Button,
-  Link,
   CircularProgress,
-  IconButton,
   Alert,
   Container,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import SessionInfo from "../components/sessionDetails/SessionInfo";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import NavigateBackIcon from "@mui/icons-material/NavigateBefore";
 import { sessionApi } from "../api/sessionApi";
 import SessionParameters from "../components/sessionDetails/SessionParameters";
 import SessionBreadCrumbs from "../components/sessionDetails/SessionBreadCrumbs";
@@ -130,12 +126,8 @@ function SessionDetailPage() {
       : 0;
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
+    <Container maxWidth="xl" sx={{ py: 3, pb: 8 }}>
         <SessionBreadCrumbs experimentId={sessionData.experiment._id}/>
-
-        <Typography variant="h4" gutterBottom sx={{ mt: 2 }}>
-          Детали сессии #{sessionData._id}
-        </Typography>
 
         <SessionInfo
           sessionData={{

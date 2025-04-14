@@ -1,59 +1,55 @@
-import React from 'react';
-import { 
-  Paper, 
-  Typography, 
-  Grid,
-  Chip,
-  Box
-} from '@mui/material';
-import { 
-  AccessTime, 
-  CalendarToday
-} from '@mui/icons-material';
+import React from "react";
+import { Paper, Typography, Box, Stack, IconButton } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
-import SessionResultsTable from "./SessionResultsTable"
+import SessionResultsTable from "./SessionResultsTable";
+import { Delete as DeleteIcon } from "@mui/icons-material";
 
 const SessionInfo = ({ sessionData, extendedResults }) => {
+  const theme = useTheme();
+
   return (
-    <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-      <Typography variant="h6" gutterBottom>
-        Информация о сессии
-      </Typography>
+    <Paper elevation={2} sx={{ borderRadius: 2, mb: 3 }}>
+      {/* Шапка с информацией о папке */}
+      <Box
+        sx={{
+          p: 2,
+          pr: 3,
+          backgroundColor: theme.palette.grey[100],
+        }}
+      >
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Stack direction="column">
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              {format(new Date(sessionData.createdAt), "dd.MM.yyyy HH:mm", {
+                locale: ru,
+              })}
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 500 }}>
+              Информация о сессии
+            </Typography>
+          </Stack>
 
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-            <AccessTime color="primary" sx={{ mr: 1 }} />
-            <Typography variant="body1">
-              <strong>Длительность:</strong> {sessionData.duration}{" "}
-              (планировалось {sessionData.plannedDuration})
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-            <CalendarToday color="primary" sx={{ mr: 1 }} />
-            <Typography variant="body1">
-              <strong>Дата:</strong> {sessionData.date}
-            </Typography>
-          </Box>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-            <Typography variant="body1">
-              <strong>Режим:</strong>
-            </Typography>
-            <Chip
-              label={sessionData.mode}
-              color="primary"
-              size="small"
-              sx={{ ml: 1 }}
-            />
-          </Box>
-        </Grid>
-      </Grid>
-
-      <Box sx={{ mt: 3 }}>
-        <SessionResultsTable results={extendedResults} />
+          <IconButton
+            edge="end"
+            size="medium"
+            onClick={(e) => {}}
+            sx={{
+              aspectRatio: 1,
+            }}
+          >
+            <DeleteIcon fontSize="medium" />
+          </IconButton>
+        </Stack>
       </Box>
+
+      <SessionResultsTable results={extendedResults} />
     </Paper>
   );
 };

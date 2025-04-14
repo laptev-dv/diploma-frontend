@@ -2,7 +2,7 @@ import Breadcrumbs from "@mui/material/Breadcrumbs";
 import { Typography, Link } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
-const SessionBreadCrumbs = ({ experimentId }) => (
+const SessionBreadCrumbs = ({ experimentId, lastName = "Сессия" }) => (
   <Breadcrumbs separator={"/"} sx={{ mb: 1 }}>
     <Link
       component={RouterLink}
@@ -28,7 +28,7 @@ const SessionBreadCrumbs = ({ experimentId }) => (
       Эксперимент
     </Link>
 
-    <Typography color="text.secondary">Сессия</Typography>
+    <Typography color="text.secondary">{lastName}</Typography>
   </Breadcrumbs>
 );
 

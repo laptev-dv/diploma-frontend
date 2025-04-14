@@ -5,6 +5,8 @@ import {
   IconButton,
   Divider,
   Tooltip,
+  Typography,
+  Box,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
@@ -12,15 +14,18 @@ import {
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { formatDuration } from './../utils';
 
-function SessionItem({ session, showDivider, onClick, onDelete }) {
+function SessionItem({ session, showDivider, onClick, onDelete, onExport }) {
   const handleExportClick = (e) => {
     e.stopPropagation();
-    console.log("Экспорт", session._id);
+    e.preventDefault();
+    onExport(session._id);
   };
 
   const handleDeleteClick = (e) => {
     e.stopPropagation();
+    e.preventDefault();
     onDelete(session._id);
   };
 
@@ -36,13 +41,22 @@ function SessionItem({ session, showDivider, onClick, onDelete }) {
       >
         <ListItemText
           primary={session.author}
-          secondary={`${format(
-            new Date(session.createdAt),
-            "dd.MM.yyyy HH:mm",
-            {
-              locale: ru,
-            }
-          )}`}
+          secondary={
+            <Box>
+              <Typography variant="body2" color="#000">
+                Сессия от{" "}
+                {format(new Date(session.createdAt), "dd.MM.yyyy HH:mm", {
+                  locale: ru,
+                })}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Длительность:{" "}
+                {session.totalSeriesTime > 0
+                  ? formatDuration(session.totalSeriesTime)
+                  : "—"}
+              </Typography>
+            </Box>
+          }
         />
         <Tooltip title="Экспорт результатов">
           <IconButton onClick={handleExportClick} aria-label="экспорт">
@@ -57,7 +71,7 @@ function SessionItem({ session, showDivider, onClick, onDelete }) {
           </Tooltip>
         )}
       </ListItem>
-      {showDivider && <Divider />}
+      {showDivider && <Divider sx={{ my: 1 }} />}
     </>
   );
 }

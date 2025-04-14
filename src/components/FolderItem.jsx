@@ -1,5 +1,5 @@
 import React from "react";
-import { Stack, Typography, Chip } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import FolderIcon from "@mui/icons-material/Folder";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";

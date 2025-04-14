@@ -8,7 +8,6 @@ import {
   TableRow,
   Chip,
   Typography,
-  Paper,
   Stack
 } from '@mui/material';
 import { 
@@ -16,6 +15,7 @@ import {
   Cancel,
   AccessTimeFilled as Timer,
 } from '@mui/icons-material';
+import { formatDuration } from './../../utils'
 
 const SessionResultsTable = ({ results }) => {
   if (!results || results.length === 0) {
@@ -27,14 +27,14 @@ const SessionResultsTable = ({ results }) => {
   }
 
   return (
-    <TableContainer component={Paper}>
+    <TableContainer>
       <Table size="small">
         <TableHead>
           <TableRow>
             <TableCell>№</TableCell>
             <TableCell align="center">Ответы</TableCell>
             <TableCell align="center">Эффективность</TableCell>
-            <TableCell align="center">Среднее время (мс)</TableCell>
+            <TableCell align="center">Среднее время</TableCell>
             <TableCell align="center">Нагрузка</TableCell>
             <TableCell align="center">Итоговая оценка</TableCell>
             <TableCell align="center">Производительность</TableCell>
@@ -67,8 +67,8 @@ const SessionResultsTable = ({ results }) => {
                 </Stack>
               </TableCell>
               <TableCell align="center">{(task.efficiency * 100).toFixed(1)}%</TableCell>
-              <TableCell align="center">{task.avgResponseTime}</TableCell>
-              <TableCell align="center">{task.workload}</TableCell>
+              <TableCell align="center">{formatDuration(task.avgResponseTime)}</TableCell>
+              <TableCell align="center">{task.workload.toFixed(4)}</TableCell>
               <TableCell align="center">{(task.finalScore * 100).toFixed(1)}%</TableCell>
               <TableCell align="center">{0}</TableCell>
             </TableRow>
