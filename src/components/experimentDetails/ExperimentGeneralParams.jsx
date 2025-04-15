@@ -12,8 +12,8 @@ import {
 } from "@mui/material";
 
 const ExperimentGeneralParams = ({ parameters }) => {
-  const renderColorRow = (color1, color2, isLast = false) => (
-    <TableRow sx={{ td: { borderBottom: isLast ? 0 : undefined } }}>
+  const renderColorRow = (color1, color2) => (
+    <TableRow>
       <TableCell>
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
@@ -25,10 +25,10 @@ const ExperimentGeneralParams = ({ parameters }) => {
             InputProps={{
               readOnly: true,
               sx: {
-                '& input': {
-                  cursor: 'default',
-                }
-              }
+                "& input": {
+                  cursor: "default",
+                },
+              },
             }}
           />
           <Box
@@ -49,10 +49,10 @@ const ExperimentGeneralParams = ({ parameters }) => {
             InputProps={{
               readOnly: true,
               sx: {
-                '& input': {
-                  cursor: 'default',
-                }
-              }
+                "& input": {
+                  cursor: "default",
+                },
+              },
             }}
           />
           <Box
@@ -69,15 +69,8 @@ const ExperimentGeneralParams = ({ parameters }) => {
     </TableRow>
   );
 
-  const renderDualNumberRow = (
-    value1,
-    label1,
-    value2,
-    label2,
-    unit,
-    isLast = false
-  ) => (
-    <TableRow sx={{ td: { borderBottom: isLast ? 0 : undefined } }}>
+  const renderDualNumberRow = (value1, label1, value2, label2, unit) => (
+    <TableRow>
       <TableCell>
         <Stack direction="row" spacing={2}>
           <TextField
@@ -88,10 +81,10 @@ const ExperimentGeneralParams = ({ parameters }) => {
             InputProps={{
               readOnly: true,
               sx: {
-                '& input': {
-                  cursor: 'default',
-                }
-              }
+                "& input": {
+                  cursor: "default",
+                },
+              },
             }}
             sx={{ flex: 1 }}
           />
@@ -103,10 +96,10 @@ const ExperimentGeneralParams = ({ parameters }) => {
             InputProps={{
               readOnly: true,
               sx: {
-                '& input': {
-                  cursor: 'default',
-                }
-              }
+                "& input": {
+                  cursor: "default",
+                },
+              },
             }}
             sx={{ flex: 1 }}
           />
@@ -116,91 +109,88 @@ const ExperimentGeneralParams = ({ parameters }) => {
   );
 
   return (
-    <Paper elevation={3}>
-      <Box sx={{ p: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          Основные параметры
-        </Typography>
-        <Table>
-          <TableBody>
-            <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 0 } }}>
-              <TableCell>Цвета</TableCell>
-            </TableRow>
-            {renderColorRow(
-              parameters.backgroundColor || "#ffffff",
-              parameters.symbolColor || "#000000",
-              false
-            )}
-            <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 0 } }}>
-              <TableCell>Поле</TableCell>
-            </TableRow>
-            {renderDualNumberRow(
-              parameters.rows || 4,
-              "Кол-во строк",
-              parameters.columns || 4,
-              "Кол-во столбцов",
-              "шт",
-              true
-            )}
-            {renderDualNumberRow(
-              parameters.horizontalPadding || 5,
-              "Горизонт. отступ",
-              parameters.verticalPadding || 5,
-              "Верт. отступ",
-              "пикс",
-              false
-            )}
-            <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 0 } }}>
-              <TableCell>Стимул</TableCell>
-            </TableRow>
-            <TableRow sx={{ td: { borderBottom: 0 } }}>
-              <TableCell>
-                <Stack direction="row" spacing={2}>
-                  <TextField
-                    label="Символ"
-                    size="small"
-                    value={parameters.symbolType || "X"}
-                    disabled
-                    sx={{ flex: 1 }}
-                    InputProps={{
-                      readOnly: true,
-                      sx: {
-                        fontSize: "1.2rem",
-                        '& input': {
-                          cursor: 'default',
-                        }
-                      }
-                    }}
-                  />
-                  <TextField
-                    label="Шрифт"
-                    size="small"
-                    value={parameters.symbolFont || "Arial"}
-                    disabled
-                    sx={{ flex: 1 }}
-                    InputProps={{
-                      readOnly: true,
-                      sx: {
-                        '& input': {
-                          cursor: 'default',
-                        }
-                      }
-                    }}
-                  />
-                </Stack>
-              </TableCell>
-            </TableRow>
-            {renderDualNumberRow(
-              parameters.symbolWidth,
-              "Ширина",
-              parameters.symbolHeight,
-              "Высота",
-              "пикс",
-              true
-            )}
-          </TableBody>
-        </Table>
-      </Box>
+    <Paper elevation={3} sx={{ pt: 0, pb: 2 }}>
+      <Table sx={{ "& td": { borderBottom: 0, pb: 0 } }}>
+        <TableBody>
+          <TableRow>
+            <TableCell>
+              <Typography variant="body1">Цвета</Typography>
+            </TableCell>
+          </TableRow>
+          {renderColorRow(
+            parameters.backgroundColor || "#ffffff",
+            parameters.symbolColor || "#000000"
+          )}
+          <TableRow>
+            <TableCell>
+              <Typography variant="body1">Поле</Typography>
+            </TableCell>
+          </TableRow>
+          {renderDualNumberRow(
+            parameters.rows || 4,
+            "Кол-во строк",
+            parameters.columns || 4,
+            "Кол-во столбцов",
+            "шт"
+          )}
+          {renderDualNumberRow(
+            parameters.horizontalPadding || 5,
+            "Горизонт. отступ",
+            parameters.verticalPadding || 5,
+            "Верт. отступ",
+            "пикс"
+          )}
+          <TableRow sx={{ td: { borderBottom: 0, paddingBottom: 0 } }}>
+            <TableCell>
+              <Typography variant="body1">Стимул</Typography>
+            </TableCell>
+          </TableRow>
+          <TableRow sx={{ td: { borderBottom: 0 } }}>
+            <TableCell>
+              <Stack direction="row" spacing={2}>
+                <TextField
+                  label="Символ"
+                  size="small"
+                  value={parameters.symbolType || "X"}
+                  disabled
+                  sx={{ flex: 1 }}
+                  InputProps={{
+                    readOnly: true,
+                    sx: {
+                      fontSize: "1.2rem",
+                      "& input": {
+                        cursor: "default",
+                      },
+                    },
+                  }}
+                />
+                <TextField
+                  label="Шрифт"
+                  size="small"
+                  value={parameters.symbolFont || "Arial"}
+                  disabled
+                  sx={{ flex: 1 }}
+                  InputProps={{
+                    readOnly: true,
+                    sx: {
+                      "& input": {
+                        cursor: "default",
+                      },
+                    },
+                  }}
+                />
+              </Stack>
+            </TableCell>
+          </TableRow>
+          {renderDualNumberRow(
+            parameters.symbolWidth,
+            "Ширина",
+            parameters.symbolHeight,
+            "Высота",
+            "пикс"
+          )}
+        </TableBody>
+      </Table>
     </Paper>
   );
 };

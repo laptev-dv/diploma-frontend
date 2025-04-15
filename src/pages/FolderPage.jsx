@@ -205,10 +205,6 @@ function FolderPage() {
             alignItems="center"
           >
             <Stack direction="row" spacing={1} alignItems='center'>
-              <IconButton onClick={() => navigate('/library')} size="small">
-                <BackIcon />
-              </IconButton>
-
               <Box>
                 <Typography variant="body2" color="text.secondary">
                   {format(new Date(folder.createdAt), "dd.MM.yyyy HH:mm", {

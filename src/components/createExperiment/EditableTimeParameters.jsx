@@ -18,8 +18,8 @@ const timeColors = {
   pause: "#FF9800",
 };
 
-const baseHeight = 16
-const maxHeight = 80
+const baseHeight = 12;
+const maxHeight = 40;
 
 function EditableTimeParameters({ parameters, onParamChange }) {
   // Конвертер единиц
@@ -126,13 +126,7 @@ function EditableTimeParameters({ parameters, onParamChange }) {
   };
 
   // Рендер строки таблицы с обработчиками наведения
-  const renderTableRow = (
-    label,
-    value,
-    color = null,
-    hoverKey = null,
-    isLast = false
-  ) => {
+  const renderTableRow = (label, value, color = null, hoverKey = null) => {
     return (
       <TableRow
         onMouseEnter={() => hoverKey && setHoveredItem(hoverKey)}
@@ -142,7 +136,7 @@ function EditableTimeParameters({ parameters, onParamChange }) {
             backgroundColor: hoverKey ? "rgba(0, 0, 0, 0.04)" : "inherit",
             cursor: hoverKey ? "pointer" : "default",
           },
-          td : { borderBottom: 0, paddingBottom: 1 },
+          td: { borderBottom: 0, paddingBottom: 1 },
         }}
       >
         <TableCell>
@@ -190,14 +184,14 @@ function EditableTimeParameters({ parameters, onParamChange }) {
         }}
         gap={2}
       >
-        <Box sx={{ height: `${maxHeight}px`, alignContent: 'end' }}>{renderTimeBar()}</Box>
+        <Box sx={{ height: `${maxHeight}px`, alignContent: "end" }}>
+          {renderTimeBar()}
+        </Box>
 
         <Stack
           sx={{ width: "100%" }}
           direction="column"
           justifyContent="space-between"
-          spacing={1}
-          mb={2}
         >
           <Table>
             <TableBody>
@@ -223,7 +217,7 @@ function EditableTimeParameters({ parameters, onParamChange }) {
           </Table>
 
           <Divider />
-  
+
           <Table>
             <TableBody>
               <TableRow
@@ -234,7 +228,7 @@ function EditableTimeParameters({ parameters, onParamChange }) {
                     backgroundColor: "rgba(0, 0, 0, 0.04)",
                     cursor: "pointer",
                   },
-                  td : { borderBottom: 0, paddingBottom: 1 }
+                  td: { borderBottom: 0, paddingBottom: 1 },
                 }}
               >
                 <TableCell colSpan={2}>Общее время цикла</TableCell>
@@ -248,7 +242,7 @@ function EditableTimeParameters({ parameters, onParamChange }) {
                     backgroundColor: "rgba(0, 0, 0, 0.04)",
                     cursor: "pointer",
                   },
-                  td : { borderBottom: 0, paddingBottom: 1 }
+                  td: { borderBottom: 0, paddingBottom: 1 },
                 }}
               >
                 <TableCell colSpan={2}>Время на ответ</TableCell>

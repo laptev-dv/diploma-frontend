@@ -76,7 +76,7 @@ function ExperimentParameters({ parameters }) {
                 display: "flex",
                 flexDirection: "column",
                 gap: 3,
-                minWidth: 394,
+                minWidth: 320,
               }}
             >
               {/* Основные параметры эксперимента */}

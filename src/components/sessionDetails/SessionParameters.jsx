@@ -59,7 +59,7 @@ function SessionParameters({ sessionData }) {
             <Box
               sx={{
                 flex: 3,
-                minWidth: 320,
+                minWidth: 240,
                 position: "sticky",
                 top: 80,
                 height: "calc(100vh - 200px)"
@@ -78,7 +78,7 @@ function SessionParameters({ sessionData }) {
                 display: "flex",
                 flexDirection: "column",
                 gap: 3,
-                minWidth: 394,
+                minWidth: 320,
               }}
             >
               {/* Основные параметры эксперимента */}

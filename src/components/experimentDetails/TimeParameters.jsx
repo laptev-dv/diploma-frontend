@@ -18,8 +18,8 @@ const timeColors = {
   pause: "#FF9800",
 };
 
-const baseHeight = 16;
-const maxHeight = 80;
+const baseHeight = 12;
+const maxHeight = 40;
 
 function TimeParameters({ parameters }) {
   // Получаем параметры с дефолтными значениями
@@ -181,8 +181,6 @@ function TimeParameters({ parameters }) {
           sx={{ width: "100%" }}
           direction="column"
           justifyContent="space-between"
-          spacing={1}
-          mb={2}
         >
           <Table>
             <TableBody>

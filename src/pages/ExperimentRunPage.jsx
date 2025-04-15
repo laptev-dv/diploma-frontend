@@ -5,7 +5,6 @@ import FullscreenStimulus from '../components/FullscreenStimulus';
 import ExperimentProgressBar from '../components/ExperimentProgressBar';
 import UserInputDisplay from '../components/UserInputDisplay';
 import { styled, keyframes } from '@mui/system';
-import axios from "axios";
 import { sessionApi } from "../api/sessionApi"
 
 const MemoizedStimulus = React.memo(FullscreenStimulus);

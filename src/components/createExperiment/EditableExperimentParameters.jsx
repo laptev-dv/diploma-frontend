@@ -110,7 +110,7 @@ function EditableExperimentParameters({
         <Box sx={{ display: "flex", gap: 3 }}>
           <Box
             sx={{
-              flex: 1,
+              flex: 2,
               minWidth: 240,
               position: "sticky",
               top: 80,
@@ -132,11 +132,11 @@ function EditableExperimentParameters({
 
           <Box
             sx={{
-              flex: 1,
+              flex: 3,
               display: "flex",
               flexDirection: "column",
               gap: 3,
-              minWidth: 394,
+              minWidth: 320,
             }}
           >
             <EditableExperimentGeneralParams
@@ -157,7 +157,7 @@ function EditableExperimentParameters({
       </Stack>
       <Box
         sx={{
-          flex: 1,
+          flex: 3,
           position: "sticky",
           top: 80,
           height: "calc(100vh - 168px)",

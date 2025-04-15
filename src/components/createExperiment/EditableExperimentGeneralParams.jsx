@@ -15,13 +15,12 @@ import {
 import ColorPickerButton from "../ColorPickerButton";
 import FontSelect from "./FontSelect";
 import AsciiSymbolSelect from "./AsciiSymbolSelect";
-import LockIcon from "@mui/icons-material/Lock";
-import LockOpenIcon from "@mui/icons-material/LockOpen";
+import Link from "@mui/icons-material/Link";
+import LinkOff from "@mui/icons-material/LinkOff";
 
 const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
   const [aspectRatioLocked, setAspectRatioLocked] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(1);
-  const [naturalSize, setNaturalSize] = useState({ width: 0, height: 0 });
 
   // Обновляем натуральные размеры при изменении шрифта или символа
   useEffect(() => {
@@ -37,8 +36,6 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
     const width = temp.offsetWidth;
     const height = temp.offsetHeight;
     document.body.removeChild(temp);
-
-    setNaturalSize({ width, height });
 
     // Автоматически включаем блокировку при изменении шрифта/символа
     if (!aspectRatioLocked) {
@@ -75,14 +72,6 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
   const toggleAspectRatioLock = () => {
     const newLockedState = !aspectRatioLocked;
 
-    if (newLockedState) {
-      // При включении блокировки пересчитываем высоту
-      const newHeight = Math.round(parameters.symbolWidth / aspectRatio);
-      onParamChange({
-        symbolHeight: newHeight,
-      });
-    }
-
     // Обновляем соотношение только при выключении блокировки
     if (!newLockedState) {
       setAspectRatio(parameters.symbolWidth / parameters.symbolHeight);
@@ -91,8 +80,8 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
     setAspectRatioLocked(newLockedState);
   };
 
-  const renderColorRow = (field1, color1, field2, color2, isLast = false) => (
-    <TableRow sx={{ "& td": { borderBottom: isLast ? 0 : undefined } }}>
+  const renderColorRow = (field1, color1, field2, color2) => (
+    <TableRow>
       <TableCell>
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
@@ -130,14 +119,13 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
     value2,
     label2,
     unit,
-    isLast = false,
     min1 = null,
     max1 = null,
     min2 = null,
     max2 = null,
     extraContent = null
   ) => (
-    <TableRow sx={{ "& td": { borderBottom: isLast ? 0 : undefined } }}>
+    <TableRow>
       <TableCell>
         <Stack direction="row" spacing={2} alignItems="center">
           <TextField
@@ -154,6 +142,7 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
             inputProps={{ min: min1, max: max1 }}
             sx={{ flex: 1 }}
           />
+          {extraContent}
           <TextField
             label={`${label2}${unit ? `, ${unit}` : ""}`}
             size="small"
@@ -168,127 +157,118 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
             inputProps={{ min: min2, max: max2 }}
             sx={{ flex: 1 }}
           />
-          {extraContent}
         </Stack>
       </TableCell>
     </TableRow>
   );
 
   return (
-    <Paper elevation={3}>
-      <Box sx={{ p: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          Основные параметры
-        </Typography>
+    <Paper elevation={2} sx={{ pt: 0, pb: 3 }}>
+      <Table sx={{ "& td": { borderBottom: 0, pb: 0 } }}>
+        <TableBody>
+          <TableRow>
+            <TableCell>
+              <Typography variant="body1">Цвета</Typography>
+            </TableCell>
+          </TableRow>
 
-        <Table>
-          <TableBody>
-            <TableRow sx={{ "& td": { borderBottom: 0, paddingBottom: 0 } }}>
-              <TableCell>Цвета</TableCell>
-            </TableRow>
+          {renderColorRow(
+            "backgroundColor",
+            parameters.backgroundColor,
+            "symbolColor",
+            parameters.symbolColor
+          )}
 
-            {renderColorRow(
-              "backgroundColor",
-              parameters.backgroundColor,
-              "symbolColor",
-              parameters.symbolColor
-            )}
+          <TableRow>
+            <TableCell>
+              <Typography variant="body1">Поле</Typography>
+            </TableCell>
+          </TableRow>
 
-            <TableRow sx={{ "& td": { borderBottom: 0, paddingBottom: 0 } }}>
-              <TableCell>Поле</TableCell>
-            </TableRow>
+          {renderDualNumberRow(
+            "rows",
+            parameters.rows,
+            "Кол-во строк",
+            "columns",
+            parameters.columns,
+            "Кол-во столбцов",
+            "шт",
+            1,
+            9,
+            1,
+            9
+          )}
 
-            {renderDualNumberRow(
-              "rows",
-              parameters.rows,
-              "Кол-во строк",
-              "columns",
-              parameters.columns,
-              "Кол-во столбцов",
-              "шт",
-              false,
-              1,
-              9,
-              1,
-              9
-            )}
+          {renderDualNumberRow(
+            "horizontalPadding",
+            parameters.horizontalPadding,
+            "Горизонт. отступ",
+            "verticalPadding",
+            parameters.verticalPadding,
+            "Верт. отступ",
+            "пикс",
+            0,
+            null,
+            0,
+            null
+          )}
 
-            {renderDualNumberRow(
-              "horizontalPadding",
-              parameters.horizontalPadding,
-              "Горизонт. отступ",
-              "verticalPadding",
-              parameters.verticalPadding,
-              "Верт. отступ",
-              "пикс",
-              false,
-              0,
-              null,
-              0,
-              null
-            )}
+          <TableRow sx={{ "& td": { borderBottom: 0, paddingBottom: 0 } }}>
+            <TableCell>
+              <Typography variant="body1">Стимул</Typography>
+            </TableCell>
+          </TableRow>
 
-            <TableRow sx={{ "& td": { borderBottom: 0, paddingBottom: 0 } }}>
-              <TableCell>Стимул</TableCell>
-            </TableRow>
-
-            <TableRow sx={{ "& td": { borderBottom: 0 } }}>
-              <TableCell>
-                <Stack direction="row" spacing={2}>
-                  <AsciiSymbolSelect
-                    value={parameters.symbolType}
-                    onChange={(newSymbol) =>
-                      onParamChange({ symbolType: newSymbol })
-                    }
-                    fontFamily={parameters.symbolFont}
-                  />
-                  <FontSelect
-                    value={parameters.symbolFont}
-                    onChange={(newFont) =>
-                      onParamChange({ symbolFont: newFont })
-                    }
-                  />
-                </Stack>
-              </TableCell>
-            </TableRow>
-
-            {renderDualNumberRow(
-              "symbolWidth",
-              parameters.symbolWidth,
-              "Ширина",
-              "symbolHeight",
-              parameters.symbolHeight,
-              "Высота",
-              "пикс",
-              true,
-              1,
-              null,
-              1,
-              null,
-              <IconButton
-                onClick={toggleAspectRatioLock}
-                color={aspectRatioLocked ? "primary" : "default"}
-                sx={{ ml: 1 }}
-              >
-                <Tooltip
-                  title={
-                    aspectRatioLocked
-                      ? "Сохранять пропорции"
-                      : "Не сохранять пропорции"
+          <TableRow sx={{ "& td": { borderBottom: 0 } }}>
+            <TableCell>
+              <Stack direction="row" spacing={2}>
+                <AsciiSymbolSelect
+                  value={parameters.symbolType}
+                  onChange={(newSymbol) =>
+                    onParamChange({ symbolType: newSymbol })
                   }
-                  arrow
-                >
-                  {aspectRatioLocked ? (
-                    <LockIcon fontSize="small" />
-                  ) : (
-                    <LockOpenIcon fontSize="small" />
-                  )}
-                </Tooltip>
-              </IconButton>
-            )}
-          </TableBody>
-        </Table>
-      </Box>
+                  fontFamily={parameters.symbolFont}
+                />
+                <FontSelect
+                  value={parameters.symbolFont}
+                  onChange={(newFont) => onParamChange({ symbolFont: newFont })}
+                />
+              </Stack>
+            </TableCell>
+          </TableRow>
+
+          {renderDualNumberRow(
+            "symbolWidth",
+            parameters.symbolWidth,
+            "Ширина",
+            "symbolHeight",
+            parameters.symbolHeight,
+            "Высота",
+            "пикс",
+            1,
+            null,
+            1,
+            null,
+            <IconButton
+              onClick={toggleAspectRatioLock}
+              color={aspectRatioLocked ? "primary" : "default"}
+              sx={{ ml: 1 }}
+              size="medium"
+            >
+              <Tooltip
+                title={
+                  aspectRatioLocked
+                    ? "Сохранять пропорции"
+                    : "Не сохранять пропорции"
+                }
+                arrow
+              >
+                {aspectRatioLocked ? <Link /> : <LinkOff />}
+              </Tooltip>
+            </IconButton>
+          )}
+        </TableBody>
+      </Table>
     </Paper>
   );
 };
