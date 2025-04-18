@@ -9,7 +9,6 @@ import {
   DialogContent,
   DialogActions,
   Stack,
-  Chip,
 } from "@mui/material";
 import {
   Fullscreen as FullscreenIcon,
@@ -24,11 +23,6 @@ const getBrightness = (hexColor) => {
   const g = parseInt(color.substring(2, 4), 16);
   const b = parseInt(color.substring(4, 6), 16);
   return (r * 299 + g * 587 + b * 114) / 1000;
-};
-
-const formatAnswer = (answer) => {
-  if (!answer) return "Нет ответа";
-  return `Строка ${answer.row}, Колонка ${answer.column}`;
 };
 
 const SessionDetailsPreview = ({ parameters }) => {

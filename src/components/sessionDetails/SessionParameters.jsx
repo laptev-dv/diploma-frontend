@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Box, Stack } from "@mui/material";
 import TimeParameters from "../experimentDetails/TimeParameters";
-import FullscreenPreview from "../experimentDetails/FullscreenPreview";
 import ExperimentGeneralParams from "../experimentDetails/ExperimentGeneralParams";
 import SeriesSettings from "../experimentDetails/SeriesSettings";
 import SessionResults from "./SessionResults";

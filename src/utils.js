@@ -15,7 +15,9 @@ export function formatDuration(ms) {
     resultString += `${seconds} c `;
   }
 
-  resultString += `${milliseconds.toString()} мс`;
+  if (seconds === 0 || milliseconds > 0) {
+    resultString += `${milliseconds.toString()} мс`;
+  }
 
   return resultString;
 }
