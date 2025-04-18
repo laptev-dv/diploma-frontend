@@ -8,11 +8,14 @@ export function formatDuration(ms) {
   let resultString = "";
 
   if (minutes > 0) {
-    resultString += `${minutes} мин: `;
+    resultString += `${minutes} м `;
   }
 
-  resultString += `${seconds}.`;
-  resultString += `${milliseconds.toString().padStart(3, "0")} сек`;
+  if (seconds > 0) {
+    resultString += `${seconds} c `;
+  }
+
+  resultString += `${milliseconds.toString()} мс`;
 
   return resultString;
 }

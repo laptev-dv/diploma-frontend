@@ -10,16 +10,7 @@ import SessionDetailsPreview from "./SessionDetailsPreview";
 function SessionParameters({ sessionData }) {
   const { experiment, results } = sessionData;
 
-  const [fullscreenOpen, setFullscreenOpen] = useState(false);
   const [activeResultId, setActiveResultId] = useState(results[0]?._id);
-
-  const handleFullscreenOpen = () => {
-    setFullscreenOpen(true);
-  };
-
-  const handleFullscreenClose = () => {
-    setFullscreenOpen(false);
-  };
 
   const handleTaskClick = (resultId) => {
     setActiveResultId(resultId);
@@ -29,12 +20,6 @@ function SessionParameters({ sessionData }) {
 
   return (
     <>
-      <FullscreenPreview
-        open={fullscreenOpen}
-        onClose={handleFullscreenClose}
-        parameters={activeResult.task}
-      />
-
       <Stack direction="row" gap={3}>
         <Stack
           direction="column"
@@ -110,7 +95,6 @@ function SessionParameters({ sessionData }) {
         >
           <SessionDetailsPreview
             parameters={activeResult}
-            onFullscreen={handleFullscreenOpen}
           />
         </Box>
       </Stack>

@@ -14,13 +14,9 @@ import {
 import {
   Fullscreen as FullscreenIcon,
   Close as CloseIcon,
-  NavigateBefore as PrevIcon,
-  NavigateNext as NextIcon,
-  Check as CheckIcon,
-  Clear as ClearIcon,
 } from "@mui/icons-material";
 import StimulusPreview from "../shared/StimulusPreview";
-import { formatDuration } from '../../utils'
+import PresentationNavigation from './PresentationNavigation'
 
 const getBrightness = (hexColor) => {
   const color = hexColor.replace(/^#/, "");
@@ -60,10 +56,6 @@ const SessionDetailsPreview = ({ parameters }) => {
   };
 
   const currentPresentation = parameters.presentations[currentPresentationIndex];
-  const isCorrect = currentPresentation?.userAnswer?.row ===
-    currentPresentation?.correctAnswer?.row &&
-    currentPresentation?.userAnswer?.column ===
-    currentPresentation?.correctAnswer?.column;
 
   const backgroundColor = parameters.task.backgroundColor || "#ffffff";
   const isDarkBackground = getBrightness(backgroundColor) < 128;
@@ -122,57 +114,37 @@ const SessionDetailsPreview = ({ parameters }) => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
+            justifyContent: "center"
           }}
         >
           <StimulusPreview
             parameters={{
-              ...parameters.task,
-              targetRow: currentPresentation?.correctAnswer?.row,
-              targetColumn: currentPresentation?.correctAnswer?.column,
+              ...parameters.task
+            }}
+            hiddenPosition={{
+              row: currentPresentation.correctAnswer?.row,
+              col: currentPresentation.correctAnswer?.column,
             }}
           />
-
-          <Stack spacing={2} sx={{ mt: 4, width: "100%", maxWidth: 400 }}>
-            <Stack direction="row" justifyContent="center" spacing={2}>
-              <IconButton onClick={handlePrev} sx={{ color: textColor }}>
-                <PrevIcon />
-              </IconButton>
-              <Typography variant="body1" color={textColor}>
-                {currentPresentationIndex + 1}/{parameters.presentations.length}
-              </Typography>
-              <IconButton onClick={handleNext} sx={{ color: textColor }}>
-                <NextIcon />
-              </IconButton>
-            </Stack>
-
-            <Box>
-              <Typography variant="subtitle2" color={textColor}>
-                Правильный ответ:
-              </Typography>
-              <Typography variant="body1" color={textColor}>
-                {formatAnswer(currentPresentation?.correctAnswer)}
-              </Typography>
-            </Box>
-
-            <Box>
-              <Typography variant="subtitle2" color={textColor}>
-                Ответ пользователя:
-              </Typography>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Typography variant="body1" color={textColor}>
-                  {formatAnswer(currentPresentation.userAnswer)}
-                </Typography>
-                {currentPresentation.userAnswer && (
-                  <Chip
-                    size="small"
-                    label={isCorrect ? "Правильно" : "Ошибка"}
-                    color={isCorrect ? "success" : "error"}
-                    icon={isCorrect ? <CheckIcon /> : <ClearIcon />}
-                  />
-                )}
-              </Stack>
-            </Box>
-          </Stack>
+          <Paper
+          elevation={2}
+            sx={{
+              p: 1,
+              position: "fixed",
+              bottom: 20,
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 1000,
+            }}
+          >
+            <PresentationNavigation
+              currentPresentation={currentPresentation}
+              currentIndex={currentPresentationIndex}
+              totalPresentations={parameters.presentations.length}
+              onPrev={handlePrev}
+              onNext={handleNext}
+            />
+          </Paper>
         </DialogContent>
       </Dialog>
 
@@ -209,6 +181,7 @@ const SessionDetailsPreview = ({ parameters }) => {
               height: "100%",
               alignItems: "center",
               justifyContent: "center",
+              mb: 3,
             }}
           >
             <StimulusPreview
@@ -219,55 +192,13 @@ const SessionDetailsPreview = ({ parameters }) => {
               }}
             />
           </Box>
-          <Stack spacing={2} sx={{ mt: 2 }}>
-            <Stack
-              direction="row"
-              justifyContent="center"
-              spacing={2}
-              alignItems="center"
-            >
-              <IconButton onClick={handlePrev}>
-                <PrevIcon />
-              </IconButton>
-              <Typography variant="body1">
-                {currentPresentationIndex + 1}/{parameters.presentations.length}
-              </Typography>
-              <IconButton onClick={handleNext}>
-                <NextIcon />
-              </IconButton>
-            </Stack>
-
-            <Box>
-              <Typography variant="subtitle2">Время на ответ:</Typography>
-              <Typography variant="body1">
-                {formatDuration(currentPresentation.responseTime) || "Нет данных"}
-              </Typography>
-            </Box>
-
-            <Box>
-              <Typography variant="subtitle2">Правильный ответ:</Typography>
-              <Typography variant="body1">
-                {formatAnswer(currentPresentation.correctAnswer)}
-              </Typography>
-            </Box>
-
-            <Box>
-              <Typography variant="subtitle2">Ответ пользователя:</Typography>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Typography variant="body1">
-                  {formatAnswer(currentPresentation.userAnswer)}
-                </Typography>
-                {currentPresentation.userAnswer && (
-                  <Chip
-                    size="small"
-                    label={isCorrect ? "Правильно" : "Ошибка"}
-                    color={isCorrect ? "success" : "error"}
-                    icon={isCorrect ? <CheckIcon /> : <ClearIcon />}
-                  />
-                )}
-              </Stack>
-            </Box>
-          </Stack>
+          <PresentationNavigation
+            currentPresentation={currentPresentation}
+            currentIndex={currentPresentationIndex}
+            totalPresentations={parameters.presentations.length}
+            onPrev={handlePrev}
+            onNext={handleNext}
+          />
         </Box>
       </Paper>
     </>

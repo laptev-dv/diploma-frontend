@@ -17,7 +17,6 @@ const FullscreenPreview = ({ open, onClose, parameters }) => {
         onClose={onClose}
         PaperProps={{
           sx: {
-            backgroundColor: parameters.backgroundColor,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -46,6 +45,7 @@ const FullscreenPreview = ({ open, onClose, parameters }) => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            alignContent: "center",
             width: "100%",
             height: "100%",
             p: 0,
@@ -56,6 +56,8 @@ const FullscreenPreview = ({ open, onClose, parameters }) => {
             sx={{
               display: 'flex',
               alignItems: 'center',
+              width: "100%",
+              height: "100%",  
             }}
           >
             <StimulusPreview parameters={parameters}/>

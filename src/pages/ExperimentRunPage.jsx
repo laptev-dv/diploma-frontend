@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Box } from '@mui/material';
-import FullscreenStimulus from '../components/FullscreenStimulus';
-import ExperimentProgressBar from '../components/ExperimentProgressBar';
-import UserInputDisplay from '../components/UserInputDisplay';
-import { styled, keyframes } from '@mui/system';
-import { sessionApi } from "../api/sessionApi"
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { Box } from "@mui/material";
+import FullscreenStimulus from "../components/FullscreenStimulus";
+import ExperimentProgressBar from "../components/ExperimentProgressBar";
+import UserInputDisplay from "../components/UserInputDisplay";
+import { styled, keyframes } from "@mui/system";
+import { sessionApi } from "../api/sessionApi";
 
-const MemoizedStimulus = React.memo(FullscreenStimulus);
 const TICK_INTERVAL = 100;
 
 // Анимация виньетки
@@ -19,12 +18,12 @@ const vignettePulse = keyframes`
 
 // Стилизованный компонент для виньетки
 const VignetteOverlay = styled(Box)(({ color }) => ({
-  position: 'fixed',
+  position: "fixed",
   top: 0,
   left: 0,
   right: 0,
   bottom: 0,
-  pointerEvents: 'none',
+  pointerEvents: "none",
   zIndex: 1000,
   boxShadow: `inset 0 0 50px 20px ${color}`,
   animation: `${vignettePulse} 0.8s ease-out`,
@@ -50,7 +49,9 @@ const ExperimentRunPage = () => {
   const [isCompleting, setIsCompleting] = useState(false);
   const [currentResponseTime, setCurrentResponseTime] = useState(null);
   const [hiddenPosition, setHiddenPosition] = useState(null);
-  const [activeTaskIndex, setActiveTaskIndex] = useState((experiment?.initialTaskNumber - 1) || 0);
+  const [activeTaskIndex, setActiveTaskIndex] = useState(
+    experiment?.initialTaskNumber - 1 || 0
+  );
   const [presentationCount, setPresentationCount] = useState(0);
   const [seriesTimeLeft, setSeriesTimeLeft] = useState(seriesTime);
   const [shouldCompleteAfterCurrentTask, setShouldCompleteAfterCurrentTask] =
@@ -109,7 +110,7 @@ const ExperimentRunPage = () => {
           return;
         }
 
-        const fonts = experiment.tasks.map(task => task.symbolFont);
+        const fonts = experiment.tasks.map((task) => task.symbolFont);
 
         localStorage.setItem(
           CACHE_KEY,
@@ -182,7 +183,7 @@ const ExperimentRunPage = () => {
   const completeExperiment = useCallback(async () => {
     setIsCompleting(true);
     setTimerIsRunning(false);
-    
+
     try {
       const lastExecution = saveTaskExecution();
       const finalStats = [...taskResults, lastExecution];
@@ -259,7 +260,9 @@ const ExperimentRunPage = () => {
     }
 
     const presentationResult = {
-      responseTime: currentResponseTime || currentTask.responseTime + currentTask.stimulusTime,
+      responseTime:
+        currentResponseTime ||
+        currentTask.responseTime + currentTask.stimulusTime,
       correctAnswer: {
         row: hiddenPosition.row + 1,
         column: hiddenPosition.col + 1,
@@ -286,7 +289,7 @@ const ExperimentRunPage = () => {
         } else if (currentPhase === "response") {
           responseTime += currentTask.responseTime - phaseTimeLeft;
         }
-        console.log("set", currentPhase, responseTime)
+        console.log("set", currentPhase, responseTime);
         setCurrentResponseTime(responseTime);
         setCurrentPhase("response");
         setPhaseTimeLeft(0);
@@ -371,9 +374,9 @@ const ExperimentRunPage = () => {
 
     const timer = setInterval(() => {
       setPhaseTimeLeft((prev) => {
-        console.log(prev - TICK_INTERVAL)
-        return prev - TICK_INTERVAL
-    });
+        console.log(prev - TICK_INTERVAL);
+        return prev - TICK_INTERVAL;
+      });
     }, TICK_INTERVAL);
 
     return () => clearInterval(timer);
@@ -444,10 +447,9 @@ const ExperimentRunPage = () => {
         onInterrupt={handleInterrupt}
       />
 
-      <MemoizedStimulus
+      <FullscreenStimulus
         parameters={currentTask}
         hiddenPosition={currentPhase === "stimulus" ? hiddenPosition : null}
-        showHidden={currentPhase !== "stimulus"}
       />
 
       <UserInputDisplay userInput={userInput} />

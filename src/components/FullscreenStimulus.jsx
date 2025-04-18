@@ -57,7 +57,6 @@ const FullscreenStimulus = ({ parameters, hiddenPosition }) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'background.default',
         zIndex: 1000
       }}
     >

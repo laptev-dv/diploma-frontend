@@ -19,8 +19,9 @@ import Link from "@mui/icons-material/Link";
 import LinkOff from "@mui/icons-material/LinkOff";
 
 const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
-  const [aspectRatioLocked, setAspectRatioLocked] = useState(false);
   const [aspectRatio, setAspectRatio] = useState(1);
+
+  const aspectRatioLocked = parameters.aspectRatioLocked
 
   // Обновляем натуральные размеры при изменении шрифта или символа
   useEffect(() => {
@@ -37,19 +38,22 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
     const height = temp.offsetHeight;
     document.body.removeChild(temp);
 
-    // Автоматически включаем блокировку при изменении шрифта/символа
-    if (!aspectRatioLocked) {
-      setAspectRatioLocked(true);
-    }
 
     // Пересчитываем соотношение сторон
     const newAspectRatio = width / height;
     setAspectRatio(newAspectRatio);
 
-    // Обновляем высоту в соответствии с новой пропорцией
-    onParamChange({
+    let newParams = {
       symbolHeight: Math.round(parameters.symbolWidth / newAspectRatio),
-    });
+    }
+
+    // Автоматически включаем блокировку при изменении шрифта/символа
+    if (!aspectRatioLocked) {
+      newParams.aspectRatioLocked = true;
+    }
+    
+    // Обновляем высоту в соответствии с новой пропорцией
+    onParamChange(newParams);
   }, [parameters.symbolFont, parameters.symbolType]);
 
   // Обработчик изменений параметров
@@ -77,7 +81,9 @@ const EditableExperimentGeneralParams = ({ parameters, onParamChange }) => {
       setAspectRatio(parameters.symbolWidth / parameters.symbolHeight);
     }
 
-    setAspectRatioLocked(newLockedState);
+    onParamChange({
+      aspectRatioLocked: newLockedState,
+    });
   };
 
   const renderColorRow = (field1, color1, field2, color2) => (
