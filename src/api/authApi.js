@@ -74,5 +74,25 @@ export const authApi = {
     } catch (error) {
       throw new Error(error.response?.data?.message);
     }
+  },
+  
+  // Запрос на сброс пароля
+  requestPasswordReset: async (email) => {
+    try {
+      await axios.post('/auth/request-password-reset', { email });
+      return { data: { success: true } };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Ошибка запроса сброса пароля');
+    }
+  },
+
+  // Сброс пароля с токеном
+  resetPassword: async ({ token, newPassword }) => {
+    try {
+      await axios.post('/auth/reset-password', { token, newPassword });
+      return { data: { success: true } };
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Ошибка сброса пароля');
+    }
   }
 };

@@ -14,6 +14,8 @@ import ExperimentPage from "./pages/ExperimentPage";
 import SessionsListPage from "./pages/SessionsListPage";
 import SessionDetailPage from "./pages/SessionDetailPage";
 import ExperimentRunPage from "./pages/ExperimentRunPage";
+import RequestResetPage from "./pages/RequestResetPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AuthRedirectRoute from "./components/AuthRedirectRoute";
 
@@ -27,6 +29,8 @@ function App() {
             <Route index element={<LoginPage />} />
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<RegisterPage />} />
+            <Route path="request-reset" element={<RequestResetPage />} />
+            <Route path="reset-password" element={<ResetPasswordPage />} />
           </Route>
         </Route>
 
