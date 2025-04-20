@@ -218,13 +218,13 @@ function ExperimentPage() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
+    <Container maxWidth="xl" sx={{ py: 3, pb: 7 }}>
       <ExperimentBreadcrumbs folderId={folderId}/>
 
-      <Box sx={{ pb: 5 }}>
+      <Stack gap={2}>
         <Paper
           elevation={2}
-          sx={{ borderRadius: 2, overflow: "hidden", mb: 3 }}
+          sx={{ borderRadius: 2, overflow: "hidden"}}
         >
           {/* Шапка с навигацией и названием */}
           <Box
@@ -286,7 +286,7 @@ function ExperimentPage() {
                 <CircularProgress />
               </Box>
             ) : sessions.length > 0 ? (
-              <>
+              <> 
                 <Typography gutterBottom>История сессий</Typography>
                 <List disablePadding>
                   {sessions.slice(0, 3).map((session, index) => (
@@ -422,7 +422,7 @@ function ExperimentPage() {
             </Button>
           </DialogActions>
         </Dialog>
-      </Box>
+      </Stack>
     </Container>
   );
 }

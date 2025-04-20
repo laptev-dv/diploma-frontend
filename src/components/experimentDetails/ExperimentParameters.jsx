@@ -9,7 +9,9 @@ import ExperimentTasks from "./ExperimentTasks";
 
 function ExperimentParameters({ parameters }) {
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
-  const [activeTaskId, setActiveTaskId] = useState(parameters.tasks[0]?._id || null);
+  const [activeTaskId, setActiveTaskId] = useState(
+    parameters.tasks[0]?._id || null
+  );
 
   const handleFullscreenOpen = () => {
     setFullscreenOpen(true);
@@ -23,7 +25,9 @@ function ExperimentParameters({ parameters }) {
     setActiveTaskId(taskId);
   };
 
-  const activeTask = parameters.tasks.find(task => task._id === activeTaskId) || parameters.tasks[0];
+  const activeTask =
+    parameters.tasks.find((task) => task._id === activeTaskId) ||
+    parameters.tasks[0];
 
   return (
     <>
@@ -33,34 +37,36 @@ function ExperimentParameters({ parameters }) {
         parameters={activeTask}
       />
 
-      <Stack direction="row" gap={3}>
+      <Stack direction="row" gap={2}>
         <Stack
           direction="column"
-          gap={3}
+          gap={2}
           sx={{
             flex: 1,
             maxWidth: 900,
           }}
         >
           {/* Блок серии и режима работы */}
-          <SeriesSettings parameters={{
-            mode: parameters.mode,
-            initialTaskNumber: parameters.initialTaskNumber,
-            presentationsPerTask: parameters.presentationsPerTask,
-            seriesTime: parameters.seriesTime,
-            efficiencyMin: parameters.efficiencyMin,
-            efficiencyMax: parameters.efficiencyMax,
-          }} />
+          <SeriesSettings
+            parameters={{
+              mode: parameters.mode,
+              initialTaskNumber: parameters.initialTaskNumber,
+              presentationsPerTask: parameters.presentationsPerTask,
+              seriesTime: parameters.seriesTime,
+              efficiencyMin: parameters.efficiencyMin,
+              efficiencyMax: parameters.efficiencyMax,
+            }}
+          />
 
-          <Box sx={{ display: "flex", gap: 3 }}>
+          <Box sx={{ display: "flex", gap: 2 }}>
             {/* Блок задач */}
             <Box
               sx={{
                 flex: 3,
                 minWidth: 240,
                 position: "sticky",
-                top: 80,
-                height: "calc(100vh - 200px)"
+                top: 16,
+                height: "calc(100vh - 130px)",
               }}
             >
               <ExperimentTasks
@@ -75,7 +81,7 @@ function ExperimentParameters({ parameters }) {
                 flex: 4,
                 display: "flex",
                 flexDirection: "column",
-                gap: 3,
+                gap: 2,
                 minWidth: 320,
               }}
             >
@@ -99,9 +105,9 @@ function ExperimentParameters({ parameters }) {
           sx={{
             flex: 1,
             position: "sticky",
-            top: 80,
-            height: "calc(100vh - 168px)",
-            minWidth: 200
+            minWidth: 200,
+            top: 16,
+            height: "calc(100vh - 98px)",
           }}
         >
           <ExperimentPreview

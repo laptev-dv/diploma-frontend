@@ -126,7 +126,7 @@ function SessionDetailPage() {
       : 0;
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3, pb: 8 }}>
+    <Container maxWidth="xl" sx={{ py: 3, pb: 7 }}>
         <SessionBreadCrumbs experimentId={sessionData.experiment._id}/>
 
         <SessionInfo

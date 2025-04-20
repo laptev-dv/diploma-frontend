@@ -121,42 +121,39 @@ function CreateExperimentPage() {
       maxWidth="xl"
       sx={{
         p: 3,
-        pb: 8,
+        pb: 7,
       }}
     >
       <ExperimentBreadcrumbs folderId={folderId} lastName="Новый эксперимент" />
 
-        <TextField
-          fullWidth
-          label="Название эксперимента"
-          variant="outlined"
-          value={experiment.experimentName}
-          onChange={(event) =>
-            setExperiment({
-              ...experiment,
-              experimentName: event.target.value,
-            })
-          }
-          sx={{
-            mb: 4,
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "8px",
-            },
-          }}
-          inputProps={{
-            style: {
-              fontSize: "1.2rem",
-              padding: "12px 14px",
-            },
-          }}
-        />
+      <TextField
+        fullWidth
+        label="Название эксперимента"
+        variant="outlined"
+        value={experiment.experimentName}
+        onChange={(event) =>
+          setExperiment({
+            ...experiment,
+            experimentName: event.target.value,
+          })
+        }
+        sx={{
+          mb: 2,
+        }}
+        inputProps={{
+          style: {
+            fontSize: "1.2rem",
+            padding: "12px 14px",
+          },
+        }}
+      />
 
-        <EditableExperimentParameters
-          tasks={tasks}
-          onTasksChange={handleTasksChange}
-          experiment={experiment}
-          onExperimentChange={handleExperimentChange}
-        />
+      <EditableExperimentParameters
+        tasks={tasks}
+        onTasksChange={handleTasksChange}
+        experiment={experiment}
+        onExperimentChange={handleExperimentChange}
+      />
 
       {/* Фиксированная панель внизу */}
       <AppBar

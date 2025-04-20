@@ -15,38 +15,41 @@ function SessionParameters({ sessionData }) {
     setActiveResultId(resultId);
   };
 
-  const activeResult = results.find(result => result._id === activeResultId) || results[0];
+  const activeResult =
+    results.find((result) => result._id === activeResultId) || results[0];
 
   return (
     <>
-      <Stack direction="row" gap={3}>
+      <Stack direction="row" gap={2}>
         <Stack
           direction="column"
-          gap={3}
+          gap={2}
           sx={{
             flex: 1,
             maxWidth: 900,
           }}
         >
           {/* Блок серии и режима работы */}
-          <SeriesSettings parameters={{
-            mode: experiment.mode,
-            initialTaskNumber: experiment.initialTaskNumber,
-            presentationsPerTask: experiment.presentationsPerTask,
-            seriesTime: experiment.seriesTime,
-            efficiencyMin: experiment.efficiencyMin,
-            efficiencyMax: experiment.efficiencyMax,
-          }} />
+          <SeriesSettings
+            parameters={{
+              mode: experiment.mode,
+              initialTaskNumber: experiment.initialTaskNumber,
+              presentationsPerTask: experiment.presentationsPerTask,
+              seriesTime: experiment.seriesTime,
+              efficiencyMin: experiment.efficiencyMin,
+              efficiencyMax: experiment.efficiencyMax,
+            }}
+          />
 
-          <Box sx={{ display: "flex", gap: 3 }}>
+          <Box sx={{ display: "flex", gap: 2 }}>
             {/* Блок результатов */}
             <Box
               sx={{
                 flex: 3,
                 minWidth: 240,
                 position: "sticky",
-                top: 80,
-                height: "calc(100vh - 200px)"
+                top: 16,
+                height: "calc(100vh - 128px)",
               }}
             >
               <SessionResults
@@ -61,15 +64,17 @@ function SessionParameters({ sessionData }) {
                 flex: 4,
                 display: "flex",
                 flexDirection: "column",
-                gap: 3,
+                gap: 2,
                 minWidth: 320,
               }}
             >
               {/* Основные параметры эксперимента */}
-              <ExperimentGeneralParams parameters={{
-                ...activeResult.task,
-                ...activeResult
-              }} />
+              <ExperimentGeneralParams
+                parameters={{
+                  ...activeResult.task,
+                  ...activeResult,
+                }}
+              />
 
               {/* Временные параметры */}
               <TimeParameters
@@ -88,13 +93,11 @@ function SessionParameters({ sessionData }) {
           sx={{
             flex: 1,
             position: "sticky",
-            top: 80,
-            height: "calc(100vh - 200px)"
+            top: 16,
+            height: "calc(100vh - 128px)",
           }}
         >
-          <SessionDetailsPreview
-            parameters={activeResult}
-          />
+          <SessionDetailsPreview parameters={activeResult} />
         </Box>
       </Stack>
     </>

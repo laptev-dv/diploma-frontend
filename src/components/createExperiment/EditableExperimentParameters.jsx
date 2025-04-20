@@ -12,7 +12,6 @@ function EditableExperimentParameters({
   experiment,
   onExperimentChange,
 }) {
-
   const [activeTaskId, setActiveTaskId] = useState(tasks[0]?.id || null);
   const activeTask = tasks.find((task) => task.id === activeTaskId);
 
@@ -37,12 +36,11 @@ function EditableExperimentParameters({
   const handleExperimentParamChange = (field, value) => {
     const updatedExperiment = {
       ...experiment,
-      [field]: value
-    }
+      [field]: value,
+    };
 
     onExperimentChange(updatedExperiment);
   };
-
 
   const handleTaskNameChange = (taskId, newName) => {
     const updatedTasks = tasks.map((task) => {
@@ -92,10 +90,10 @@ function EditableExperimentParameters({
   }
 
   return (
-    <Stack direction="row" gap={3}>
+    <Stack direction="row" gap={2}>
       <Stack
         direction="column"
-        gap={3}
+        gap={2}
         sx={{
           flex: 1,
           maxWidth: 800,
@@ -107,14 +105,14 @@ function EditableExperimentParameters({
           tasksCount={tasks.length}
         />
 
-        <Box sx={{ display: "flex", gap: 3 }}>
+        <Box sx={{ display: "flex", gap: 2 }}>
           <Box
             sx={{
               flex: 2,
               minWidth: 240,
               position: "sticky",
-              top: 80,
-              height: "calc(100vh - 200px)"
+              top: 16,
+              height: "calc(100vh - 128px)",
             }}
           >
             <EditableExperimentTasks
@@ -135,7 +133,7 @@ function EditableExperimentParameters({
               flex: 3,
               display: "flex",
               flexDirection: "column",
-              gap: 3,
+              gap: 2,
               minWidth: 320,
             }}
           >
@@ -159,9 +157,9 @@ function EditableExperimentParameters({
         sx={{
           flex: 3,
           position: "sticky",
-          top: 80,
-          height: "calc(100vh - 168px)",
-          maxWidth: 720
+          maxWidth: 720,
+          top: 16,
+          height: "calc(100vh - 98px)",
         }}
       >
         <ExperimentPreview parameters={activeTask} />

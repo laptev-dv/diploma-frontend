@@ -11,7 +11,7 @@ const SessionInfo = ({ sessionData, extendedResults }) => {
   const theme = useTheme();
 
   return (
-    <Paper elevation={2} sx={{ borderRadius: 2, mb: 3 }}>
+    <Paper elevation={2} sx={{ borderRadius: 2, mb: 2 }}>
       {/* Шапка с информацией о папке */}
       <Box
         sx={{
