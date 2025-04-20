@@ -106,15 +106,7 @@ function HeaderSimpleHide(props) {
                 onClick={handleClose}
               >
                 <PersonIcon sx={{ mr: 1 }} />
-                Настройки
-              </MenuItem>
-              <MenuItem 
-                component={RouterLink} 
-                to="/additional-info"
-                onClick={handleClose}
-              >
-                <InfoIcon sx={{ mr: 1 }} />
-                Доп. информация
+                Профиль
               </MenuItem>
             </Menu>
           </Box>
