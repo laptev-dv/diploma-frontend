@@ -81,7 +81,7 @@ function ExperimentPage() {
     };
 
     loadExperiment();
-  }, []);
+  }, [id]);
 
   // Загрузка сессий эксперимента
   useEffect(() => {

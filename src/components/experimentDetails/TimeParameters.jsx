@@ -23,11 +23,7 @@ const maxHeight = 40;
 
 function TimeParameters({ parameters }) {
   // Получаем параметры с дефолтными значениями
-  const {
-    stimulusTime,
-    responseTime,
-    pauseTime,
-  } = parameters;
+  const { stimulusTime, responseTime, pauseTime } = parameters;
 
   // Конвертер единиц
   const toSeconds = (ms) => (ms / 1000).toFixed(1);
@@ -39,7 +35,6 @@ function TimeParameters({ parameters }) {
     pauseTime: toSeconds(pauseTime),
   };
 
-
   const [hoveredItem, setHoveredItem] = useState(null);
 
   // Рассчитываем производные значения (в миллисекундах)
@@ -49,8 +44,7 @@ function TimeParameters({ parameters }) {
     (parameters.pauseTime || 300);
 
   const responsePeriodTimeMs =
-    (parameters.stimulusTime || 500) +
-    (parameters.responseTime || 1000);
+    (parameters.stimulusTime || 500) + (parameters.responseTime || 1000);
 
   // Расчет процентов для прогресс-бара
   const calculatePercentage = (timeMs) => (timeMs / totalTimeMs) * 100;
@@ -112,12 +106,7 @@ function TimeParameters({ parameters }) {
   };
 
   // Рендер строки таблицы с обработчиками наведения
-  const renderTableRow = (
-    label,
-    value,
-    color = null,
-    hoverKey = null,
-  ) => {
+  const renderTableRow = (label, value, color = null, hoverKey = null) => {
     return (
       <TableRow
         onMouseEnter={() => hoverKey && setHoveredItem(hoverKey)}
@@ -149,10 +138,10 @@ function TimeParameters({ parameters }) {
             value={value}
             disabled
             sx={{
-              '& .Mui-disabled': {
-                color: 'inherit', // Сохраняем цвет текста
-                WebkitTextFillColor: 'inherit', // Для Safari
-              }
+              "& .Mui-disabled": {
+                color: "inherit", // Сохраняем цвет текста
+                WebkitTextFillColor: "inherit", // Для Safari
+              },
             }}
           />
         </TableCell>
@@ -184,31 +173,6 @@ function TimeParameters({ parameters }) {
         >
           <Table>
             <TableBody>
-              {renderTableRow(
-                "Предъявление стимула",
-                localParams.stimulusTime,
-                timeColors.stimulus,
-                "stimulus"
-              )}
-              {renderTableRow(
-                "Ожидание ответа",
-                localParams.responseTime,
-                timeColors.response,
-                "response"
-              )}
-              {renderTableRow(
-                "Пауза",
-                localParams.pauseTime,
-                timeColors.pause,
-                "pause"
-              )}
-            </TableBody>
-          </Table>
-
-          <Divider />
-
-          <Table>
-            <TableBody>
               <TableRow
                 onMouseEnter={() => setHoveredItem("total")}
                 onMouseLeave={() => setHoveredItem(null)}
@@ -216,7 +180,7 @@ function TimeParameters({ parameters }) {
                   "&:hover": {
                     backgroundColor: "rgba(0, 0, 0, 0.04)",
                   },
-                  td: { borderBottom: 0, paddingBottom: 1 },
+                  td: { paddingBottom: 1 },
                 }}
               >
                 <TableCell colSpan={2}>Общее время цикла</TableCell>
@@ -235,6 +199,31 @@ function TimeParameters({ parameters }) {
                 <TableCell colSpan={2}>Время на ответ</TableCell>
                 <TableCell>{toSeconds(responsePeriodTimeMs)} сек</TableCell>
               </TableRow>
+            </TableBody>
+          </Table>
+
+          <Divider />
+
+          <Table>
+            <TableBody>
+              {renderTableRow(
+                "Предъявление стимула",
+                localParams.stimulusTime,
+                timeColors.stimulus,
+                "stimulus"
+              )}
+              {renderTableRow(
+                "Ожидание ответа",
+                localParams.responseTime,
+                timeColors.response,
+                "response"
+              )}
+              {renderTableRow(
+                "Пауза",
+                localParams.pauseTime,
+                timeColors.pause,
+                "pause"
+              )}
             </TableBody>
           </Table>
         </Stack>

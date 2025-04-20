@@ -195,31 +195,6 @@ function EditableTimeParameters({ parameters, onParamChange }) {
         >
           <Table>
             <TableBody>
-              {renderTableRow(
-                "Предъявление стимула",
-                localParams.stimulusTime,
-                timeColors.stimulus,
-                "stimulus"
-              )}
-              {renderTableRow(
-                "Ожидание ответа",
-                localParams.responseTime,
-                timeColors.response,
-                "response"
-              )}
-              {renderTableRow(
-                "Пауза",
-                localParams.pauseTime,
-                timeColors.pause,
-                "pause"
-              )}
-            </TableBody>
-          </Table>
-
-          <Divider />
-
-          <Table>
-            <TableBody>
               <TableRow
                 onMouseEnter={() => setHoveredItem("total")}
                 onMouseLeave={() => setHoveredItem(null)}
@@ -228,7 +203,7 @@ function EditableTimeParameters({ parameters, onParamChange }) {
                     backgroundColor: "rgba(0, 0, 0, 0.04)",
                     cursor: "pointer",
                   },
-                  td: { borderBottom: 0, paddingBottom: 1 },
+                  td: { paddingBottom: 1 },
                 }}
               >
                 <TableCell colSpan={2}>Общее время цикла</TableCell>
@@ -248,6 +223,31 @@ function EditableTimeParameters({ parameters, onParamChange }) {
                 <TableCell colSpan={2}>Время на ответ</TableCell>
                 <TableCell>{toSeconds(responsePeriodTimeMs)} сек</TableCell>
               </TableRow>
+            </TableBody>
+          </Table>
+
+          <Divider />
+
+          <Table>
+            <TableBody>
+              {renderTableRow(
+                "Предъявление стимула",
+                localParams.stimulusTime,
+                timeColors.stimulus,
+                "stimulus"
+              )}
+              {renderTableRow(
+                "Ожидание ответа",
+                localParams.responseTime,
+                timeColors.response,
+                "response"
+              )}
+              {renderTableRow(
+                "Пауза",
+                localParams.pauseTime,
+                timeColors.pause,
+                "pause"
+              )}
             </TableBody>
           </Table>
         </Stack>

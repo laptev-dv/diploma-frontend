@@ -22,7 +22,6 @@ import {
   Add as AddIcon,
   MoreVert as MoreVertIcon,
   Edit as EditIcon,
-  ArrowBack as BackIcon,
   Delete as DeleteIcon,
 } from "@mui/icons-material";
 import FolderExperimentItem from "../components/FolderExperimentItem";

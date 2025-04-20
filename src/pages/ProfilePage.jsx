@@ -18,9 +18,10 @@ import {
   Typography,
   Alert,
   useTheme,
+  CircularProgress
 } from "@mui/material";
 import {
-  Person as PersonIcon,
+  Email as EmailIcon,
   Lock as LockIcon,
   ExitToApp as ExitIcon,
   Delete as DeleteIcon,
@@ -39,14 +40,14 @@ const ProfilePage = () => {
   const theme = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [profileData, setProfileData] = useState({ username: "" });
-  const [editUsernameOpen, setEditUsernameOpen] = useState(false);
-  const [newUsername, setNewUsername] = useState("");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -54,7 +55,10 @@ const ProfilePage = () => {
         const response = await userApi.getProfile();
         setProfileData(response.data);
       } catch (error) {
-        console.error("Failed to fetch profile:", error);
+        console.error("Ошибка загрузки профиля:", error);
+        setError("Не удалось загрузить данные профиля");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -63,36 +67,42 @@ const ProfilePage = () => {
 
   const handleLogout = async () => {
     try {
-      // Вызываем logout из контекста, который уже содержит всю логику
-      await logout();
+      await authApi.logout(user.token);
+      logout();
       navigate("/auth/login");
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error("Ошибка выхода:", error);
+      setError("Не удалось выйти из системы");
     }
   };
 
   const handleDownload = (item) => {
-    console.log(`Downloading ${item}`);
-    // Логика загрузки
+    console.log(`Загрузка: ${item}`);
+    // Реализация загрузки файлов
   };
 
   const handleEditPassword = () => {
     setPasswordDialogOpen(true);
+    setError("");
   };
 
   const handlePasswordSubmit = async () => {
     if (newPassword !== confirmPassword) {
-      alert("Пароли не совпадают");
+      setError("Пароли не совпадают");
       return;
     }
 
     try {
       await userApi.changePassword(currentPassword, newPassword);
       setPasswordDialogOpen(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setError("");
       alert("Пароль успешно изменен");
     } catch (error) {
-      console.error("Password change failed:", error);
-      alert("Ошибка при изменении пароля");
+      console.error("Ошибка изменения пароля:", error);
+      setError(error.message || "Ошибка при изменении пароля");
     }
   };
 
@@ -102,21 +112,30 @@ const ProfilePage = () => {
       logout();
       navigate("/auth/login");
     } catch (error) {
-      console.error("Account deletion failed:", error);
+      console.error("Ошибка удаления аккаунта:", error);
+      setError("Не удалось удалить аккаунт");
     } finally {
       setDeleteConfirmOpen(false);
     }
   };
 
-  const handleUsernameUpdate = async () => {
-    try {
-      await userApi.updateUsername(newUsername);
-      setProfileData({ ...profileData, username: newUsername });
-      setEditUsernameOpen(false);
-    } catch (error) {
-      console.error("Username update failed:", error);
-    }
-  };
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 3, display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 3 }}>
+        <Alert severity="error">
+          {error || "Не удалось загрузить данные профиля"}
+        </Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
@@ -132,6 +151,12 @@ const ProfilePage = () => {
         Профиль пользователя
       </Typography>
 
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
       {/* Блок личной информации */}
       <Paper elevation={2} sx={{ mb: 3, borderRadius: 2 }}>
         <Box sx={{ p: 2, backgroundColor: theme.palette.grey[100] }}>
@@ -140,23 +165,13 @@ const ProfilePage = () => {
         <List>
           <ListItem sx={{ px: 3 }}>
             <ListItemIcon sx={{ minWidth: 40 }}>
-              <PersonIcon color="primary" />
+              <EmailIcon color="primary" />
             </ListItemIcon>
             <ListItemText
-              primary="Имя пользователя"
-              secondary={profileData.username}
+              primary="Email"
+              secondary={profileData.email}
               secondaryTypographyProps={{ color: "text.primary" }}
             />
-            <IconButton
-              edge="end"
-              onClick={() => {
-                setNewUsername(profileData.username);
-                setEditUsernameOpen(true);
-              }}
-              sx={{ color: theme.palette.primary.main }}
-            >
-              <EditIcon />
-            </IconButton>
           </ListItem>
           <Divider variant="inset" component="li" />
           <ListItem sx={{ px: 3 }}>
@@ -280,39 +295,21 @@ const ProfilePage = () => {
         </List>
       </Paper>
 
-      {/* Диалог редактирования имени */}
-      <Dialog open={editUsernameOpen} onClose={() => setEditUsernameOpen(false)}>
-        <DialogTitle>Редактировать имя пользователя</DialogTitle>
-        <DialogContent sx={{ minWidth: 400, py: 2 }}>
-          <TextField
-            margin="dense"
-            autoFocus
-            fullWidth
-            variant="outlined"
-            label="Новое имя"
-            value={newUsername}
-            onChange={(e) => setNewUsername(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditUsernameOpen(false)}>Отмена</Button>
-          <Button
-            onClick={handleUsernameUpdate}
-            variant="contained"
-            disabled={!newUsername.trim()}
-          >
-            Сохранить
-          </Button>
-        </DialogActions>
-      </Dialog>
-
       {/* Диалог изменения пароля */}
       <Dialog
         open={passwordDialogOpen}
-        onClose={() => setPasswordDialogOpen(false)}
+        onClose={() => {
+          setPasswordDialogOpen(false);
+          setError("");
+        }}
       >
         <DialogTitle>Изменить пароль</DialogTitle>
         <DialogContent sx={{ minWidth: 400, py: 2 }}>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
           <TextField
             margin="dense"
             autoFocus
@@ -343,7 +340,14 @@ const ProfilePage = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setPasswordDialogOpen(false)}>Отмена</Button>
+          <Button 
+            onClick={() => {
+              setPasswordDialogOpen(false);
+              setError("");
+            }}
+          >
+            Отмена
+          </Button>
           <Button
             onClick={handlePasswordSubmit}
             variant="contained"

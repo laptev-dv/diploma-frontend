@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 import ClockIcon from "@mui/icons-material/AccessTime";
+import { formatSimpleDuration } from '../utils'
 
 const ProgressContainer = styled(Paper)(({ theme }) => ({
   position: "fixed",
@@ -18,7 +19,6 @@ const ProgressContainer = styled(Paper)(({ theme }) => ({
   zIndex: 1100,
   backgroundColor: "rgba(255, 255, 255, 0.85)",
   padding: 4,
-  maxWidth: "90%",
   minWidth: 300,
 }));
 
@@ -44,7 +44,6 @@ const ExperimentProgressBar = ({
   seriesTimeLeft,
   onInterrupt,
 }) => {
-  const formatTime = (ms) => Math.ceil(ms / 1000);
   const phaseLabels = {
     stimulus: "Стимул",
     response: "Ответ",
@@ -60,14 +59,14 @@ const ExperimentProgressBar = ({
         justifyContent="center"
       >
         {/* Индикатор фазы */}
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack direction="row" spacing={1} alignItems="center" minWidth={64}>
           <PhaseDot phase={currentPhase} />
           <Typography
             variant="caption"
             fontSize="0.75rem"
             color="text.secondary"
           >
-            {phaseLabels[currentPhase]} {formatTime(phaseTimeLeft)}с
+            {phaseLabels[currentPhase]}
           </Typography>
         </Stack>
 
@@ -97,7 +96,7 @@ const ExperimentProgressBar = ({
               fontSize="0.75rem"
               color="text.secondary"
             >
-              Время сессии: {formatTime(seriesTimeLeft)}с
+              {formatSimpleDuration(seriesTimeLeft)}
             </Typography>
           </Stack>
         )}
@@ -117,7 +116,7 @@ const ExperimentProgressBar = ({
             },
           }}
         >
-          Прервать эксперимент
+          Прервать
         </Button>
       </Stack>
     </ProgressContainer>

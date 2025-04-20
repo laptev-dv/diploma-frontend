@@ -82,7 +82,6 @@ export const experimentApi = {
 
   // Создание нового эксперимента
   create: async (experimentData) => {
-    console.log(experimentData)
     try {
       const tasks = experimentData.tasks.map(task => ({
         name: task.name,

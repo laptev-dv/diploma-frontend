@@ -58,7 +58,7 @@ export const authApi = {
   // Проверка токена
   verifyToken: async (token) => {
     try {
-      const response = await axios.get('/auth/me', {
+      const response = await axios.get('/user/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       

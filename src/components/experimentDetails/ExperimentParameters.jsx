@@ -85,9 +85,6 @@ function ExperimentParameters({ parameters }) {
                 minWidth: 320,
               }}
             >
-              {/* Основные параметры эксперимента */}
-              <ExperimentGeneralParams parameters={activeTask} />
-
               {/* Временные параметры */}
               <TimeParameters
                 parameters={{
@@ -96,6 +93,9 @@ function ExperimentParameters({ parameters }) {
                   pauseTime: activeTask.pauseTime,
                 }}
               />
+
+              {/* Основные параметры эксперимента */}
+              <ExperimentGeneralParams parameters={activeTask} />
             </Box>
           </Box>
         </Stack>

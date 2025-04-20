@@ -137,17 +137,17 @@ function EditableExperimentParameters({
               minWidth: 320,
             }}
           >
-            <EditableExperimentGeneralParams
-              parameters={activeTask}
-              onParamChange={handleTaskParamChange}
-            />
-
             <EditableTimeParameters
               parameters={{
                 stimulusTime: activeTask.stimulusTime,
                 responseTime: activeTask.responseTime,
                 pauseTime: activeTask.pauseTime,
               }}
+              onParamChange={handleTaskParamChange}
+            />
+
+            <EditableExperimentGeneralParams
+              parameters={activeTask}
               onParamChange={handleTaskParamChange}
             />
           </Box>

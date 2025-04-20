@@ -48,7 +48,6 @@ const ExperimentRunPage = () => {
   // Состояния эксперимента
   const [isCompleting, setIsCompleting] = useState(false);
   const [currentResponseTime, setCurrentResponseTime] = useState(null);
-  const [hiddenPosition, setHiddenPosition] = useState(null);
   const [activeTaskIndex, setActiveTaskIndex] = useState(
     experiment?.initialTaskNumber - 1 || 0
   );
@@ -82,6 +81,11 @@ const ExperimentRunPage = () => {
     () => tasks[activeTaskIndex] || {},
     [tasks, activeTaskIndex]
   );
+
+  const [hiddenPosition, setHiddenPosition] = useState({
+    row: Math.floor(Math.random() * currentTask.rows),
+    col: Math.floor(Math.random() * currentTask.columns),
+  });
 
   const [currentPhase, setCurrentPhase] = useState("stimulus");
   const [phaseTimeLeft, setPhaseTimeLeft] = useState(currentTask.stimulusTime);
@@ -132,7 +136,7 @@ const ExperimentRunPage = () => {
     };
 
     fetchFonts();
-  }, [CACHE_EXPIRY]);
+  }, [CACHE_EXPIRY, experiment.tasks]);
 
   // Эффект для обработки изменений счетчиков
   useEffect(() => {
@@ -158,14 +162,6 @@ const ExperimentRunPage = () => {
     setVignetteColor(color);
     setVignetteKey((prevKey) => prevKey + 1);
   };
-
-  // Генерация новой позиции скрытого символа
-  const generateNewHiddenPosition = useCallback(() => {
-    setHiddenPosition({
-      row: Math.floor(Math.random() * currentTask.rows),
-      col: Math.floor(Math.random() * currentTask.columns),
-    });
-  }, [currentTask.rows, currentTask.columns]);
 
   // Сохранение статистики по выполнению задачи
   const saveTaskExecution = useCallback(() => {
@@ -289,7 +285,7 @@ const ExperimentRunPage = () => {
         } else if (currentPhase === "response") {
           responseTime += currentTask.responseTime - phaseTimeLeft;
         }
-        console.log("set", currentPhase, responseTime);
+        
         setCurrentResponseTime(responseTime);
         setCurrentPhase("response");
         setPhaseTimeLeft(0);
@@ -334,12 +330,16 @@ const ExperimentRunPage = () => {
       } else {
         setPresentationCount(newCount);
       }
+      
+      setHiddenPosition({
+        row: Math.floor(Math.random() * currentTask.rows),
+        col: Math.floor(Math.random() * currentTask.columns),
+      });  
 
       setCurrentResponseTime(null);
       setCurrentPhase("stimulus");
       setPhaseTimeLeft(currentTask.stimulusTime);
       setUserInput([]);
-      generateNewHiddenPosition();
     }
     setTimerIsRunning(true);
   }, [
@@ -350,17 +350,11 @@ const ExperimentRunPage = () => {
     tasks.length,
     mode,
     presentationCount,
-    generateNewHiddenPosition,
     saveTaskExecution,
     getNextTaskIndex,
     completeExperiment,
     checkAnswer,
   ]);
-
-  // Инициализация эксперимента
-  useEffect(() => {
-    generateNewHiddenPosition();
-  }, [generateNewHiddenPosition]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -374,7 +368,7 @@ const ExperimentRunPage = () => {
 
     const timer = setInterval(() => {
       setPhaseTimeLeft((prev) => {
-        console.log(prev - TICK_INTERVAL);
+        console.log(prev - TICK_INTERVAL, currentPhase);
         return prev - TICK_INTERVAL;
       });
     }, TICK_INTERVAL);

@@ -1,52 +1,36 @@
 import axios from '../axios';
 
 export const userApi = {
-  // Получение данных пользователя
-  getProfile: async () => {
+  // Изменение пароля
+  changePassword: async (currentPassword, newPassword) => {
     try {
-      // Моковый ответ
-      return {
-        data: {
-          id: 1,
-          username: 'Иван Иванов',
-          email: 'user@example.com'
-        }
-      };
+      const { data } = await axios.put('/user/change-password', {
+        currentPassword,
+        newPassword
+      });
+      return { data };
     } catch (error) {
-      throw error;
-    }
-  },
-
-  // Обновление имени пользователя
-  updateUsername: async (newUsername) => {
-    try {
-      // Моковый ответ
-      console.log(`Username updated to: ${newUsername}`);
-      return { data: { success: true } };
-    } catch (error) {
-      throw error;
+      throw error.response?.data || error;
     }
   },
 
   // Удаление аккаунта
   deleteAccount: async () => {
     try {
-      // Моковый ответ
-      console.log('Account deletion request sent');
-      return { data: { success: true } };
+      const { data } = await axios.delete('/user');
+      return { data };
     } catch (error) {
-      throw error;
+      throw error.response?.data || error;
     }
   },
 
-  // Изменение пароля
-  changePassword: async (currentPassword, newPassword) => {
+  // Получение данных текущего пользователя
+  getProfile: async () => {
     try {
-      // Моковый ответ
-      console.log('Password changed successfully');
-      return { data: { success: true } };
+      const { data } = await axios.get('/user/me');
+      return { data };
     } catch (error) {
-      throw error;
+      throw error.response?.data || error;
     }
   }
 };
