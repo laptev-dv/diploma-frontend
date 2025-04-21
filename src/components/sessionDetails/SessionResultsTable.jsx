@@ -15,7 +15,7 @@ import {
   Cancel,
   AccessTimeFilled as Timer,
 } from '@mui/icons-material';
-import { formatDuration } from './../../utils'
+import { formatDuration } from '../../utils/dateFormatter'
 
 const SessionResultsTable = ({ results }) => {
   if (!results || results.length === 0) {

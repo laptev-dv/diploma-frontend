@@ -14,7 +14,7 @@ import {
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { formatDuration } from './../utils';
+import { formatDuration } from './../utils/dateFormatter';
 
 function SessionItem({ session, showDivider, onClick, onDelete, onExport }) {
   const handleExportClick = (e) => {

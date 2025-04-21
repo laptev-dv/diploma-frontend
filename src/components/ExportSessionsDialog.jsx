@@ -16,7 +16,7 @@ import {
   Typography
 } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import { formatDuration } from './../utils';
+import { formatDuration } from './../utils/dateFormatter';
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 

@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 import ClockIcon from "@mui/icons-material/AccessTime";
-import { formatSimpleDuration } from '../utils'
+import { formatSimpleDuration } from '../utils/dateFormatter'
 
 const ProgressContainer = styled(Paper)(({ theme }) => ({
   position: "fixed",

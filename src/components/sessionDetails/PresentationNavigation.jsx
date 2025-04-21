@@ -15,7 +15,7 @@ import {
   AccessTime as TimerIcon,
   HelpOutline as MissedIcon
 } from "@mui/icons-material";
-import { formatDuration } from './../../utils'
+import { formatDuration } from '../../utils/dateFormatter'
 
 const PresentationNavigation = ({
   currentPresentation,

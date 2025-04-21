@@ -15,6 +15,7 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { sessionApi } from "../api/sessionApi";
 import SessionParameters from "../components/sessionDetails/SessionParameters";
 import SessionBreadCrumbs from "../components/sessionDetails/SessionBreadCrumbs";
+import * as XLSX from "xlsx";
 
 function SessionDetailPage() {
   const { id } = useParams();
@@ -68,6 +69,98 @@ function SessionDetailPage() {
         },
       };
     });
+  };
+
+  const exportSessionData = (data) => {
+    // Создаем книгу Excel
+    const workbook = XLSX.utils.book_new();
+    
+    // 1. Лист "Отчет"
+    const reportData = [
+      ["Серия эксперимента"],
+      ["Дата", "", new Date(data.date).toLocaleString()],
+      ["Реальная длительность, мин", "", formatDuration(data.duration)],
+      ["Режим", "", data.experiment.mode === 'strict' ? 'Строгий' : 'Адаптивный'],
+      ["Число задач", "", data.results?.length || 0],
+      ["Число предъявлений стимула", "", data.results?.reduce((sum, task) => sum + (task.presentations?.length || 0), 0) || 0],
+      [],
+      ["Параметры задач"]
+    ];
+
+    // Добавляем параметры каждой задачи
+    data.results?.forEach((taskResult, index) => {
+      const task = taskResult.task || {};
+      reportData.push(
+        ["№ задачи", index + 1],
+        ["Название", task.name || "Не указано"],
+        ["Размер матрицы (строки х столбцы)", `${task.rows || 0}×${task.columns || 0}`],
+        ["Цвет символа", task.symbolColor || "Не указан"],
+        ["Цвет фона", task.backgroundColor || "Не указан"],
+        ["Вид символа", task.symbolType || "Не указан"],
+        ["Шрифт символа", task.symbolFont || "Не указан"],
+        ["Размер символа, пикс.", `ширина - ${task.symbolWidth || 0}`, `высота - ${task.symbolHeight || 0}`],
+        ["Расстояние между символами, пикс.", `гор - ${task.horizontalSpacing || 0}`, `верт - ${task.verticalSpacing || 0}`],
+        ["Время предъявления стимула, с", (task.stimulusTime / 1000).toFixed(2)],
+        ["Время ожидания ответа, с", (task.responseTime / 1000).toFixed(2)],
+        ["Время паузы, с", (task.pauseTime / 1000).toFixed(2)],
+        []
+      );
+    });
+
+    // Добавляем результаты
+    reportData.push(
+      [],
+      ["Результаты серии"],
+      ["№ п/п", "№ задачи", "Количество ответов", "", "", "Среднее время ответа, с", "Оценка эффективности", "Итоговая оценка", "Производительность", "Нагрузка"],
+      ["", "", "правильных", "ошибочных", "пропущенных"]
+    );
+
+    const extendedResults = calculateExtendedMetrics(data.results || []);
+    extendedResults.forEach((task, index) => {
+      reportData.push([
+        index + 1,
+        index + 1,
+        task.successCount,
+        task.errorCount,
+        task.missCount,
+        (task.avgResponseTime / 1000).toFixed(2),
+        (task.successRate / 100).toFixed(2),
+        task.performanceScore,
+        task.taskDifficulty
+      ]);
+    });
+
+    const reportSheet = XLSX.utils.aoa_to_sheet(reportData);
+    XLSX.utils.book_append_sheet(workbook, reportSheet, "Отчет");
+
+    // 2. Лист "Полные данные"
+    const fullData = [];
+    data.results?.forEach((taskResult, taskIndex) => {
+      fullData.push([`Задача ${taskIndex + 1}`]);
+      fullData.push(["№", "X", "Y", "Введенный X", "Введенный Y", "Время (c)", "Корректен", "Результат"]);
+
+      taskResult.presentations?.forEach((pres, idx) => {
+        const isCorrect = pres.userAnswer?.row === pres.correctAnswer?.row && 
+                          pres.userAnswer?.column === pres.correctAnswer?.column;
+        fullData.push([
+          idx + 1,
+          pres.correctAnswer?.row,
+          pres.correctAnswer?.column,
+          pres.userAnswer?.row,
+          pres.userAnswer?.column,
+          (pres.responseTime / 1000).toFixed(2),
+          isCorrect ? 1 : 0,
+          isCorrect ? "+" : "-"
+        ]);
+      });
+      fullData.push([]);
+    });
+
+    const fullDataSheet = XLSX.utils.aoa_to_sheet(fullData);
+    XLSX.utils.book_append_sheet(workbook, fullDataSheet, "Полные данные");
+
+    // Сохраняем файл
+    XLSX.writeFile(workbook, `Сессия_${data._id}.xlsx`);
   };
 
   if (loading) {
@@ -183,20 +276,6 @@ function formatDuration(milliseconds) {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-}
-
-function exportSessionData(sessionData) {
-  const dataStr = JSON.stringify(sessionData, null, 2);
-  const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(
-    dataStr
-  )}`;
-
-  const exportFileDefaultName = `session_${sessionData._id}.json`;
-
-  const linkElement = document.createElement("a");
-  linkElement.setAttribute("href", dataUri);
-  linkElement.setAttribute("download", exportFileDefaultName);
-  linkElement.click();
 }
 
 export default SessionDetailPage;

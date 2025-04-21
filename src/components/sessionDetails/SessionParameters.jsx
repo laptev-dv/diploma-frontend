@@ -49,7 +49,7 @@ function SessionParameters({ sessionData }) {
                 minWidth: 240,
                 position: "sticky",
                 top: 16,
-                height: "calc(100vh - 128px)",
+                height: "calc(100vh - 160px)",
               }}
             >
               <SessionResults
