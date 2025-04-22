@@ -13,7 +13,7 @@ import {
   CheckCircle as CorrectIcon,
   Cancel as IncorrectIcon,
   AccessTime as TimerIcon,
-  HelpOutline as MissedIcon
+  Help as MissedIcon
 } from "@mui/icons-material";
 import { formatDuration } from '../../utils/dateFormatter'
 

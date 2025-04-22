@@ -8,27 +8,13 @@ import {
   Menu,
   MenuItem,
   Box,
-  Slide,
-  useScrollTrigger
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import PersonIcon from '@mui/icons-material/Person';
 import MenuIcon from '@mui/icons-material/Menu';
 
-function HideOnScroll({ children, window }) {
-  const trigger = useScrollTrigger({
-    target: window ? window() : undefined,
-  });
-
-  return (
-    <Slide appear={false} direction="down" in={!trigger}>
-      {children}
-    </Slide>
-  );
-}
-
-function HeaderSimpleHide(props) {
+function Header() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
@@ -41,8 +27,7 @@ function HeaderSimpleHide(props) {
   };
 
   return (
-    <HideOnScroll {...props}>
-      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <AppBar position="static" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Имитатор операторской задачи
@@ -111,8 +96,7 @@ function HeaderSimpleHide(props) {
           </Box>
         </Toolbar>
       </AppBar>
-    </HideOnScroll>
   );
 }
 
-export default HeaderSimpleHide;
+export default Header;

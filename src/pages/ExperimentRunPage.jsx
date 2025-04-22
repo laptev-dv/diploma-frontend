@@ -83,8 +83,8 @@ const ExperimentRunPage = () => {
   );
 
   const [hiddenPosition, setHiddenPosition] = useState({
-    row: Math.floor(Math.random() * currentTask.rows),
-    col: Math.floor(Math.random() * currentTask.columns),
+    row: Math.floor(Math.random() * currentTask.rows) + 1,
+    col: Math.floor(Math.random() * currentTask.columns) + 1,
   });
 
   const [currentPhase, setCurrentPhase] = useState("stimulus");
@@ -236,7 +236,6 @@ const ExperimentRunPage = () => {
 
   // Проверка ответа пользователя
   const checkAnswer = useCallback(() => {
-    console.log(`checkAnswer ${new Date().toISOString()}`);
     const [row, col] = userInput;
 
     let userAnswer = null;
@@ -245,7 +244,7 @@ const ExperimentRunPage = () => {
     }
 
     const isCorrect =
-      row === hiddenPosition.row + 1 && col === hiddenPosition.col + 1;
+      row === hiddenPosition.row && col === hiddenPosition.col;
 
     if (userInput.length < 2) {
       setMissCount((prev) => prev + 1);
@@ -260,8 +259,8 @@ const ExperimentRunPage = () => {
         currentResponseTime ||
         currentTask.responseTime + currentTask.stimulusTime,
       correctAnswer: {
-        row: hiddenPosition.row + 1,
-        column: hiddenPosition.col + 1,
+        row: hiddenPosition.row,
+        column: hiddenPosition.col,
       },
       userAnswer: userAnswer,
     };
@@ -330,10 +329,10 @@ const ExperimentRunPage = () => {
       } else {
         setPresentationCount(newCount);
       }
-      
+            
       setHiddenPosition({
-        row: Math.floor(Math.random() * currentTask.rows),
-        col: Math.floor(Math.random() * currentTask.columns),
+        row: Math.floor(Math.random() * currentTask.rows) + 1,
+        col: Math.floor(Math.random() * currentTask.columns) + 1,
       });  
 
       setCurrentResponseTime(null);
