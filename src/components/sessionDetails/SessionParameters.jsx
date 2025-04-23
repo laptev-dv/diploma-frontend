@@ -68,20 +68,20 @@ function SessionParameters({ sessionData }) {
                 minWidth: 320,
               }}
             >
-              {/* Основные параметры эксперимента */}
-              <ExperimentGeneralParams
-                parameters={{
-                  ...activeResult.task,
-                  ...activeResult,
-                }}
-              />
-
               {/* Временные параметры */}
               <TimeParameters
                 parameters={{
                   stimulusTime: activeResult.task.stimulusTime,
                   responseTime: activeResult.task.responseTime,
                   pauseTime: activeResult.task.pauseTime,
+                }}
+              />
+
+              {/* Основные параметры эксперимента */}
+              <ExperimentGeneralParams
+                parameters={{
+                  ...activeResult.task,
+                  ...activeResult,
                 }}
               />
             </Box>

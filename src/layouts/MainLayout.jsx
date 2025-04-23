@@ -15,7 +15,7 @@ function MainLayout() {
         sx={{ 
           flexGrow: 1,
           p: 3,
-          pt: 8, // Отступ для шапки (вместо mt)
+          pt: 8,
         }}
       >
         <Outlet />
