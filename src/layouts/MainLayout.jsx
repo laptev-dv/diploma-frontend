@@ -14,8 +14,6 @@ function MainLayout() {
         component="main"
         sx={{ 
           flexGrow: 1,
-          p: 3,
-          pt: 8,
         }}
       >
         <Outlet />

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Box } from "@mui/material";
+import { Box, useMediaQuery } from "@mui/material";
 import FullscreenStimulus from "../components/FullscreenStimulus";
 import ExperimentProgressBar from "../components/ExperimentProgressBar";
 import UserInputDisplay from "../components/UserInputDisplay";
+import RunExperimentKeyboard from "../components/RunExperimentKeyboard";
 import { styled, keyframes } from "@mui/system";
 import { sessionApi } from "../api/sessionApi";
 
@@ -91,6 +92,10 @@ const ExperimentRunPage = () => {
   const [phaseTimeLeft, setPhaseTimeLeft] = useState(currentTask.stimulusTime);
   const [timerIsRunning, setTimerIsRunning] = useState(true);
 
+  const platform = useMemo(() => getPlatform(), []);
+  const isMobileLandscape = useMediaQuery("(orientation: landscape)");
+  const showKeyboard = isMobileLandscape && platform === 'Mobile';
+  
   const preloadFonts = (fontFamilies) => {
     fontFamilies.forEach((fontFamily) => {
       const link = document.createElement("link");
@@ -190,7 +195,7 @@ const ExperimentRunPage = () => {
         results: finalStats,
       };
 
-      // // Отправка данных на сервер
+      // Отправка данных на сервер
       const response = await sessionApi.create(sessionData);
 
       if (response.data?._id) {
@@ -200,7 +205,6 @@ const ExperimentRunPage = () => {
       }
     } catch (error) {
       console.error("Ошибка сохранения сессии:", error);
-      // Можно добавить обработку ошибки (например, показать уведомление)
       navigate(`/experiment/${id}`);
     }
   }, [id, taskResults, navigate, saveTaskExecution]);
@@ -367,7 +371,6 @@ const ExperimentRunPage = () => {
 
     const timer = setInterval(() => {
       setPhaseTimeLeft((prev) => {
-        console.log(prev - TICK_INTERVAL, currentPhase);
         return prev - TICK_INTERVAL;
       });
     }, TICK_INTERVAL);
@@ -407,8 +410,6 @@ const ExperimentRunPage = () => {
     completeExperiment();
   }, [completeExperiment]);
 
-  // Рефы для актуальных значений
-
   return (
     <Box
       sx={{
@@ -427,6 +428,10 @@ const ExperimentRunPage = () => {
           key={vignetteKey}
           onAnimationEnd={() => setVignetteColor(null)}
         />
+      )}
+
+      {showKeyboard && (
+        <RunExperimentKeyboard onKeyPress={handleKeyDown} />
       )}
 
       <ExperimentProgressBar
@@ -448,6 +453,23 @@ const ExperimentRunPage = () => {
       <UserInputDisplay userInput={userInput} />
     </Box>
   );
+};
+
+const getPlatform = () => {
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  
+  // Проверка iOS
+  if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+    return 'Mobile';
+  }
+  
+  // Проверка Android
+  if (/android/i.test(userAgent)) {
+    return 'Mobile';
+  }
+  
+  // Все остальное считаем десктопом
+  return 'Desktop';
 };
 
 export default ExperimentRunPage;

@@ -218,7 +218,7 @@ function ExperimentPage() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3, pb: 7 }}>
+    <Container maxWidth="xl" sx={{ py: 3, pb: 10 }}>
       <ExperimentBreadcrumbs folderId={folderId}/>
 
       <Stack gap={2}>
@@ -287,7 +287,6 @@ function ExperimentPage() {
               </Box>
             ) : sessions.length > 0 ? (
               <> 
-                <Typography gutterBottom>История сессий</Typography>
                 <List disablePadding>
                   {sessions.slice(0, 3).map((session, index) => (
                     <Box key={session._id}>

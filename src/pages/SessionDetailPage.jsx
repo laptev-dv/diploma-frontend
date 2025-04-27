@@ -30,6 +30,12 @@ function SessionDetailPage() {
         setLoading(true);
         const response = await sessionApi.getById(id);
         setSessionData(response.data);
+
+        // Подгрузка шрифтов
+        const fontFamilies = response.data.results.map(
+          (result) => result.task.symbolFont
+        );
+        preloadFonts(fontFamilies);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -39,6 +45,25 @@ function SessionDetailPage() {
 
     fetchSessionData();
   }, [id]);
+
+  const preloadFonts = (fontFamilies) => {
+    fontFamilies.forEach((fontFamily) => {
+      const fontUrl = `https://fonts.googleapis.com/css2?family=${fontFamily.replace(
+        / /g,
+        "+"
+      )}&display=swap`;
+      const existingLinks = Array.from(
+        document.head.querySelectorAll('link[rel="stylesheet"]')
+      );
+
+      if (!existingLinks.some((link) => link.href === fontUrl)) {
+        const link = document.createElement("link");
+        link.href = fontUrl;
+        link.rel = "stylesheet";
+        document.head.appendChild(link);
+      }
+    });
+  };
 
   const calculateExtendedMetrics = (results) => {
     if (!results || results.length === 0) return [];
