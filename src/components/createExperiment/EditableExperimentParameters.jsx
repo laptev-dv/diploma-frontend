@@ -105,14 +105,14 @@ function EditableExperimentParameters({
           tasksCount={tasks.length}
         />
 
-        <Box sx={{ display: "flex", gap: 2 }}>
+        <Box sx={{ display: "flex", gap: 2, pb: 10 }}>
           <Box
             sx={{
               flex: 2,
               minWidth: 240,
               position: "sticky",
               top: 16,
-              height: "calc(100vh - 128px)",
+              height: "calc(100vh - 16px - 80px)",
             }}
           >
             <EditableExperimentTasks
@@ -135,6 +135,7 @@ function EditableExperimentParameters({
               flexDirection: "column",
               gap: 2,
               minWidth: 320,
+              height: "100%",
             }}
           >
             <EditableTimeParameters
@@ -159,7 +160,7 @@ function EditableExperimentParameters({
           position: "sticky",
           maxWidth: 720,
           top: 16,
-          height: "calc(100vh - 98px)",
+          height: "calc(100vh - 16px - 80px)",
         }}
       >
         <ExperimentPreview parameters={activeTask} />

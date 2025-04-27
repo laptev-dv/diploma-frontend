@@ -9,17 +9,16 @@ const SessionResults = ({ results, activeResultId, onTaskClick }) => {
       sx={{
         paddingLeft: 2,
         paddingRight: 1,
-        paddingY: 2,
         height: "100%",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      <Typography variant="subtitle1" gutterBottom>
+      <Typography variant="subtitle1" gutterBottom marginTop={2}>
         Результаты ({results.length} шт)
       </Typography>
 
-      <List dense sx={{ paddingRight: 1, height: "100%", overflowY: "auto" }}>
+      <List dense sx={{ paddingRight: 1, height: "100%", overflowY: "auto", marginBottom: 2 }}>
         {results.map((result, index) => (
           <React.Fragment key={result._id}>
             <SessionResultItem

@@ -121,7 +121,7 @@ function CreateExperimentPage() {
       maxWidth="xl"
       sx={{
         p: 3,
-        pb: 10,
+        pb: 0,
       }}
     >
       <ExperimentBreadcrumbs folderId={folderId} lastName="Новый эксперимент" />

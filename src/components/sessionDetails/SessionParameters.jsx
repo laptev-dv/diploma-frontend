@@ -41,7 +41,7 @@ function SessionParameters({ sessionData }) {
             }}
           />
 
-          <Box sx={{ display: "flex", gap: 2 }}>
+          <Box sx={{ display: "flex", gap: 2, pb: 10 }}>
             {/* Блок результатов */}
             <Box
               sx={{
@@ -49,7 +49,7 @@ function SessionParameters({ sessionData }) {
                 minWidth: 240,
                 position: "sticky",
                 top: 16,
-                height: "calc(100vh - 160px)",
+                height: "calc(100vh - 16px - 80px)",
               }}
             >
               <SessionResults
@@ -94,7 +94,7 @@ function SessionParameters({ sessionData }) {
             flex: 1,
             position: "sticky",
             top: 16,
-            height: "calc(100vh - 128px)",
+            height: "calc(100vh - 16px - 80px)",
           }}
         >
           <SessionDetailsPreview parameters={activeResult} />

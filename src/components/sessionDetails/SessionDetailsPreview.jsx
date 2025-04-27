@@ -349,13 +349,13 @@ const SessionDetailsPreview = ({ parameters }) => {
 
       <Paper
         elevation={3}
-        sx={{ p: 2, display: "flex", flexDirection: "column", height: "100%" }}
+        sx={{ display: "flex", flexDirection: "column", height: "100%" }}
       >
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
-          mb={2}
+          m={2}
         >
           <Tabs 
             value={activeTab} 
@@ -392,6 +392,8 @@ const SessionDetailsPreview = ({ parameters }) => {
             height: "100%",
             flexGrow: 1,
             overflow: "hidden",
+            m: 2,
+            mt: 0,
           }}
         >
           {renderContent()}

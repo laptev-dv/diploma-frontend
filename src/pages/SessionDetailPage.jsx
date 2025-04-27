@@ -99,17 +99,28 @@ function SessionDetailPage() {
   const exportSessionData = (data) => {
     // Создаем книгу Excel
     const workbook = XLSX.utils.book_new();
-    
+
     // 1. Лист "Отчет"
     const reportData = [
       ["Серия эксперимента"],
       ["Дата", "", new Date(data.date).toLocaleString()],
       ["Реальная длительность, мин", "", formatDuration(data.duration)],
-      ["Режим", "", data.experiment.mode === 'strict' ? 'Строгий' : 'Адаптивный'],
+      [
+        "Режим",
+        "",
+        data.experiment.mode === "strict" ? "Строгий" : "Адаптивный",
+      ],
       ["Число задач", "", data.results?.length || 0],
-      ["Число предъявлений стимула", "", data.results?.reduce((sum, task) => sum + (task.presentations?.length || 0), 0) || 0],
+      [
+        "Число предъявлений стимула",
+        "",
+        data.results?.reduce(
+          (sum, task) => sum + (task.presentations?.length || 0),
+          0
+        ) || 0,
+      ],
       [],
-      ["Параметры задач"]
+      ["Параметры задач"],
     ];
 
     // Добавляем параметры каждой задачи
@@ -118,14 +129,28 @@ function SessionDetailPage() {
       reportData.push(
         ["№ задачи", index + 1],
         ["Название", task.name || "Не указано"],
-        ["Размер матрицы (строки х столбцы)", `${task.rows || 0}×${task.columns || 0}`],
+        [
+          "Размер матрицы (строки х столбцы)",
+          `${task.rows || 0}×${task.columns || 0}`,
+        ],
         ["Цвет символа", task.symbolColor || "Не указан"],
         ["Цвет фона", task.backgroundColor || "Не указан"],
         ["Вид символа", task.symbolType || "Не указан"],
         ["Шрифт символа", task.symbolFont || "Не указан"],
-        ["Размер символа, пикс.", `ширина - ${task.symbolWidth || 0}`, `высота - ${task.symbolHeight || 0}`],
-        ["Расстояние между символами, пикс.", `гор - ${task.horizontalSpacing || 0}`, `верт - ${task.verticalSpacing || 0}`],
-        ["Время предъявления стимула, с", (task.stimulusTime / 1000).toFixed(2)],
+        [
+          "Размер символа, пикс.",
+          `ширина - ${task.symbolWidth || 0}`,
+          `высота - ${task.symbolHeight || 0}`,
+        ],
+        [
+          "Расстояние между символами, пикс.",
+          `гор - ${task.horizontalSpacing || 0}`,
+          `верт - ${task.verticalSpacing || 0}`,
+        ],
+        [
+          "Время предъявления стимула, с",
+          (task.stimulusTime / 1000).toFixed(2),
+        ],
         ["Время ожидания ответа, с", (task.responseTime / 1000).toFixed(2)],
         ["Время паузы, с", (task.pauseTime / 1000).toFixed(2)],
         []
@@ -136,7 +161,18 @@ function SessionDetailPage() {
     reportData.push(
       [],
       ["Результаты серии"],
-      ["№ п/п", "№ задачи", "Количество ответов", "", "", "Среднее время ответа, с", "Оценка эффективности", "Итоговая оценка", "Производительность", "Нагрузка"],
+      [
+        "№ п/п",
+        "№ задачи",
+        "Количество ответов",
+        "",
+        "",
+        "Среднее время ответа, с",
+        "Оценка эффективности",
+        "Итоговая оценка",
+        "Производительность",
+        "Нагрузка",
+      ],
       ["", "", "правильных", "ошибочных", "пропущенных"]
     );
 
@@ -151,7 +187,7 @@ function SessionDetailPage() {
         (task.avgResponseTime / 1000).toFixed(2),
         (task.successRate / 100).toFixed(2),
         task.performanceScore,
-        task.taskDifficulty
+        task.taskDifficulty,
       ]);
     });
 
@@ -162,11 +198,21 @@ function SessionDetailPage() {
     const fullData = [];
     data.results?.forEach((taskResult, taskIndex) => {
       fullData.push([`Задача ${taskIndex + 1}`]);
-      fullData.push(["№", "X", "Y", "Введенный X", "Введенный Y", "Время (c)", "Корректен", "Результат"]);
+      fullData.push([
+        "№",
+        "X",
+        "Y",
+        "Введенный X",
+        "Введенный Y",
+        "Время (c)",
+        "Корректен",
+        "Результат",
+      ]);
 
       taskResult.presentations?.forEach((pres, idx) => {
-        const isCorrect = pres.userAnswer?.row === pres.correctAnswer?.row && 
-                          pres.userAnswer?.column === pres.correctAnswer?.column;
+        const isCorrect =
+          pres.userAnswer?.row === pres.correctAnswer?.row &&
+          pres.userAnswer?.column === pres.correctAnswer?.column;
         fullData.push([
           idx + 1,
           pres.correctAnswer?.row,
@@ -175,7 +221,7 @@ function SessionDetailPage() {
           pres.userAnswer?.column,
           (pres.responseTime / 1000).toFixed(2),
           isCorrect ? 1 : 0,
-          isCorrect ? "+" : "-"
+          isCorrect ? "+" : "-",
         ]);
       });
       fullData.push([]);
@@ -244,53 +290,59 @@ function SessionDetailPage() {
       : 0;
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3, pb: 7 }}>
-        <SessionBreadCrumbs experimentId={sessionData.experiment._id}/>
+    <Container
+      maxWidth="xl"
+      sx={{
+        p: 3,
+        pb: 0,
+      }}
+    >
+      <SessionBreadCrumbs experimentId={sessionData.experiment._id} />
 
-        <SessionInfo
-          sessionData={{
-            ...sessionData,
-            date: new Date(sessionData.date).toLocaleString(),
-            duration: formatDuration(sessionData.duration),
-            overallEfficiency: Number(overallEfficiency.toFixed(1)),
-            avgResponseTime: Number(avgResponseTime.toFixed(0)),
-            tasksCount: sessionData.results?.length || 0,
-            totalPresentations: overallStats.totalPresentations,
-            totalSuccess: overallStats.totalSuccess,
-            totalErrors: overallStats.totalErrors,
-            totalMisses: overallStats.totalMisses,
-          }}
-          extendedResults={extendedResults}
-        />
+      <SessionInfo
+        sessionData={{
+          ...sessionData,
+          date: new Date(sessionData.date).toLocaleString(),
+          duration: formatDuration(sessionData.duration),
+          overallEfficiency: Number(overallEfficiency.toFixed(1)),
+          avgResponseTime: Number(avgResponseTime.toFixed(0)),
+          tasksCount: sessionData.results?.length || 0,
+          totalPresentations: overallStats.totalPresentations,
+          totalSuccess: overallStats.totalSuccess,
+          totalErrors: overallStats.totalErrors,
+          totalMisses: overallStats.totalMisses,
+        }}
+        extendedResults={extendedResults}
+      />
 
-        <SessionParameters sessionData={sessionData} />
+      <SessionParameters sessionData={sessionData} />
 
-        <AppBar
-          position="fixed"
-          color="inherit"
-          elevation={0}
-          sx={{
-            top: "auto",
-            bottom: 0,
-            borderTop: "1px solid",
-            borderColor: "divider",
-            backgroundColor: "background.default",
-          }}
-        >
-          <Toolbar>
-            <Stack sx={{ flexGrow: 1 }} direction={"row-reverse"} gap={2}>
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => exportSessionData(sessionData)}
-                startIcon={<FileDownloadIcon />}
-                sx={{ px: 4 }}
-              >
-                Экспортировать
-              </Button>
-            </Stack>
-          </Toolbar>
-        </AppBar>
+      <AppBar
+        position="fixed"
+        color="inherit"
+        elevation={0}
+        sx={{
+          top: "auto",
+          bottom: 0,
+          borderTop: "1px solid",
+          borderColor: "divider",
+          backgroundColor: "background.default",
+        }}
+      >
+        <Toolbar>
+          <Stack sx={{ flexGrow: 1 }} direction={"row-reverse"} gap={2}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => exportSessionData(sessionData)}
+              startIcon={<FileDownloadIcon />}
+              sx={{ px: 4 }}
+            >
+              Экспортировать
+            </Button>
+          </Stack>
+        </Toolbar>
+      </AppBar>
     </Container>
   );
 }

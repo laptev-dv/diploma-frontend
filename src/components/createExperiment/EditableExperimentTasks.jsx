@@ -60,13 +60,12 @@ const EditableExperimentTasks = ({
       sx={{
         paddingLeft: 2,
         paddingRight: 1,
-        paddingY: 2,
         height: "100%",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      <Typography variant="subtitle1" gutterBottom>
+      <Typography variant="subtitle1" gutterBottom marginTop={2}>
         Задачи ({tasks.length} шт)
       </Typography>
 
@@ -78,7 +77,7 @@ const EditableExperimentTasks = ({
         <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
           <List
             dense
-            sx={{ paddingRight: 1, height: "100%", overflowY: "auto" }}
+            sx={{ paddingRight: 1, height: "100%", overflowY: "auto", marginBottom: 2 }}
           >
             {tasks.map((task, index) => (
               <React.Fragment key={task.id}>

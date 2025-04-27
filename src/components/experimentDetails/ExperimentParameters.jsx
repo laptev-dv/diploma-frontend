@@ -58,7 +58,7 @@ function ExperimentParameters({ parameters }) {
             }}
           />
 
-          <Box sx={{ display: "flex", gap: 2 }}>
+          <Box sx={{ display: "flex", gap: 2, pb: 10 }}>
             {/* Блок задач */}
             <Box
               sx={{
@@ -66,7 +66,7 @@ function ExperimentParameters({ parameters }) {
                 minWidth: 240,
                 position: "sticky",
                 top: 16,
-                height: "calc(100vh - 130px)",
+                height: "calc(100vh - 16px - 80px)",
               }}
             >
               <ExperimentTasks
@@ -107,7 +107,7 @@ function ExperimentParameters({ parameters }) {
             position: "sticky",
             minWidth: 200,
             top: 16,
-            height: "calc(100vh - 98px)",
+            height: "calc(100vh - 16px - 80px)",
           }}
         >
           <ExperimentPreview
