@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -18,6 +18,7 @@ import ExperimentBreadcrumbs from "../components/experimentDetails/ExperimentBre
 function CreateExperimentPage() {
   const location = useLocation();
   const folderId = location.state?.fromFolder;
+  const copiedExperiment = location.state?.copiedExperiment;
 
   const navigate = useNavigate();
 
@@ -51,6 +52,43 @@ function CreateExperimentPage() {
       aspectRatioLocked: true,
     },
   ]);
+
+  useEffect(() => {
+    if (copiedExperiment) {
+      // Заполняем данные из копируемого эксперимента
+      setExperiment({
+        experimentName: `${copiedExperiment.name} (копия)`,
+        mode: copiedExperiment.mode,
+        presentationsPerTask: copiedExperiment.presentationsPerTask,
+        seriesTime: copiedExperiment.seriesTime,
+        efficiencyMin: copiedExperiment.efficiencyMin,
+        efficiencyMax: copiedExperiment.efficiencyMax,
+        initialTaskNumber: copiedExperiment.initialTaskNumber,
+      });
+
+      // Преобразуем задачи для формы создания
+      const convertedTasks = copiedExperiment.tasks.map((task, index) => ({
+        id: String(index + 1),
+        name: task.name,
+        rows: task.rows,
+        columns: task.columns,
+        backgroundColor: task.backgroundColor,
+        symbolType: task.symbolType,
+        symbolFont: task.symbolFont,
+        symbolWidth: task.symbolWidth,
+        symbolHeight: task.symbolHeight,
+        horizontalPadding: task.horizontalSpacing,
+        verticalPadding: task.verticalSpacing,
+        symbolColor: task.symbolColor,
+        stimulusTime: task.stimulusTime,
+        responseTime: task.responseTime,
+        pauseTime: task.pauseTime,
+        aspectRatioLocked: true,
+      }));
+
+      setTasks(convertedTasks);
+    }
+  }, [copiedExperiment]);
 
   const handleSaveExperiment = async () => {
     try {

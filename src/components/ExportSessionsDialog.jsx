@@ -19,6 +19,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { formatDuration } from './../utils/dateFormatter';
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { exportSessionToXLSX } from '../utils/exportSession'; // Добавлен импорт
 
 function ExportSessionsDialog({ open, onClose, sessions }) {
   const [selectedSessions, setSelectedSessions] = useState([]);
@@ -40,13 +41,17 @@ function ExportSessionsDialog({ open, onClose, sessions }) {
     if (selectedSessions.length === sessions.length) {
       setSelectedSessions([]);
     } else {
-      setSelectedSessions(sessions.map(session => session.id));
+      setSelectedSessions(sessions.map(session => session._id));
     }
   };
 
   const handleExport = () => {
-    // Здесь должна быть логика экспорта выбранных сессий
-    console.log('Экспортировать сессии:', selectedSessions);
+    // Экспорт выбранных сессий
+    sessions
+      .filter(session => selectedSessions.includes(session._id))
+      .forEach(session => {
+        exportSessionToXLSX(session);
+      });
     onClose();
   };
 
@@ -87,12 +92,12 @@ function ExportSessionsDialog({ open, onClose, sessions }) {
           <Divider />
 
           {sessions.map((session) => (
-            <ListItem key={session.id} disablePadding>
-              <ListItemButton onClick={() => handleToggle(session.id)}>
+            <ListItem key={session._id} disablePadding>
+              <ListItemButton onClick={() => handleToggle(session._id)}>
                 <ListItemIcon>
                   <Checkbox
                     edge="start"
-                    checked={selectedSessions.indexOf(session.id) !== -1}
+                    checked={selectedSessions.indexOf(session._id) !== -1}
                     tabIndex={-1}
                     disableRipple
                   />
@@ -101,9 +106,7 @@ function ExportSessionsDialog({ open, onClose, sessions }) {
                   primary={`Сессия от ${format(
                     new Date(session.createdAt),
                     "dd.MM.yyyy HH:mm",
-                    {
-                      locale: ru,
-                    }
+                    { locale: ru }
                   )}
                   `}
                   secondary={`Длительность: ${

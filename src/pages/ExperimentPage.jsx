@@ -28,6 +28,7 @@ import {
   ArrowForward as ArrowForwardIcon,
   ArrowBack as BackIcon,
   Delete as DeleteIcon,
+  ContentCopy as CopyIcon,
 } from "@mui/icons-material";
 import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
 import ExperimentParameters from "../components/experimentDetails/ExperimentParameters";
@@ -37,6 +38,7 @@ import { experimentApi } from "../api/experimentApi";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import ExperimentBreadcrumbs from "../components/experimentDetails/ExperimentBreadCrumbs";
+import { exportSessionToXLSX } from "../utils/exportSession";
 
 function ExperimentPage() {
   const location = useLocation();
@@ -105,7 +107,7 @@ function ExperimentPage() {
   const handleDeleteSession = async (sessionId) => {
     try {
       await sessionApi.delete(sessionId);
-      setSessions(sessions.filter((s) => s.id !== sessionId));
+      setSessions(sessions.filter((s) => s._id !== sessionId));
     } catch (err) {
       setError(err.message);
     }
@@ -149,6 +151,16 @@ function ExperimentPage() {
 
   const handleDeleteClick = () => {
     setDeleteDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const handleCopyClick = () => {
+    navigate("/experiment/create", {
+      state: {
+        copiedExperiment: experiment,
+        fromFolder: folderId,
+      },
+    });
     handleMenuClose();
   };
 
@@ -274,6 +286,10 @@ function ExperimentPage() {
                   <EditIcon fontSize="small" sx={{ mr: 1 }} />
                   Редактировать
                 </MenuItem>
+                <MenuItem onClick={handleCopyClick}>
+                  <CopyIcon fontSize="small" sx={{ mr: 1 }} />
+                  Копировать
+                </MenuItem>
                 <MenuItem onClick={handleDeleteClick}>
                   <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
                   Удалить
@@ -300,7 +316,7 @@ function ExperimentPage() {
                         <SessionItem
                           session={session}
                           onDelete={handleDeleteSession}
-                          onExport={() => {}}
+                          onExport={() => exportSessionToXLSX(session)}
                           showDivider={
                             index !== sessions.length - 1 && index !== 2
                           }

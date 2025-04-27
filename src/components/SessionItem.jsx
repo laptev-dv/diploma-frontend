@@ -1,7 +1,6 @@
 import React from "react";
 import {
   ListItem,
-  ListItemText,
   IconButton,
   Divider,
   Tooltip,
@@ -14,7 +13,7 @@ import {
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { formatDuration } from './../utils/dateFormatter';
+import { formatDuration } from "./../utils/dateFormatter";
 
 function SessionItem({ session, showDivider, onClick, onDelete, onExport }) {
   const handleExportClick = (e) => {
@@ -37,39 +36,38 @@ function SessionItem({ session, showDivider, onClick, onDelete, onExport }) {
           "&:hover": {
             backgroundColor: "action.hover",
           },
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
-        <ListItemText
-          primary={session.author}
-          secondary={
-            <Box>
-              <Typography variant="body2" color="#000">
-                Сессия от{" "}
-                {format(new Date(session.createdAt), "dd.MM.yyyy HH:mm", {
-                  locale: ru,
-                })}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Длительность:{" "}
-                {session.totalSeriesTime > 0
-                  ? formatDuration(session.totalSeriesTime)
-                  : "—"}
-              </Typography>
-            </Box>
-          }
-        />
-        <Tooltip title="Экспорт результатов">
-          <IconButton onClick={handleExportClick} aria-label="экспорт">
-            <FileDownloadIcon />
-          </IconButton>
-        </Tooltip>
-        {session.isMine && (
+        <Box>
+          <Typography variant="body2" color="#000">
+            Сессия от{" "}
+            {format(new Date(session.createdAt), "dd.MM.yyyy HH:mm", {
+              locale: ru,
+            })}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            Длительность:{" "}
+            {session.totalSeriesTime > 0
+              ? formatDuration(session.totalSeriesTime)
+              : "—"}
+          </Typography>
+        </Box>
+
+        <Box>
+          <Tooltip title="Экспорт результатов">
+            <IconButton onClick={handleExportClick} aria-label="экспорт">
+              <FileDownloadIcon />
+            </IconButton>
+          </Tooltip>
+
           <Tooltip title="Удалить сессию">
             <IconButton onClick={handleDeleteClick} aria-label="удалить">
               <DeleteIcon />
             </IconButton>
           </Tooltip>
-        )}
+        </Box>
       </ListItem>
       {showDivider && <Divider sx={{ my: 1 }} />}
     </>

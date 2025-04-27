@@ -14,13 +14,12 @@ import {
   Alert,
 } from "@mui/material";
 import { useParams, Link as RouterLink } from "react-router-dom";
-import {
-  FileDownload as ExportIcon,
-} from "@mui/icons-material";
+import { FileDownload as ExportIcon } from "@mui/icons-material";
 import SessionItem from "../components/SessionItem";
 import ExportSessionsDialog from "../components/ExportSessionsDialog";
 import { sessionApi } from "../api/sessionApi";
 import SessionBreadCrumbs from "../components/sessionDetails/SessionBreadCrumbs";
+import { exportSessionToXLSX } from "../utils/exportSession"; // Добавлен импорт
 
 function SessionsListPage() {
   const theme = useTheme();
@@ -30,7 +29,6 @@ function SessionsListPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Загрузка сессий эксперимента
   useEffect(() => {
     const loadSessions = async () => {
       try {
@@ -82,7 +80,6 @@ function SessionsListPage() {
     <Container maxWidth="xl" sx={{ py: 3 }}>
       <SessionBreadCrumbs experimentId={id} lastName="Все сессии"/>
       <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
-        {/* Шапка с навигацией */}
         <Box
           sx={{
             p: 2,
@@ -96,7 +93,6 @@ function SessionsListPage() {
           </Stack>
         </Box>
 
-        {/* Список сессий */}
         <Box sx={{ p: 2 }}>
           {sessions.length > 0 ? (
             <List disablePadding>
@@ -108,13 +104,11 @@ function SessionsListPage() {
                   >
                     <SessionItem
                       session={session}
-                      onDelete={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
+                      onDelete={() => {
                         handleDeleteSession(session._id);
                       }}
-                      onExport={() => {}}
                       showDivider={index !== sessions.length - 1}
+                      onExport={() => exportSessionToXLSX(session)}
                     />
                   </RouterLink>
                 </Box>
@@ -137,7 +131,6 @@ function SessionsListPage() {
         </Box>
       </Paper>
 
-      {/* Фиксированная панель внизу */}
       <AppBar
         position="fixed"
         color="inherit"

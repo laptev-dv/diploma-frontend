@@ -68,17 +68,28 @@ const buildReportSheet = (sessionData) => {
 
   sessionData.results.forEach((taskResult, index) => {
     const { presentations, task } = taskResult;
-    const correct = presentations.filter(p => 
-      p.userAnswer.row === p.correctAnswer.row && 
-      p.userAnswer.column === p.correctAnswer.column
-    ).length;
     
-    const error = presentations.filter(p => 
-      p.userAnswer.row !== p.correctAnswer.row || 
-      p.userAnswer.column !== p.correctAnswer.column
-    ).length;
-    
-    const miss = presentations.length - correct - error;
+    // Новый подсчет с учетом null userAnswer
+    let correct = 0;
+    let error = 0;
+    let miss = 0;
+
+    presentations.forEach(p => {
+      if (!p.userAnswer) {
+        miss++;
+        return;
+      }
+      
+      const isCorrect = p.userAnswer.row === p.correctAnswer.row && 
+                        p.userAnswer.column === p.correctAnswer.column;
+      
+      if (isCorrect) {
+        correct++;
+      } else {
+        error++;
+      }
+    });
+
     const avgTime = presentations.reduce((sum, p) => sum + p.responseTime, 0) / presentations.length;
     const successRate = correct / presentations.length;
     const performance = successRate * (1 - avgTime / 10000);
@@ -89,7 +100,7 @@ const buildReportSheet = (sessionData) => {
       index + 1,
       correct,
       error,
-      miss,
+      miss, // Теперь используем явно подсчитанный miss
       (avgTime / 1000).toFixed(2),
       successRate.toFixed(2),
       performance.toFixed(2),
@@ -110,17 +121,21 @@ const buildFullDataSheet = (sessionData) => {
     ]);
 
     taskResult.presentations.forEach((pres, idx) => {
-      const isCorrect = pres.userAnswer.row === pres.correctAnswer.row && 
-                        pres.userAnswer.column === pres.correctAnswer.column;
+      const hasAnswer = !!pres.userAnswer;
+      const isCorrect = hasAnswer 
+        ? pres.userAnswer.row === pres.correctAnswer.row && 
+          pres.userAnswer.column === pres.correctAnswer.column
+        : false;
+
       rows.push([
         idx + 1,
         pres.correctAnswer.row,
         pres.correctAnswer.column,
-        pres.userAnswer.row,
-        pres.userAnswer.column,
+        hasAnswer ? pres.userAnswer.row : "-",
+        hasAnswer ? pres.userAnswer.column : "-",
         (pres.responseTime / 1000).toFixed(2),
         isCorrect ? 1 : 0,
-        isCorrect ? "+" : "-"
+        hasAnswer ? (isCorrect ? "+" : "-") : "пропуск"
       ]);
     });
     rows.push([]);
