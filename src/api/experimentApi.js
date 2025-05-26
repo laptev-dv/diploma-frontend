@@ -1,4 +1,4 @@
-import axios from '../axios';
+import axios from '../utils/axios';
 
 export const experimentApi = {
   // Получение всех экспериментов с фильтрацией и сортировкой

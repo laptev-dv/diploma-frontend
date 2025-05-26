@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Autocomplete, TextField, Box, CircularProgress } from '@mui/material';
-import axios from 'axios';
+import axios from '../utils/axios';
 
 const CACHE_KEY = 'google-fonts-cache';
 const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 часа
