@@ -1,7 +1,6 @@
 import React from 'react';
 import { Autocomplete, TextField } from '@mui/material';
 
-// Расширенный набор символов с дополнительными группами
 const symbolGroups = [
   {
     name: "Латинские буквы",

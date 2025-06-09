@@ -22,7 +22,7 @@ const baseHeight = 12;
 const maxHeight = 40;
 
 function EditableTimeParameters({ parameters, onParamChange }) {
-  // Конвертер единиц
+  // Конвертер единиц измерения
   const toSeconds = (ms) => (ms / 1000).toFixed(1);
   const toMilliseconds = (s) => Math.round(Number(s) * 1000);
 
@@ -69,7 +69,7 @@ function EditableTimeParameters({ parameters, onParamChange }) {
   // Расчет процентов для прогресс-бара
   const calculatePercentage = (timeMs) => (timeMs / totalTimeMs) * 100;
 
-  // Получение ширины сегмента в зависимости от наведения
+  // Получение ширины сегмента в зависимости от наведения курсором
   const getSegmentHeight = (segment) => {
     if (!hoveredItem) return baseHeight;
 
@@ -125,7 +125,7 @@ function EditableTimeParameters({ parameters, onParamChange }) {
     );
   };
 
-  // Рендер строки таблицы с обработчиками наведения
+  // Рендер строки таблицы с обработчиками наведения курсором
   const renderTableRow = (label, value, color = null, hoverKey = null) => {
     return (
       <TableRow

@@ -10,17 +10,17 @@ function RegisterForm() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        height: '100vh', // Занимает всю высоту экрана
+        height: '100vh',
       }}
     >
       <Box
         sx={{
-          width: '50%', // Ширина контейнера — половина страницы
-          maxWidth: 400, // Максимальная ширина (опционально)
-          padding: 3, // Внутренние отступы
-          boxShadow: 3, // Тень для контейнера
-          borderRadius: 2, // Закругленные углы
-          bgcolor: 'background.paper', // Цвет фона контейнера
+          width: '50%', 
+          maxWidth: 400,
+          padding: 3,
+          boxShadow: 3,
+          borderRadius: 2,
+          bgcolor: 'background.paper',
         }}
       >
         <Typography variant="h4" gutterBottom align="center">

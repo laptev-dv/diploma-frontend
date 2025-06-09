@@ -52,7 +52,7 @@ function LoginPage() {
   return (
     <Container maxWidth="sm" sx={{ py: 3 }}>
       <Paper elevation={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
-        {/* Серая шапка */}
+        {/* Шапка */}
         <Box
           sx={{
             padding: 2,

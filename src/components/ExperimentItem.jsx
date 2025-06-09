@@ -35,7 +35,7 @@ function ExperimentItem({ experiment }) {
           {experiment.name}
         </Typography>
       </Stack>
-      {/* Чип режима - позиционирован абсолютно справа */}
+      {/* Чип режима работы */}
       <Chip
         label={experiment.mode === "adaptive" ? "Адаптивный" : "Жёсткий"}
         size="small"

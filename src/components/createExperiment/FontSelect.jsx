@@ -57,7 +57,7 @@ const FontSelect = ({ value, onChange }) => {
         if (cached) {
           const cachedFonts = JSON.parse(cached).fonts;
           setFonts(cachedFonts);
-          preloadFonts(cachedFonts); // Предзагружаем шрифты из кэша даже при ошибке
+          preloadFonts(cachedFonts); // Предзагружаем шрифты из кэша в случае ошибки
         }
         setLoading(false);
       }

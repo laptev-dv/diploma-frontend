@@ -23,7 +23,7 @@ export const authApi = {
     }
   },
 
-  // Выход из системы (добавим на бэкенде)
+  // Выход из системы
   logout: async (token) => {
     try {
       await axios.post('/auth/logout', {}, {

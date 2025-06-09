@@ -23,7 +23,7 @@ function App() {
   return (
     <>
       <Routes>
-        {/* Маршруты для авторизации - доступны ТОЛЬКО для неавторизованных */}
+        {/* Маршруты для авторизации - доступны ТОЛЬКО для НЕАВТОРИЗОВАННЫХ */}
         <Route element={<AuthRedirectRoute />}>
           <Route path="/auth">
             <Route index element={<LoginPage />} />
@@ -34,7 +34,7 @@ function App() {
           </Route>
         </Route>
 
-        {/* Защищённые маршруты - доступны ТОЛЬКО для авторизованных */}
+        {/* Защищённые маршруты - доступны ТОЛЬКО для АВТОРИЗОВАННЫХ */}
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<LibraryPage />} />

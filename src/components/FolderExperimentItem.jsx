@@ -39,7 +39,7 @@ function FolderExperimentItem({ experiment, onRemove }) {
       </Stack>
 
       <Stack direction="row" alignItems='center' spacing={1}>
-        {/* Чип режима - позиционирован абсолютно справа */}
+        {/* Чип режима работы */}
         <Chip
           label={experiment.mode === "adaptive" ? "Адаптивный" : "Жёсткий"}
           size="small"

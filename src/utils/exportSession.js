@@ -69,7 +69,6 @@ const buildReportSheet = (sessionData) => {
   sessionData.results.forEach((taskResult, index) => {
     const { presentations, task } = taskResult;
     
-    // Новый подсчет с учетом null userAnswer
     let correct = 0;
     let error = 0;
     let miss = 0;
@@ -100,7 +99,7 @@ const buildReportSheet = (sessionData) => {
       index + 1,
       correct,
       error,
-      miss, // Теперь используем явно подсчитанный miss
+      miss,
       (avgTime / 1000).toFixed(2),
       successRate.toFixed(2),
       performance.toFixed(2),
@@ -155,6 +154,5 @@ export const exportSessionToXLSX = (sessionData) => {
   const fullDataSheet = XLSX.utils.aoa_to_sheet(buildFullDataSheet(sessionData));
   XLSX.utils.book_append_sheet(workbook, fullDataSheet, "Полные данные");
 
-  // Генерация файла
   XLSX.writeFile(workbook, `Сессия_${sessionData._id}_${Date.now()}.xlsx`);
 };

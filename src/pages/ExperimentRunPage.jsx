@@ -69,7 +69,6 @@ const ExperimentRunPage = () => {
   const [vignetteColor, setVignetteColor] = useState(null);
   const [vignetteKey, setVignetteKey] = useState(0);
 
-  // Получаем данные эксперимента
   const tasks = useMemo(() => experiment?.tasks || [], [experiment]);
   const mode = useMemo(() => experiment?.mode || "strict", [experiment]);
   const presentationsPerTask = useMemo(
@@ -458,17 +457,14 @@ const ExperimentRunPage = () => {
 const getPlatform = () => {
   const userAgent = navigator.userAgent || navigator.vendor || window.opera;
   
-  // Проверка iOS
   if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
     return 'Mobile';
   }
   
-  // Проверка Android
   if (/android/i.test(userAgent)) {
     return 'Mobile';
   }
   
-  // Все остальное считаем десктопом
   return 'Desktop';
 };
 

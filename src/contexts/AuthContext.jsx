@@ -33,7 +33,7 @@ export function AuthProvider({ children }) {
           setUser(JSON.parse(storedUser));
           setIsAuthenticated(true);
           
-          // Редирект с auth-страниц если уже авторизован
+          // Редирект с auth-страниц если пользователь уже авторизован
           if (['/auth', '/auth/login', '/auth/register'].includes(location.pathname)) {
             navigate('/library');
           }

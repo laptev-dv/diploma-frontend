@@ -67,7 +67,7 @@ const PresentationNavigation = ({
 
         <Chip
         color={answerStatus.color}
-          icon={answerStatus.icon} // иконка зависит от результата
+          icon={answerStatus.icon}
           label={
             <Box
                 component="span"

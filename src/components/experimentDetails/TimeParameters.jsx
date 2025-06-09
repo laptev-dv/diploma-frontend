@@ -49,7 +49,7 @@ function TimeParameters({ parameters }) {
   // Расчет процентов для прогресс-бара
   const calculatePercentage = (timeMs) => (timeMs / totalTimeMs) * 100;
 
-  // Получение ширины сегмента в зависимости от наведения
+  // Получение ширины сегмента в зависимости от наведения курсором
   const getSegmentHeight = (segment) => {
     if (!hoveredItem) return baseHeight;
 
@@ -67,7 +67,7 @@ function TimeParameters({ parameters }) {
     return baseHeight;
   };
 
-  // Визуализация вертикального прогресс-бара
+  // Визуализация прогресс-бара
   const renderTimeBar = () => {
     const stimulusMs = parameters.stimulusTime || 500;
     const responseMs = parameters.responseTime || 1000;
@@ -105,7 +105,7 @@ function TimeParameters({ parameters }) {
     );
   };
 
-  // Рендер строки таблицы с обработчиками наведения
+  // Рендер строки таблицы с обработчиками наведения курсоров
   const renderTableRow = (label, value, color = null, hoverKey = null) => {
     return (
       <TableRow

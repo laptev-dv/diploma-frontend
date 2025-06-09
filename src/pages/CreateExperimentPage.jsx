@@ -134,7 +134,6 @@ function CreateExperimentPage() {
       // Отправляем запрос на сервер
       const response = await experimentApi.create(experimentData);
 
-      // После успешного создания переходим на страницу эксперимента
       if (response.data?._id) {
         navigate(`/experiment/${response.data._id}`);
       } else {
