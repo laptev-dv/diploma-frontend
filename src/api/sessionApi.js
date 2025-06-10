@@ -44,5 +44,19 @@ export const sessionApi = {
     } catch (error) {
       throw error.response?.data || error;
     }
+  },
+
+   // Экспорт сессии в PDF
+  exportToPDF: async (sessionId) => {
+    try {
+      const response = await axios.post(
+        `/sessions/${sessionId}/export-pdf`, 
+        {},
+        { responseType: 'blob' }
+      );
+      return response;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
   }
 };
