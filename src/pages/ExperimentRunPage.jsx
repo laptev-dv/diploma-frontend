@@ -169,8 +169,15 @@ const ExperimentRunPage = () => {
 
   // Сохранение статистики по выполнению задачи
   const saveTaskExecution = useCallback(() => {
+    const rightAnswers = presentationResults.filter(presentation => 
+      presentation.correctAnswer.row == presentation.userAnswer?.row 
+      && presentation.correctAnswer.column == presentation.userAnswer?.column
+    )
+    const efficiency = parseFloat(rightAnswers.length) / parseFloat(presentationResults.length) * 100
+    
     const taskExecution = {
       taskId: currentTask._id,
+      efficiency,
       presentations: [...presentationResults],
     };
 
