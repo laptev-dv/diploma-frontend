@@ -66,11 +66,11 @@ const SessionResultsTable = ({ results }) => {
                   />
                 </Stack>
               </TableCell>
-              <TableCell align="center">{(task.efficiency * 100).toFixed(1)}%</TableCell>
+              <TableCell align="center">{(task.efficiency).toFixed(4)}</TableCell>
               <TableCell align="center">{formatDuration(task.avgResponseTime)}</TableCell>
               <TableCell align="center">{task.workload.toFixed(4)}</TableCell>
-              <TableCell align="center">{(task.finalScore * 100).toFixed(1)}%</TableCell>
-              <TableCell align="center">{0}</TableCell>
+              <TableCell align="center">{(task.finalScore).toFixed(4)}</TableCell>
+              <TableCell align="center">{0.120}</TableCell>
             </TableRow>
           ))}
         </TableBody>
